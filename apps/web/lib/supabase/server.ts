@@ -1,14 +1,28 @@
-// Phase 0 stub. Phase 1 (auth) replaces this with @supabase/ssr cookie-bound client.
-// See SPEC.md §6.2 and §7.3.
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import type { Database } from './types';
 
-export async function createSupabaseServerClient(): Promise<never> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    throw new Error(
-      '[supabase/server] NEXT_PUBLIC_SUPABASE_URL is not set. ' +
-        'Phase 1 wires this stub to @supabase/ssr.',
-    );
-  }
-  throw new Error(
-    '[supabase/server] not implemented in Phase 0. ' + 'Phase 1 implements per SPEC.md §6.2.',
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options as CookieOptions);
+            });
+          } catch {
+            // RSC-only context — cookies are read-only here. Middleware refreshes them.
+          }
+        },
+      },
+    },
   );
 }

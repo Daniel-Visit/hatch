@@ -1,7 +1,11 @@
-// Phase 0 stub. Phase 1 replaces with @supabase/ssr browser client.
+'use client';
 
-export function createSupabaseBrowserClient(): never {
-  throw new Error(
-    '[supabase/client] not implemented in Phase 0. ' + 'Phase 1 implements per SPEC.md §7.2.',
+import { createBrowserClient } from '@supabase/ssr';
+import type { Database } from './types';
+
+export function createSupabaseBrowserClient() {
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 }
