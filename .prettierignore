@@ -8,3 +8,7 @@ coverage
 .cache
 pnpm-lock.yaml
 prototype/Hatch.html
+# Claude Code harness / agentic-layer files (not project source)
+.claude/
+adws/
+logs/
