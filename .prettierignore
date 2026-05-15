@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+build
+out
+coverage
+.turbo
+.cache
+pnpm-lock.yaml
+prototype/Hatch.html
