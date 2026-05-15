@@ -1,32 +1,117 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: '14.5';
   };
   public: {
     Tables: {
-      categories: {
+      apps: {
         Row: {
-          icon: string;
+          accent: string;
+          art_kind: string;
+          author_id: string;
+          bg: string | null;
+          category_id: string;
+          comments_count: number;
+          cover_url: string | null;
+          created_at: string;
+          description: string;
+          hot_score: number;
+          hue: number;
           id: string;
-          label: string;
-          sort_order: number;
+          is_featured: boolean;
+          is_published: boolean;
+          likes_count: number;
+          link: string;
+          published_at: string;
+          remixes_count: number;
+          saves_count: number;
+          search_vector: unknown;
+          slug: string;
+          tagline: string;
+          tags: string[];
+          title: string;
+          updated_at: string;
+          views_count: number;
         };
         Insert: {
-          icon: string;
-          id: string;
-          label: string;
-          sort_order?: number;
+          accent?: string;
+          art_kind?: string;
+          author_id: string;
+          bg?: string | null;
+          category_id: string;
+          comments_count?: number;
+          cover_url?: string | null;
+          created_at?: string;
+          description?: string;
+          hot_score?: number;
+          hue?: number;
+          id?: string;
+          is_featured?: boolean;
+          is_published?: boolean;
+          likes_count?: number;
+          link: string;
+          published_at?: string;
+          remixes_count?: number;
+          saves_count?: number;
+          search_vector?: unknown;
+          slug: string;
+          tagline: string;
+          tags?: string[];
+          title: string;
+          updated_at?: string;
+          views_count?: number;
         };
         Update: {
-          icon?: string;
+          accent?: string;
+          art_kind?: string;
+          author_id?: string;
+          bg?: string | null;
+          category_id?: string;
+          comments_count?: number;
+          cover_url?: string | null;
+          created_at?: string;
+          description?: string;
+          hot_score?: number;
+          hue?: number;
           id?: string;
-          label?: string;
-          sort_order?: number;
+          is_featured?: boolean;
+          is_published?: boolean;
+          likes_count?: number;
+          link?: string;
+          published_at?: string;
+          remixes_count?: number;
+          saves_count?: number;
+          search_vector?: unknown;
+          slug?: string;
+          tagline?: string;
+          tags?: string[];
+          title?: string;
+          updated_at?: string;
+          views_count?: number;
         };
+        Relationships: [
+          {
+            foreignKeyName: 'apps_author_id_fkey';
+            columns: ['author_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'apps_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      categories: {
+        Row: { icon: string; id: string; label: string; sort_order: number };
+        Insert: { icon: string; id: string; label: string; sort_order?: number };
+        Update: { icon?: string; id?: string; label?: string; sort_order?: number };
         Relationships: [];
       };
       profiles: {
@@ -75,23 +160,14 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      uid: { Args: never; Returns: string };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
+    Views: { [_ in never]: never };
+    Functions: { uid: { Args: never; Returns: string } };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
   };
 };
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
-
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
 
 export type Tables<
@@ -104,9 +180,7 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R;
@@ -130,18 +204,14 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I;
-      }
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends { Insert: infer I }
       ? I
       : never
     : never;
@@ -155,18 +225,14 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U;
-      }
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends { Update: infer U }
       ? U
       : never
     : never;
@@ -180,9 +246,7 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
     ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
@@ -197,16 +261,10 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
     ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never;
 
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const;
+export const Constants = { public: { Enums: {} } } as const;
