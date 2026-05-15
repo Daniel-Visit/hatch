@@ -12,3 +12,5 @@ prototype/Hatch.html
 .claude/
 adws/
 logs/
+# Prototype CSS copied verbatim — must not be reformatted
+apps/web/app/styles/prototype-*.css
