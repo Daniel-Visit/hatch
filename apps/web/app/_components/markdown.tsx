@@ -1,0 +1,15 @@
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+interface MarkdownProps {
+  children: string;
+  className?: string;
+}
+
+export function Markdown({ children, className = 'md' }: MarkdownProps) {
+  return (
+    <div className={className}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+    </div>
+  );
+}
