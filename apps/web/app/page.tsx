@@ -1,15 +1,8 @@
 import Link from 'next/link';
 import { getUser } from '@/lib/auth';
-import type { Database } from '@/lib/supabase/types';
-
-type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 export default async function HomePage() {
   const result = await getUser();
-
-  // Local supabase typing through @supabase/ssr drops the row type to `never`
-  // due to a known ssr<->supabase-js generic mismatch (Phase 1b workaround).
-  const profile = result ? (result.profile as ProfileRow) : null;
 
   return (
     <main
@@ -23,7 +16,7 @@ export default async function HomePage() {
       }}
     >
       <h1 style={{ fontSize: '3rem', fontWeight: 700 }}>Hatch</h1>
-      {profile ? (
+      {result ? (
         <Link
           href="/settings/profile"
           style={{
@@ -34,7 +27,7 @@ export default async function HomePage() {
             textDecoration: 'none',
           }}
         >
-          Hi @{profile.handle} — edit profile
+          Hi @{result.profile.handle} — edit profile
         </Link>
       ) : (
         <Link

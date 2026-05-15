@@ -12,7 +12,7 @@
   "dependencies": {
     "@hatch/shared": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
-    "@supabase/ssr": "^0.5.0",
+    "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.45.0",
     "next": "15.5.18",
     "react": "19.1.0",
@@ -22,10 +22,10 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4.0.0",

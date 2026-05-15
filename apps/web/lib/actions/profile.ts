@@ -29,13 +29,9 @@ export async function updateProfile(
     bio: parsed.data.bio,
     links: parsed.data.links,
   };
-  // Local supabase typing through @supabase/ssr drops the table Update shape to
-  // `never` due to a known ssr<->supabase-js generic mismatch (regenerated in
-  // Phase 1b). Cast the query builder to bypass the broken inference.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (sb.from('profiles') as any).update(payload).eq('id', user.id);
+  const { error } = await sb.from('profiles').update(payload).eq('id', user.id);
 
-  if (error) return { ok: false, error: error.message as string };
+  if (error) return { ok: false, error: error.message };
 
   revalidatePath('/settings/profile');
   return { ok: true, data: { id: user.id } };
