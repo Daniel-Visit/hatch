@@ -1,0 +1,785 @@
+/* ─── Hero (featured row) ─────────────────────────────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--grid-gap);
+  margin-bottom: 36px;
+}
+.hero-main {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow: var(--sh-2);
+  min-height: 360px;
+}
+.hero-main:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-3);
+}
+.hero-art {
+  position: relative;
+  min-height: 320px;
+  align-self: stretch;
+}
+.hero-art .app-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.hero-info {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hero-tag {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ax);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 14px -4px color-mix(in oklab, var(--ax) 50%, transparent);
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+.hero-tagline {
+  font-size: 16px;
+  color: var(--text-2);
+  margin: 0;
+  max-width: 38ch;
+  text-wrap: pretty;
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.hero-cta {
+  display: flex;
+  gap: 10px;
+}
+
+.hero-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--grid-gap);
+}
+.hero-mini {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--sh-1);
+}
+.hero-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-2);
+}
+.hero-mini-art {
+  position: relative;
+  align-self: stretch;
+}
+.hero-mini-art .app-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.hero-mini-info {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.hero-mini-cat {
+  margin-bottom: 4px;
+}
+.hero-mini-info h4 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.hero-mini-info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hero-mini-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 6px;
+}
+.dot-sep {
+  color: var(--muted-2);
+}
+
+/* ─── Section heads ───────────────────────────────────────────────────── */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0 18px;
+}
+.section-head h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.section-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ─── Grid ─────────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--grid-gap);
+}
+[data-density='compact'] .grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+[data-density='comfy'] .grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* ─── App preview "art" composition (used inside all cards) ───────────── */
+.app-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  isolation: isolate;
+}
+.art-glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  z-index: 2;
+}
+.art-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.art-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.art-grid5 {
+  position: absolute;
+  inset: 12%;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.18) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 2px, transparent 2px);
+  background-size: 20% 20%;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+}
+.art-grid8 {
+  position: absolute;
+  inset: 14%;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 12.5% 12.5%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+.art-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.art-blob {
+  position: absolute;
+  width: 50%;
+  height: 60%;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+.art-stripe {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  width: 8%;
+  border-radius: 4px;
+  opacity: 0.9;
+}
+.art-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140px;
+  height: 140px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.art-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50%;
+  aspect-ratio: 1.5;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.art-trail {
+  position: absolute;
+  left: 10%;
+  top: 30%;
+  width: 70%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
+  border-radius: 999px;
+  transform: rotate(-12deg);
+  filter: blur(1px);
+}
+.art-bar {
+  position: absolute;
+  bottom: 10%;
+  width: 6%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px 4px 0 0;
+}
+
+/* ─── Card BASE ───────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s cubic-bezier(0.3, 0.7, 0.4, 1),
+    box-shadow 0.2s,
+    border-color 0.2s;
+  box-shadow: var(--sh-1);
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-2);
+  border-color: var(--border-2);
+}
+.card-preview {
+  position: relative;
+}
+.card-cat {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+}
+.card-body {
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.card-title {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+.card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-tagline {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.tag-ghost {
+  background: transparent;
+}
+.tag-mono {
+  font-family: var(--mono);
+  border-radius: 0;
+}
+.tag-frost {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+}
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+.card-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  min-width: 0;
+}
+.card-author:hover {
+  color: var(--ax);
+}
+.card-author span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #0d0c0a;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+}
+.cat-badge i {
+  font-style: normal;
+  color: var(--muted);
+}
+
+.card-stats {
+  display: inline-flex;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.stat-i {
+  font-style: normal;
+  color: var(--muted-2);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ─── Card variant: STICKER ───────────────────────────────────────────── */
+.card-sticker {
+  border: 2px solid var(--text);
+  box-shadow:
+    6px 6px 0 0 var(--ax),
+    0 0 0 0.5px var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.card-sticker:hover {
+  transform: translate(-2px, -2px);
+  box-shadow:
+    10px 10px 0 0 var(--ax),
+    0 0 0 0.5px var(--border);
+  border-color: var(--text);
+}
+.sticker-tape {
+  position: absolute;
+  top: -8px;
+  right: 24px;
+  z-index: 5;
+  width: 60px;
+  height: 22px;
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in oklab, var(--ax) 75%, white) 0 6px,
+    color-mix(in oklab, var(--ax) 90%, black) 6px 12px
+  );
+  opacity: 0.85;
+  transform: rotate(-4deg);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.sticker-cat {
+  position: absolute;
+  top: 12px;
+  left: -8px;
+  z-index: 3;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff !important;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 2px 2px 0 0 var(--text);
+  transform: rotate(-3deg);
+}
+.sticker-cat .cat-badge {
+  background: transparent !important;
+  color: #fff !important;
+  border: 0;
+  padding: 0;
+  backdrop-filter: none;
+}
+.sticker-cat .cat-badge i {
+  color: rgba(255, 255, 255, 0.7);
+}
+.sticker-heart {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Card variant: DARK ──────────────────────────────────────────────── */
+.card-dark {
+  background: #0a0a0c;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #f5f5f3;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 24px -8px rgba(0, 0, 0, 0.5);
+}
+.card-dark:hover {
+  border-color: var(--ax);
+  box-shadow:
+    0 0 0 1px var(--ax),
+    0 12px 32px -8px color-mix(in oklab, var(--ax) 40%, transparent);
+}
+.card-dark .dark-halo {
+  position: absolute;
+  inset: -40% -40% 60%;
+  background: radial-gradient(circle, var(--ax) 0%, transparent 50%);
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+}
+.card-dark .card-body {
+  position: relative;
+  z-index: 1;
+}
+.card-dark .card-title {
+  color: #fff;
+}
+.card-dark .card-tagline {
+  color: rgba(255, 255, 255, 0.62);
+}
+.card-dark .card-foot {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.card-dark .card-author {
+  color: rgba(255, 255, 255, 0.75);
+}
+.card-dark .tag {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.card-dark .cat-badge {
+  background: rgba(20, 20, 22, 0.85);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.card-dark .card-stats {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Card variant: MONO ──────────────────────────────────────────────── */
+.card-mono {
+  border-radius: 6px;
+  border: 1px solid var(--text);
+  background: var(--surface);
+  font-family: var(--mono);
+  box-shadow: 3px 3px 0 0 var(--text);
+}
+.card-mono:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 var(--text);
+}
+.mono-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+}
+.mono-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+.mono-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text);
+  display: inline-block;
+}
+.mono-dots i:nth-child(2) {
+  opacity: 0.6;
+}
+.mono-dots i:nth-child(3) {
+  opacity: 0.3;
+}
+.mono-path {
+  flex: 1;
+  opacity: 0.6;
+}
+.mono-cat {
+  color: var(--ax);
+  font-weight: 600;
+}
+.mono-preview {
+  border-bottom: 1px solid var(--text);
+}
+.card-mono .card-title {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.card-mono .card-tagline {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-2);
+}
+.card-mono .tag-mono {
+  background: var(--surface);
+  color: var(--ax);
+  border-color: var(--text);
+  font-weight: 600;
+}
+.mono-stats {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mono-stats svg {
+  vertical-align: -1px;
+}
+.card-mono .card-author {
+  font-family: var(--mono);
+}
+
+/* ─── Card variant: BENTO ─────────────────────────────────────────────── */
+.card-bento {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.bento-art {
+  position: absolute;
+  inset: 0;
+}
+.bento-art .app-art {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.bento-cat {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+}
+.bento-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 18px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.45) 60%,
+    transparent 100%
+  );
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(0px);
+}
+.bento-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.card-bento .card-title {
+  color: #fff;
+  font-size: 22px;
+}
+.card-bento .card-tagline {
+  color: rgba(255, 255, 255, 0.88);
+  -webkit-line-clamp: 2;
+}
+.bento-likes {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+.bento-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 6px;
+}
+.card-bento .card-author {
+  color: rgba(255, 255, 255, 0.95);
+}
+.card-bento .card-author:hover {
+  color: #fff;
+}
+
+/* ─── Empty state ─────────────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 80px 40px;
+  text-align: center;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+}
+.empty-glyph {
+  font-size: 56px;
+  color: var(--muted-2);
+}
+.empty h3 {
+  font-family: var(--display);
+  margin: 4px 0;
+  font-size: 20px;
+}
+.empty p {
+  color: var(--muted);
+  margin: 0 0 16px;
+}
