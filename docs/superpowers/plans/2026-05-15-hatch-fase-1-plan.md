@@ -1,246 +1,122 @@
-# Hatch Phase 1 Implementation Plan — Auth + Base Schema
+# Hatch Phase 1 Implementation Plan — Auth + Base Schema (1a local / 1b cloud)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement **Phase 1a** task-by-task. **Phase 1b is executed by the main controller agent via the Supabase MCP** (project ref `vcbdtjjkkwryvmqbflah`), NOT by subagents.
 
-**Goal:** Wire Supabase Auth (Google + GitHub OAuth) and ship base schema (`profiles` + `categories` + RLS) so a user can sign in via OAuth, get a `profiles` row auto-created, and edit their bio.
+**Goal:** Wire Supabase Auth (GitHub + Google OAuth) and ship base schema (`profiles` + `categories` + RLS) so a user can sign in via OAuth, get a `profiles` row auto-created by trigger, and edit their bio.
 
-**Architecture:** Supabase cloud (no local stack — no Docker) hosts Postgres + Auth. `apps/web` consumes via `@supabase/ssr` (cookie-bound server client + browser client) plus a service-role admin client for server actions only. Two SQL migrations (`0001_init.sql` for extensions + `profiles` + trigger; `0002_categories.sql` for the static category list) applied via `supabase db push --linked`. RLS enabled on every public table from day 1. Real Supabase clients replace the throwing stubs from Phase 0.
+**Architecture:** Supabase cloud (project ref `vcbdtjjkkwryvmqbflah`) hosts Postgres + Auth. `apps/web` consumes via `@supabase/ssr` (cookie-bound server client + browser client) plus a service-role admin client for server actions only. Three SQL migrations (`0001_init.sql` for extensions + `profiles` + trigger; `0002_categories.sql` for the static category list; `0003_rls_phase1.sql` for RLS policies). RLS enabled on every public table from day 1.
 
-**Tech Stack:** Supabase (Postgres + Auth + Storage + Realtime cloud) · `@supabase/ssr` 0.5+ · `@supabase/supabase-js` 2.45+ · Supabase CLI (binary, no Docker) · React Hook Form + Zod for `/settings/profile` form · Next.js 15 App Router server actions.
+**Tech Stack:** Supabase (Postgres + Auth + Storage + Realtime cloud) · `@supabase/ssr` 0.5+ · `@supabase/supabase-js` 2.45+ · **Supabase MCP** (no CLI, no `supabase link`, no DB password) · React Hook Form + Zod for `/settings/profile` form · Next.js 15 App Router server actions.
 
-**Spec source:** `docs/superpowers/specs/2026-05-15-hatch-roadmap-maestro-design.md` (roadmap) and SPEC.md §4.1, §4.2, §5, §6, §16 Phase 1.
+**Auth method (decided):** GitHub OAuth + Google OAuth. User creates the OAuth apps externally and pastes credentials into Supabase Auth dashboard. Callback URL: `https://vcbdtjjkkwryvmqbflah.supabase.co/auth/v1/callback`.
+
+**Spec source:** `docs/superpowers/specs/2026-05-15-hatch-roadmap-maestro-design.md` (roadmap) and `SPEC.md` §4.1, §4.2, §5, §6, §16 Phase 1.
 **Working directory:** `/Users/daniel/Downloads/hatch/`. All `Run:` commands assume this cwd.
-**Pre-condition:** Supabase cloud project exists with URL + anon key + service-role key. Google OAuth and GitHub OAuth apps created and configured in Supabase Auth dashboard. (Task 1 walks through this — manual user steps.)
+
+---
+
+## Split rationale (why 1a / 1b)
+
+| Phase  | Scope                                                                                                                                    | Executor                         | Pre-conditions                                                                                                          |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **1a** | Write all code locally: 3 SQL migrations on disk (not applied), Supabase clients, middleware, auth routes, sign-in, `/settings/profile`. | Subagent loop per task           | None. Migrations stay as `.sql` files. Build/typecheck/lint must pass with a stub `Database` type.                      |
+| **1b** | Activate cloud: apply migrations, configure OAuth providers, regenerate types, smoke E2E flow.                                           | Main controller via Supabase MCP | (1) GitHub + Google OAuth apps created. (2) Both providers enabled in Supabase Auth dashboard. (3) `.env.local` filled. |
+
+**Phase 1a done =** `pnpm typecheck`, `pnpm lint`, `pnpm build` all green + all commits pushed to `main`. Zero external dependency, zero cloud calls.
+
+**Phase 1b done =** sign in with GitHub OR Google works, `profiles` row auto-created, edit bio persists, sign out works.
 
 ---
 
 ## File Structure (locked-in decisions)
 
-| Path                                             | Created/Modified | Responsibility                                                                                                                     |
-| ------------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/db/migrations/0001_init.sql`           | T3               | Postgres extensions (`citext`, `pgcrypto`) + `public.profiles` table + `handle_new_user` trigger.                                  |
-| `packages/db/migrations/0002_categories.sql`     | T4               | `public.categories` table + seed data (8 categories per SPEC §4.2).                                                                |
-| `packages/db/migrations/0003_rls_phase1.sql`     | T5               | RLS policies for `profiles` and `categories` (Phase 3+ adds policies for `apps`, etc.).                                            |
-| `apps/web/lib/supabase/types.ts`                 | T7               | Auto-generated Supabase types — never edit by hand.                                                                                |
-| `apps/web/lib/supabase/server.ts`                | T8               | `createSupabaseServerClient()` — cookie-bound RSC/server-action client. Replaces Phase 0 stub.                                     |
-| `apps/web/lib/supabase/client.ts`                | T8               | `createSupabaseBrowserClient()` — browser client for `'use client'` components. Replaces Phase 0 stub.                             |
-| `apps/web/lib/supabase/admin.ts`                 | T8               | `createSupabaseAdminClient()` — service-role client for server actions only (never RSC, never client). Replaces Phase 0 stub.      |
-| `apps/web/lib/auth.ts`                           | T9               | `getUser()` helper — reads current user from server client; returns `null` if anon. Used by every protected server action and RSC. |
-| `apps/web/middleware.ts`                         | T10              | Refreshes Supabase session cookie on every request that hits an authenticated route.                                               |
-| `apps/web/app/auth/callback/route.ts`            | T11              | OAuth callback — exchanges code for session, redirects to `next` or `/home`.                                                       |
-| `apps/web/app/auth/sign-out/route.ts`            | T11              | Server-side sign-out — calls `supabase.auth.signOut()`, redirects to `/`.                                                          |
-| `apps/web/app/(auth)/sign-in/page.tsx`           | T12              | Sign-in page with Google + GitHub buttons. Routes to Supabase OAuth start URL.                                                     |
-| `apps/web/app/(auth)/layout.tsx`                 | T12              | Centered layout for auth pages (no app shell).                                                                                     |
-| `apps/web/app/settings/profile/page.tsx`         | T13              | RSC that fetches current profile, renders the edit form.                                                                           |
-| `apps/web/app/settings/profile/profile-form.tsx` | T13              | Client component — RHF + Zod form for display name, bio, links.                                                                    |
-| `apps/web/lib/actions/profile.ts`                | T13              | Server action `updateProfile(input)` validated with Zod.                                                                           |
-| `apps/web/lib/zod/profile.ts`                    | T13              | Shared Zod schemas for profile validation.                                                                                         |
-| `apps/web/lib/supabase/types.ts` (re-gen)        | T14              | Re-generate after RLS migration to capture any new column types.                                                                   |
-| `.env.local`                                     | T6               | Real Supabase values — created locally, NOT committed.                                                                             |
+| Path                                              | Created/Modified | Phase  | Responsibility                                                                                                                 |
+| ------------------------------------------------- | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/db/migrations/0001_init.sql`            | T2               | 1a     | Postgres extensions (`citext`, `pgcrypto`) + `public.profiles` table + `handle_new_user` trigger + `touch_updated_at` trigger. |
+| `packages/db/migrations/0002_categories.sql`      | T3               | 1a     | `public.categories` table + seed data (8 categories per SPEC §4.2).                                                            |
+| `packages/db/migrations/0003_rls_phase1.sql`      | T4               | 1a     | RLS policies for `profiles` and `categories` (Phase 3+ adds policies for `apps`, etc.).                                        |
+| `packages/db/README.md`                           | T2               | 1a     | Doc explaining migrations live here as plain numbered `.sql` files, applied via Supabase MCP (no CLI).                         |
+| `apps/web/lib/supabase/types.ts`                  | T5               | 1a     | **Hand-written stub** matching the 3 migrations. Regenerated by MCP in Phase 1b.                                               |
+| `apps/web/lib/supabase/server.ts`                 | T6               | 1a     | `createSupabaseServerClient()` — cookie-bound RSC/server-action client. Replaces Phase 0 stub.                                 |
+| `apps/web/lib/supabase/client.ts`                 | T6               | 1a     | `createSupabaseBrowserClient()` — browser client for `'use client'` components. Replaces Phase 0 stub.                         |
+| `apps/web/lib/supabase/admin.ts`                  | T6               | 1a     | `createSupabaseAdminClient()` — service-role client for server actions only (never RSC, never client). Replaces Phase 0 stub.  |
+| `apps/web/lib/auth.ts`                            | T7               | 1a     | `getUser()` / `requireUser()` helpers — read current user from server client; return `null` if anon.                           |
+| `apps/web/middleware.ts`                          | T8               | 1a     | Refreshes Supabase session cookie on every request.                                                                            |
+| `apps/web/app/auth/callback/route.ts`             | T9               | 1a     | OAuth callback — exchanges code for session, redirects to `next` or `/settings/profile`.                                       |
+| `apps/web/app/auth/sign-out/route.ts`             | T9               | 1a     | Server-side sign-out — calls `supabase.auth.signOut()`, redirects to `/`.                                                      |
+| `apps/web/app/(auth)/layout.tsx`                  | T10              | 1a     | Centered layout for auth pages (no app shell).                                                                                 |
+| `apps/web/app/(auth)/sign-in/page.tsx`            | T10              | 1a     | Sign-in page with GitHub + Google buttons.                                                                                     |
+| `apps/web/app/(auth)/sign-in/sign-in-buttons.tsx` | T10              | 1a     | Client component — OAuth start buttons.                                                                                        |
+| `apps/web/lib/zod/profile.ts`                     | T11              | 1a     | Shared Zod schemas for profile validation.                                                                                     |
+| `apps/web/lib/actions/profile.ts`                 | T11              | 1a     | Server action `updateProfile(input)` validated with Zod.                                                                       |
+| `apps/web/app/settings/profile/page.tsx`          | T11              | 1a     | RSC that fetches current profile, renders the edit form.                                                                       |
+| `apps/web/app/settings/profile/profile-form.tsx`  | T11              | 1a     | Client component — RHF + Zod form for display name and bio.                                                                    |
+| `apps/web/app/page.tsx`                           | T12              | 1a     | Home page — shows sign-in link or profile link based on auth state.                                                            |
+| `.env.local`                                      | (manual)         | 1b pre | Real Supabase values — created by user locally, NOT committed.                                                                 |
+| `apps/web/lib/supabase/types.ts` (regen)          | (MCP)            | 1b     | Regenerated from cloud schema via Supabase MCP after migrations applied.                                                       |
 
 **Naming convention:** Server actions live in `apps/web/lib/actions/<domain>.ts`. Each action exports `'use server'` async functions returning `{ ok: true, data } | { ok: false, error }` per SPEC §7.4. Zod schemas live in `apps/web/lib/zod/<domain>.ts` so they can be reused server + client.
 
 ---
 
-## Task 1: Pre-conditions — Supabase project + OAuth apps
+# Phase 1a — Local implementation (subagent-driven)
 
-> **MANUAL USER SETUP.** No code in this task. The implementer subagent must walk through these and confirm each is done before Task 2 starts. If any item is missing, STOP and report BLOCKED to the user — they must complete the setup outside the agent before continuing.
+Pre-conditions:
 
-**Files:** none
+- Phase 0 complete (already on `main`, 12 commits).
+- Working directory clean except for the docs files mentioned in `git status`.
+- No OAuth setup required for Phase 1a. The code references OAuth provider keys (`'github'`, `'google'`) but won't be invoked until Phase 1b.
 
-- [ ] **Step 1: Confirm Supabase project exists**
-
-User must have a Supabase cloud project at https://supabase.com/dashboard. Required values:
-
-- Project URL (looks like `https://xxxxx.supabase.co`)
-- `anon` public key (Settings → API)
-- `service_role` secret key (Settings → API — never expose this client-side)
-- Project ref (the `xxxxx` from the URL — needed for CLI link)
-
-Verify with user: ask "Is your Supabase project created and what's the project ref?"
-
-- [ ] **Step 2: Confirm GitHub OAuth app**
-
-User must create a GitHub OAuth app at https://github.com/settings/developers → "New OAuth App":
-
-- Application name: `Hatch (dev)` or similar
-- Homepage URL: `http://localhost:3000`
-- Authorization callback URL: `https://<project-ref>.supabase.co/auth/v1/callback`
-- After creation, copy Client ID and Client Secret
-
-Then in Supabase Dashboard → Authentication → Providers → GitHub: paste Client ID + Secret, enable.
-
-Verify with user: "Is GitHub OAuth enabled in Supabase? You should see a green check next to GitHub in Authentication → Providers."
-
-- [ ] **Step 3: Confirm Google OAuth app**
-
-User must create a Google OAuth client at https://console.cloud.google.com/apis/credentials → "Create Credentials" → "OAuth client ID":
-
-- Application type: Web application
-- Authorized redirect URIs: `https://<project-ref>.supabase.co/auth/v1/callback`
-- Authorized JavaScript origins: `http://localhost:3000` and (later) production domain
-- After creation, copy Client ID and Client Secret
-
-Then in Supabase Dashboard → Authentication → Providers → Google: paste Client ID + Secret, enable.
-
-Verify with user: "Is Google OAuth enabled in Supabase?"
-
-- [ ] **Step 4: Confirm allowed redirect URLs**
-
-In Supabase Dashboard → Authentication → URL Configuration:
-
-- Site URL: `http://localhost:3000`
-- Additional Redirect URLs: `http://localhost:3000/auth/callback`
-
-Verify with user.
-
-- [ ] **Step 5: Report status**
-
-Report back to the controller with:
-
-- Project ref (the `xxxxx`)
-- Whether GitHub OAuth is enabled
-- Whether Google OAuth is enabled
-- Status: DONE or BLOCKED (missing items)
-
-If BLOCKED, the user must complete the missing items before Task 2.
+Execution discipline: subagent per task → spec reviewer → code-quality reviewer → commit → next. Continuous, no pauses between tasks except real `BLOCKED`.
 
 ---
 
-## Task 2: Install Supabase CLI + link project
-
-**Files:** none (CLI install + link operation)
-
-- [ ] **Step 1: Install Supabase CLI**
-
-Run:
-
-```bash
-brew install supabase/tap/supabase
-```
-
-Expected: installs the `supabase` binary. Verify with `supabase --version` (should print a version like `2.x.x`).
-
-If brew is not available, alternative: `pnpm add -DW supabase` (workspace dev dep — installs binary at `node_modules/.bin/supabase`). Use `pnpm exec supabase` for commands in that case.
-
-> Note: `supabase start` requires Docker. We do NOT use it. The CLI commands we DO use (`link`, `db push`, `gen types`, `migration new`) work without Docker against the cloud project.
-
-- [ ] **Step 2: Initialize Supabase config in packages/db**
-
-Run:
-
-```bash
-cd packages/db && supabase init && cd ../..
-```
-
-Expected: creates `packages/db/supabase/` directory with `config.toml`. The `supabase init` command may ask whether to generate VS Code settings and Deno settings — answer No to both (we don't need them).
-
-Move the `supabase/migrations/` it just created to merge with our existing `packages/db/migrations/`. Actually `supabase init` puts migrations under `packages/db/supabase/migrations/`. We need to align on ONE location — pick `packages/db/supabase/migrations/` since that's the CLI default and no config gymnastics needed.
-
-If `packages/db/migrations/.gitkeep` exists from Phase 0, MOVE it:
-
-```bash
-mkdir -p packages/db/supabase/migrations
-mv packages/db/migrations/.gitkeep packages/db/supabase/migrations/.gitkeep
-rmdir packages/db/migrations
-```
-
-- [ ] **Step 3: Update packages/db/README.md**
-
-Replace contents of `packages/db/README.md` with:
-
-````markdown
-# @hatch/db
-
-SQL migrations for the Hatch Supabase project.
-
-Migrations live under `supabase/migrations/` (Supabase CLI default).
-Numbering follows the Supabase CLI convention: `<timestamp>_<name>.sql`.
-
-## Apply migrations to cloud
-
-```bash
-# One-time: link to your Supabase project
-supabase link --project-ref <project-ref>
-
-# Push all pending migrations
-supabase db push
-```
-
-## Generate TS types after migration
-
-```bash
-supabase gen types typescript --linked > ../../apps/web/lib/supabase/types.ts
-```
-
-See `../../SPEC.md` §4 (data model) and `../../docs/superpowers/specs/2026-05-15-hatch-roadmap-maestro-design.md` for the migration roadmap.
-````
-
-- [ ] **Step 4: Link the local config to the cloud project**
-
-Run:
-
-```bash
-cd packages/db && supabase link --project-ref <PROJECT_REF> && cd ../..
-```
-
-Replace `<PROJECT_REF>` with the value the user provided in Task 1.
-
-Expected: prompts for the database password (Supabase Dashboard → Settings → Database). After password, links and prints "Finished supabase link".
-
-If the user hasn't shared the password, STOP and ask them for the database password (it's in Supabase Dashboard → Settings → Database → Connection string).
-
-- [ ] **Step 5: Verify link**
-
-Run: `cd packages/db && supabase status && cd ../..`
-Expected: prints info about the linked project (URL, region, etc.). If it errors with "not linked", repeat Step 4.
-
-- [ ] **Step 6: Add gitignore for Supabase CLI cache**
-
-Add to root `.gitignore` (append):
-
-```
-# Supabase CLI cache
-packages/db/supabase/.branches/
-packages/db/supabase/.temp/
-```
-
-- [ ] **Step 7: Commit**
-
-Run:
-
-```bash
-git add packages/db/ .gitignore
-git commit -m "feat(db): supabase CLI linked to cloud project"
-```
-
-> Note: don't commit any `supabase/.env` or local credential files. The link is stored in `supabase/.temp/` which is gitignored.
-
----
-
-## Task 3: Migration `0001_init.sql` — extensions + profiles + trigger
+## Task 1: Verify Phase 0 baseline + clean migration directory
 
 **Files:**
 
-- Create: `packages/db/supabase/migrations/<timestamp>_init.sql`
+- Modify: `packages/db/migrations/.gitkeep` (delete if present — we'll add real migrations next)
 
-- [ ] **Step 1: Create the migration file**
+- [ ] **Step 1: Verify Phase 0 build is green**
 
 Run:
 
 ```bash
-cd packages/db && supabase migration new init && cd ../..
+pnpm typecheck && pnpm lint && pnpm build
 ```
 
-Expected: creates `packages/db/supabase/migrations/<YYYYMMDDHHMMSS>_init.sql` (empty).
+Expected: all three exit 0. If any fails, STOP and report — Phase 1a builds on Phase 0.
 
-- [ ] **Step 2: Write the migration content**
+- [ ] **Step 2: Verify migrations directory exists**
 
-Open the new file (find it with `ls packages/db/supabase/migrations/`), replace its contents with:
+Run: `ls -la packages/db/migrations/`
+Expected: directory exists (created in Phase 0). May contain only `.gitkeep`.
+
+- [ ] **Step 3: Remove .gitkeep if present**
+
+Run: `rm -f packages/db/migrations/.gitkeep`
+We'll commit real migrations in the next tasks; the placeholder is no longer needed.
+
+- [ ] **Step 4: No commit yet**
+
+The `.gitkeep` deletion will be committed together with the first migration in Task 2.
+
+---
+
+## Task 2: Migration `0001_init.sql` — extensions + profiles + trigger
+
+**Files:**
+
+- Create: `packages/db/migrations/0001_init.sql`
+- Modify: `packages/db/README.md`
+
+- [ ] **Step 1: Write the migration file**
+
+Create `packages/db/migrations/0001_init.sql` with:
 
 ```sql
 -- Phase 1: extensions + profiles table + auth trigger
--- Per SPEC.md §4.1
+-- Per SPEC.md §4.1 and roadmap §5.4 (notification_prefs uses push-only keys, no email)
 
 -- Extensions
 create extension if not exists citext;
@@ -324,41 +200,50 @@ create trigger profiles_set_updated_at
   for each row execute function public.touch_updated_at();
 ```
 
-> Note on `notification_prefs`: shape matches roadmap §5.4 (push toggles only — no email since we cut Phase 8). Adding it now in `profiles` saves a future migration.
+> Note on `notification_prefs`: shape matches roadmap §5.4 (push toggles only — no email since Phase 8 is cut). Adding it now in `profiles` saves a future migration.
 
-- [ ] **Step 3: Verify the SQL parses (without applying)**
+- [ ] **Step 2: Update `packages/db/README.md`**
 
-Run: `cd packages/db && supabase db lint && cd ../..`
-Expected: lint passes. If lint isn't available, skip — `db push` in Task 5 will catch syntax errors.
+Overwrite `packages/db/README.md` with:
 
-- [ ] **Step 4: Commit**
+```markdown
+# @hatch/db
 
-Run:
+SQL migrations for the Hatch Supabase project (cloud-only — no local Postgres, no Docker).
+
+Migrations live as plain numbered files: `packages/db/migrations/NNNN_name.sql`.
+
+## How migrations are applied
+
+We do **not** use the Supabase CLI. Migrations are applied via the **Supabase MCP server** (project ref `vcbdtjjkkwryvmqbflah`) from the main controller agent.
+
+To apply a new migration manually outside of the agent flow (rare), copy the SQL into the Supabase Dashboard → SQL Editor → Run.
+
+## TypeScript types
+
+`apps/web/lib/supabase/types.ts` is regenerated by the MCP after each migration. During Phase 1a it's a hand-written stub; Phase 1b regenerates it from the live cloud schema.
+
+See `../../SPEC.md` §4 (data model) and `../../docs/superpowers/plans/2026-05-15-hatch-fase-1-plan.md` for the Phase 1 plan.
+```
+
+- [ ] **Step 3: Commit**
 
 ```bash
-git add packages/db/supabase/migrations/
+git add packages/db/
 git commit -m "feat(db): migration 0001 — profiles + handle_new_user trigger"
 ```
 
 ---
 
-## Task 4: Migration `0002_categories.sql` — categories + seed
+## Task 3: Migration `0002_categories.sql` — categories + seed
 
 **Files:**
 
-- Create: `packages/db/supabase/migrations/<timestamp>_categories.sql`
+- Create: `packages/db/migrations/0002_categories.sql`
 
-- [ ] **Step 1: Create the migration file**
+- [ ] **Step 1: Write the migration file**
 
-Run:
-
-```bash
-cd packages/db && supabase migration new categories && cd ../..
-```
-
-- [ ] **Step 2: Write the migration content**
-
-Replace its contents with:
+Create `packages/db/migrations/0002_categories.sql` with:
 
 ```sql
 -- Phase 1: categories static table + seed
@@ -382,34 +267,24 @@ insert into public.categories (id, label, icon, sort_order) values
   ('web3',         'Web3',          '◇', 80);
 ```
 
-- [ ] **Step 3: Commit**
-
-Run:
+- [ ] **Step 2: Commit**
 
 ```bash
-git add packages/db/supabase/migrations/
+git add packages/db/migrations/0002_categories.sql
 git commit -m "feat(db): migration 0002 — categories table + 8 seed rows"
 ```
 
 ---
 
-## Task 5: Migration `0003_rls_phase1.sql` — RLS for profiles + categories
+## Task 4: Migration `0003_rls_phase1.sql` — RLS for profiles + categories
 
 **Files:**
 
-- Create: `packages/db/supabase/migrations/<timestamp>_rls_phase1.sql`
+- Create: `packages/db/migrations/0003_rls_phase1.sql`
 
-- [ ] **Step 1: Create the migration file**
+- [ ] **Step 1: Write the migration file**
 
-Run:
-
-```bash
-cd packages/db && supabase migration new rls_phase1 && cd ../..
-```
-
-- [ ] **Step 2: Write the migration content**
-
-Replace its contents with:
+Create `packages/db/migrations/0003_rls_phase1.sql` with:
 
 ```sql
 -- Phase 1: RLS policies for profiles + categories
@@ -430,7 +305,7 @@ create policy "profiles update own"
   using (id = auth.uid())
   with check (id = auth.uid());
 
--- categories: readable by anyone, no inserts/updates from clients
+-- categories: readable by anyone, no writes from clients
 alter table public.categories enable row level security;
 
 create policy "categories read for everyone"
@@ -439,151 +314,137 @@ create policy "categories read for everyone"
 
 > Note: no INSERT/DELETE policies on `profiles` because creation happens via the trigger (security definer, runs as superuser) and deletion cascades from `auth.users`. No write policies on `categories` because seeds happen at migration time and updates happen via service role.
 
-- [ ] **Step 3: Commit**
-
-Run:
+- [ ] **Step 2: Commit**
 
 ```bash
-git add packages/db/supabase/migrations/
+git add packages/db/migrations/0003_rls_phase1.sql
 git commit -m "feat(db): migration 0003 — RLS policies for profiles + categories"
 ```
 
 ---
 
-## Task 6: Apply migrations to Supabase cloud + populate `.env.local`
-
-**Files:**
-
-- Create: `.env.local` (NOT committed — gitignored)
-
-- [ ] **Step 1: Push migrations to cloud**
-
-Run:
-
-```bash
-cd packages/db && supabase db push && cd ../..
-```
-
-Expected: prompts to confirm migrations to apply, then runs them. Should print "Finished supabase db push" with the 3 migrations applied.
-
-If it errors with "no migrations found", verify the `.sql` files are inside `packages/db/supabase/migrations/`.
-
-If it errors with "duplicate key" or similar, the migration was already applied — check Supabase Dashboard → Database → Migrations.
-
-- [ ] **Step 2: Verify schema in Supabase Dashboard**
-
-Open https://supabase.com/dashboard/project/<project-ref>/database/tables and verify:
-
-- `public.profiles` table exists with columns matching Task 3
-- `public.categories` table exists with 8 rows
-- RLS is enabled on both (lock icon next to table name)
-
-- [ ] **Step 3: Create `.env.local`**
-
-Copy from `.env.example`:
-
-```bash
-cp .env.example .env.local
-```
-
-Then edit `.env.local` (with whatever editor) and fill in:
-
-```bash
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your anon key from Supabase Settings → API>
-
-SUPABASE_SERVICE_ROLE_KEY=<your service_role key from Supabase Settings → API>
-
-# Phase 8 cut, leave blank
-RESEND_API_KEY=
-RESEND_WEBHOOK_SECRET=
-
-# Generate later (Phase 10)
-CRON_SECRET=
-
-NEXT_PUBLIC_MCP_URL=http://localhost:8080
-
-# apps/mcp
-PORT=8080
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<your service_role key>
-LOG_LEVEL=info
-```
-
-- [ ] **Step 4: Verify `.env.local` is gitignored**
-
-Run: `git status --short | grep env.local`
-Expected: empty output. `.env.local` should NOT appear (it's in root `.gitignore` from Phase 0).
-
-If it appears, STOP and report — root `.gitignore` should already cover it.
-
-- [ ] **Step 5: No commit (env values are not committed)**
-
-This task does not produce a commit. The schema migrations were committed in Tasks 3-5. `.env.local` is local-only.
-
----
-
-## Task 7: Generate Supabase TS types
+## Task 5: Hand-written `Database` type stub
 
 **Files:**
 
 - Create: `apps/web/lib/supabase/types.ts`
 
-- [ ] **Step 1: Generate types from cloud schema**
+This file is a hand-written stub for Phase 1a. Phase 1b regenerates it via MCP. The shape must match the 3 migrations exactly so all downstream code (clients, server actions, RSC) typechecks.
 
-Run:
+- [ ] **Step 1: Write the stub**
 
-```bash
-cd packages/db && supabase gen types typescript --linked > ../../apps/web/lib/supabase/types.ts && cd ../..
-```
+Create `apps/web/lib/supabase/types.ts` with:
 
-Expected: creates `apps/web/lib/supabase/types.ts` with TS interfaces for `profiles`, `categories`, etc.
+```ts
+// Hand-written Phase 1a stub. Regenerated from cloud schema in Phase 1b via Supabase MCP.
+// DO NOT extend by hand for new tables — add the migration first, then regenerate.
 
-- [ ] **Step 2: Verify the file is non-trivial**
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-Run: `wc -l apps/web/lib/supabase/types.ts`
-Expected: > 50 lines (should have generated `Database` interface with `public.Tables.profiles` etc.).
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
 
-If the file is empty or near-empty, the link to the project is wrong or migrations weren't applied. STOP and report.
+export interface NotificationPrefs {
+  push_enabled: boolean;
+  push_likes: boolean;
+  push_follows: boolean;
+  push_comments: boolean;
+  push_messages: boolean;
+  push_contact_requests: boolean;
+}
 
-- [ ] **Step 3: Verify it typechecks**
-
-Run: `pnpm --filter web typecheck`
-Expected: exit 0.
-
-- [ ] **Step 4: Add a script to regenerate types**
-
-Edit `packages/db/package.json` and add a `gen:types` script:
-
-```json
-{
-  "name": "@hatch/db",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "lint": "echo 'no lint for db package'",
-    "typecheck": "echo 'no typecheck for db package'",
-    "build": "echo 'no build for db package'",
-    "gen:types": "supabase gen types typescript --linked > ../../apps/web/lib/supabase/types.ts"
-  }
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          handle: string;
+          display_name: string;
+          bio: string | null;
+          avatar_url: string | null;
+          hue: number;
+          emoji: string | null;
+          links: ProfileLink[];
+          theme_pref: 'light' | 'dark' | 'system';
+          notification_prefs: NotificationPrefs;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          handle: string;
+          display_name: string;
+          bio?: string | null;
+          avatar_url?: string | null;
+          hue?: number;
+          emoji?: string | null;
+          links?: ProfileLink[];
+          theme_pref?: 'light' | 'dark' | 'system';
+          notification_prefs?: NotificationPrefs;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          handle?: string;
+          display_name?: string;
+          bio?: string | null;
+          avatar_url?: string | null;
+          hue?: number;
+          emoji?: string | null;
+          links?: ProfileLink[];
+          theme_pref?: 'light' | 'dark' | 'system';
+          notification_prefs?: NotificationPrefs;
+          updated_at?: string;
+        };
+      };
+      categories: {
+        Row: {
+          id: string;
+          label: string;
+          icon: string;
+          sort_order: number;
+        };
+        Insert: {
+          id: string;
+          label: string;
+          icon: string;
+          sort_order?: number;
+        };
+        Update: {
+          label?: string;
+          icon?: string;
+          sort_order?: number;
+        };
+      };
+    };
+    Views: Record<string, never>;
+    Functions: {
+      uid: { Args: Record<string, never>; Returns: string | null };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
 }
 ```
 
-Now `pnpm --filter @hatch/db gen:types` regenerates types after every schema change.
+- [ ] **Step 2: Verify typecheck passes**
 
-- [ ] **Step 5: Commit**
+Run: `pnpm --filter web typecheck`
+Expected: exit 0. The stub by itself doesn't break anything; the consumer changes come in later tasks.
 
-Run:
+- [ ] **Step 3: Commit**
 
 ```bash
-git add apps/web/lib/supabase/types.ts packages/db/package.json
-git commit -m "feat(web): generated supabase types + gen:types script"
+git add apps/web/lib/supabase/types.ts
+git commit -m "feat(web): hand-written Database type stub (Phase 1a — regenerated in 1b)"
 ```
 
 ---
 
-## Task 8: Real Supabase clients (replace Phase 0 stubs)
+## Task 6: Real Supabase clients (replace Phase 0 stubs)
 
 **Files:**
 
@@ -594,28 +455,15 @@ git commit -m "feat(web): generated supabase types + gen:types script"
 
 - [ ] **Step 1: Add Supabase deps to apps/web**
 
-Edit `apps/web/package.json`. Add to `dependencies`:
+Edit `apps/web/package.json`. Add to `dependencies` (alphabetical with existing entries):
 
 ```json
 "@supabase/ssr": "^0.5.0",
 "@supabase/supabase-js": "^2.45.0"
 ```
 
-The `dependencies` block becomes:
-
-```json
-"dependencies": {
-  "@hatch/shared": "workspace:*",
-  "@supabase/ssr": "^0.5.0",
-  "@supabase/supabase-js": "^2.45.0",
-  "next": "<keep existing version>",
-  "react": "<keep existing version>",
-  "react-dom": "<keep existing version>"
-}
-```
-
 Run: `pnpm install`
-Expected: installs both packages, updates lockfile.
+Expected: installs both packages, updates `pnpm-lock.yaml`.
 
 - [ ] **Step 2: Replace `apps/web/lib/supabase/server.ts`**
 
@@ -679,9 +527,6 @@ import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Service-role client. Bypasses RLS. ONLY use from server actions or webhooks.
-// Never import from a client component or RSC.
-
 export function createSupabaseAdminClient() {
   return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -705,8 +550,6 @@ Expected: both exit 0.
 
 - [ ] **Step 6: Commit**
 
-Run:
-
 ```bash
 git add apps/web/lib/supabase/ apps/web/package.json pnpm-lock.yaml
 git commit -m "feat(web): real supabase clients (server, browser, admin)"
@@ -714,7 +557,7 @@ git commit -m "feat(web): real supabase clients (server, browser, admin)"
 
 ---
 
-## Task 9: `getUser()` auth helper
+## Task 7: `getUser()` / `requireUser()` auth helpers
 
 **Files:**
 
@@ -726,9 +569,6 @@ Create with:
 
 ```ts
 import { createSupabaseServerClient } from './supabase/server';
-
-// Returns the current user's auth row + their profile, or null if not signed in.
-// Use this from server actions and RSCs.
 
 export async function getUser() {
   const supabase = await createSupabaseServerClient();
@@ -757,16 +597,14 @@ Expected: exit 0.
 
 - [ ] **Step 3: Commit**
 
-Run:
-
 ```bash
 git add apps/web/lib/auth.ts
-git commit -m "feat(web): getUser/requireUser auth helper"
+git commit -m "feat(web): getUser/requireUser auth helpers"
 ```
 
 ---
 
-## Task 10: `middleware.ts` — session refresh
+## Task 8: `middleware.ts` — session refresh
 
 **Files:**
 
@@ -810,16 +648,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public assets (.png, .jpg, .svg, .ico)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)'],
 };
 ```
 
@@ -830,8 +659,6 @@ Expected: exit 0.
 
 - [ ] **Step 3: Commit**
 
-Run:
-
 ```bash
 git add apps/web/middleware.ts
 git commit -m "feat(web): middleware refreshes supabase session cookie"
@@ -839,7 +666,7 @@ git commit -m "feat(web): middleware refreshes supabase session cookie"
 
 ---
 
-## Task 11: Auth routes — callback + sign-out
+## Task 9: Auth routes — callback + sign-out
 
 **Files:**
 
@@ -894,8 +721,6 @@ Expected: exit 0.
 
 - [ ] **Step 4: Commit**
 
-Run:
-
 ```bash
 git add apps/web/app/auth/
 git commit -m "feat(web): auth callback + sign-out routes"
@@ -903,7 +728,7 @@ git commit -m "feat(web): auth callback + sign-out routes"
 
 ---
 
-## Task 12: Sign-in page
+## Task 10: Sign-in page with GitHub + Google buttons
 
 **Files:**
 
@@ -1013,8 +838,6 @@ Expected: exit 0. The route group `(auth)` should compile to a route at `/sign-i
 
 - [ ] **Step 5: Commit**
 
-Run:
-
 ```bash
 git add apps/web/app/
 git commit -m "feat(web): sign-in page with github + google OAuth buttons"
@@ -1022,7 +845,7 @@ git commit -m "feat(web): sign-in page with github + google OAuth buttons"
 
 ---
 
-## Task 13: `/settings/profile` page + edit action
+## Task 11: `/settings/profile` page + edit action
 
 **Files:**
 
@@ -1030,19 +853,19 @@ git commit -m "feat(web): sign-in page with github + google OAuth buttons"
 - Create: `apps/web/lib/actions/profile.ts`
 - Create: `apps/web/app/settings/profile/page.tsx`
 - Create: `apps/web/app/settings/profile/profile-form.tsx`
+- Modify: `apps/web/package.json` (add RHF + Zod deps)
 
 - [ ] **Step 1: Add React Hook Form + Zod**
 
 Edit `apps/web/package.json` and add to `dependencies`:
 
 ```json
-"react-hook-form": "^7.53.0",
 "@hookform/resolvers": "^3.9.0",
+"react-hook-form": "^7.53.0",
 "zod": "^3.23.0"
 ```
 
 Run: `pnpm install`
-Expected: installs the 3 packages.
 
 - [ ] **Step 2: Write `apps/web/lib/zod/profile.ts`**
 
@@ -1133,7 +956,7 @@ export default async function SettingsProfilePage() {
         initial={{
           display_name: profile.display_name,
           bio: profile.bio,
-          links: (profile.links as { label: string; url: string }[]) ?? [],
+          links: profile.links ?? [],
         }}
       />
       <form action="/auth/sign-out" method="post" style={{ marginTop: '3rem' }}>
@@ -1243,7 +1066,7 @@ export function ProfileForm({ initial }: Props) {
 }
 ```
 
-> Note: this form does not edit `links` in v1 — `links` is in the schema and Zod but the UI is just display name + bio for Phase 1. Phase 2+ design pass adds the links editor.
+> Note: this form does not edit `links` in v1 — `links` is in the schema and Zod, but the UI is just display name + bio for Phase 1. Phase 2+ design pass adds the links editor.
 
 - [ ] **Step 6: Verify build**
 
@@ -1252,8 +1075,6 @@ Expected: exit 0.
 
 - [ ] **Step 7: Commit**
 
-Run:
-
 ```bash
 git add apps/web/ pnpm-lock.yaml
 git commit -m "feat(web): /settings/profile page with edit form"
@@ -1261,13 +1082,13 @@ git commit -m "feat(web): /settings/profile page with edit form"
 
 ---
 
-## Task 14: Update root home page with sign-in link
+## Task 12: Update root home page with sign-in link
 
 **Files:**
 
 - Modify: `apps/web/app/page.tsx`
 
-- [ ] **Step 1: Update home page**
+- [ ] **Step 1: Overwrite home page**
 
 Overwrite `apps/web/app/page.tsx` with:
 
@@ -1329,8 +1150,6 @@ Expected: exit 0.
 
 - [ ] **Step 3: Commit**
 
-Run:
-
 ```bash
 git add apps/web/app/page.tsx
 git commit -m "feat(web): home page shows sign-in or profile link based on auth"
@@ -1338,90 +1157,107 @@ git commit -m "feat(web): home page shows sign-in or profile link based on auth"
 
 ---
 
-## Task 15: End-to-end smoke test (manual)
+## Task 13: Final Phase 1a verification
 
-This task is a manual verification of the full Phase 1 Done criteria. No code changes.
+This task gates Phase 1a completion. No code changes — just verifications.
 
 **Files:** none
 
-- [ ] **Step 1: Start dev server**
+- [ ] **Step 1: Typecheck the whole monorepo**
 
-Run:
+Run: `pnpm typecheck`
+Expected: exit 0.
 
-```bash
-pnpm dev &
-sleep 8
-```
+- [ ] **Step 2: Lint the whole monorepo**
 
-- [ ] **Step 2: Open the home page**
+Run: `pnpm lint`
+Expected: exit 0.
 
-Open http://localhost:3000 in a browser.
-Expected: shows "Hatch" + "Sign in" link.
+- [ ] **Step 3: Build the whole monorepo**
 
-- [ ] **Step 3: Click "Sign in"**
+Run: `pnpm build`
+Expected: exit 0. Both `web` and `mcp` build cleanly.
 
-Should land at `/sign-in` with two big buttons (GitHub + Google).
+- [ ] **Step 4: Verify git log**
 
-- [ ] **Step 4: Click "Continue with GitHub"**
+Run: `git log --oneline main..HEAD || git log --oneline -10`
+Expected: 11 new commits since Phase 0 (Task 2-12 each commits; Task 1 has no commit; Task 5 commits the type stub). Adjust expectation if any task produced no commit.
 
-Should redirect to GitHub OAuth consent screen, then back to `/auth/callback?code=...`, then to `/settings/profile`.
+- [ ] **Step 5: Push to origin/main**
 
-If redirect fails (lands at `/sign-in?error=auth_failed`), check:
+Run: `git push origin main`
+Expected: pushes cleanly.
 
-- Supabase OAuth settings for GitHub
-- Callback URL matches `https://<project-ref>.supabase.co/auth/v1/callback`
-- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are correct in `.env.local`
+- [ ] **Step 6: Report Phase 1a status**
 
-- [ ] **Step 5: Verify profile row was created**
+Report:
 
-In Supabase Dashboard → Table Editor → `profiles`:
+- `pnpm typecheck`: ✓ / ✗
+- `pnpm lint`: ✓ / ✗
+- `pnpm build`: ✓ / ✗
+- New commits: count
+- Pushed: ✓ / ✗
 
-- A new row with your `id` matching `auth.users.id`
-- `handle` auto-generated from your GitHub username (lowercased, sanitized)
-- `display_name` from your GitHub full name or username
-- `avatar_url` from your GitHub avatar
+If all four are ✓, Phase 1a is COMPLETE. Hand off to controller for Phase 1b.
 
-- [ ] **Step 6: Edit your bio**
+---
 
-In `/settings/profile`:
+# Phase 1b — Cloud activation (controller-only, via Supabase MCP)
 
-- Type a bio (e.g., "Testing Phase 1")
-- Click "Save profile"
-- Should see "Saved." message
-- Refresh the page — bio should persist
+> **Do NOT spawn subagents for Phase 1b.** The main controller agent executes these steps directly using the Supabase MCP server (project ref `vcbdtjjkkwryvmqbflah`) and clear text instructions to the user for the manual dashboard steps.
 
-In Supabase Dashboard → `profiles` row: `bio` column updated, `updated_at` recent.
+## Pre-conditions (user must confirm before 1b starts)
 
-- [ ] **Step 7: Sign out**
+- [ ] Supabase project `vcbdtjjkkwryvmqbflah` exists and is accessible to the user.
+- [ ] GitHub OAuth app created. Client ID + Secret pasted into Supabase Dashboard → Authentication → Providers → GitHub → enabled.
+- [ ] Google OAuth app created. Client ID + Secret pasted into Supabase Dashboard → Authentication → Providers → Google → enabled.
+- [ ] Supabase Dashboard → Authentication → URL Configuration: Site URL = `http://localhost:3000`; Additional Redirect URLs includes `http://localhost:3000/auth/callback`.
+- [ ] `.env.local` created in repo root with:
+  - `NEXT_PUBLIC_SUPABASE_URL=https://vcbdtjjkkwryvmqbflah.supabase.co`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key from Supabase Settings → API>`
+  - `SUPABASE_SERVICE_ROLE_KEY=<service role key from Supabase Settings → API>`
+  - Other Phase 0 env vars left blank or copied from `.env.example`.
 
-Click "Sign out" button.
-Expected: redirected to `/`. Refreshing shows "Sign in" link again.
+The controller should ask the user to confirm each item before starting 1b. If any is missing, STOP and instruct the user how to complete it.
 
-- [ ] **Step 8: Stop dev server**
+## Steps (controller executes via MCP)
 
-Run:
+1. **List existing migrations on cloud.** Use MCP to query `supabase_migrations.schema_migrations` (or whatever the MCP exposes for migration list). Expected: empty (fresh project) or only Supabase defaults. If non-empty with conflicting tables, STOP and ask the user.
 
-```bash
-kill %1 2>/dev/null
-pkill -f "next dev" 2>/dev/null || true
-pkill -f "tsx watch" 2>/dev/null || true
-```
+2. **Apply migration 0001.** Use MCP `apply_migration` (or equivalent) with the contents of `packages/db/migrations/0001_init.sql`. Verify success.
 
-- [ ] **Step 9: Final report**
+3. **Apply migration 0002.** Same with `0002_categories.sql`. Verify success.
 
-Report Phase 1 Done criteria:
+4. **Apply migration 0003.** Same with `0003_rls_phase1.sql`. Verify success.
 
-- Sign in with GitHub: ✓ / ✗
-- Profile row exists: ✓ / ✗
-- Edit bio works and persists: ✓ / ✗
-- Sign out works: ✓ / ✗
-- All commits in `git log`: list count
+5. **Verify schema.** Query the cloud DB via MCP:
+   - `public.profiles` table exists with all expected columns.
+   - `public.categories` table exists with 8 rows.
+   - RLS is enabled on both tables.
+   - Triggers `on_auth_user_created`, `profiles_set_updated_at` exist.
+   - Function `public.uid()` exists.
 
-If all four checks pass, Phase 1 is COMPLETE. Push to remote:
+6. **Regenerate `apps/web/lib/supabase/types.ts`.** Use MCP `gen_types` (or equivalent) to dump the current schema as TypeScript. Overwrite the Phase 1a hand-written stub. Verify the file is non-trivial (> 50 lines).
 
-```bash
-git push origin main
-```
+7. **Verify typecheck still passes.** Run `pnpm --filter web typecheck`. If the regenerated types break a consumer, the controller must fix the consumer in-place (likely just a type narrowing).
+
+8. **Commit regenerated types.** `git add apps/web/lib/supabase/types.ts && git commit -m "feat(web): regenerate Database types from cloud schema (Phase 1b)"`.
+
+9. **Smoke E2E — sign in with GitHub.** Instructions to user:
+   - Run `pnpm dev`.
+   - Open `http://localhost:3000` in a browser.
+   - Click "Sign in" → "Continue with GitHub".
+   - After GitHub consent, should land at `/settings/profile`.
+   - Check Supabase Dashboard → Table Editor → `profiles`: new row with auto-generated handle.
+   - Edit bio, click "Save profile", verify "Saved." appears.
+   - Refresh page, bio persists.
+   - Click "Sign out", verify redirect to `/`.
+
+10. **Smoke E2E — sign in with Google.** Same flow with Google button. Verify second `profiles` row created with handle derived from Google `preferred_username` or email prefix.
+
+11. **Push to origin/main.** `git push origin main`.
+
+12. **Report Phase 1b status.** Each smoke step: ✓ / ✗. If all ✓, Phase 1 is COMPLETE and we can move to Phase 2 (Design system + shell).
 
 ---
 
@@ -1429,40 +1265,42 @@ git push origin main
 
 **Spec coverage check (each SPEC §16 Phase 1 bullet → task):**
 
-| SPEC §16 Phase 1 bullet                              | Task                                                                                                           |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Migration 0001_init.sql                              | T3                                                                                                             |
-| Migration 0002_categories.sql                        | T4                                                                                                             |
-| Enable Google + GitHub OAuth in Supabase             | T1 (manual)                                                                                                    |
-| `lib/supabase/{server,client,admin}.ts`              | T8                                                                                                             |
-| `app/auth/callback/route.ts`                         | T11                                                                                                            |
-| `middleware.ts` session refresh                      | T10                                                                                                            |
-| Sign-in page with two big OAuth buttons              | T12                                                                                                            |
-| `/settings/profile` to edit display name, bio, links | T13 (note: links editor deferred to Phase 2 styling pass — Zod accepts them, form only edits name + bio in v1) |
+| SPEC §16 Phase 1 bullet                              | Task              | Phase |
+| ---------------------------------------------------- | ----------------- | ----- |
+| Migration `0001_init.sql`                            | T2                | 1a    |
+| Migration `0002_categories.sql`                      | T3                | 1a    |
+| Enable Google + GitHub OAuth in Supabase             | Pre-conditions    | 1b    |
+| `lib/supabase/{server,client,admin}.ts`              | T6                | 1a    |
+| `app/auth/callback/route.ts`                         | T9                | 1a    |
+| `middleware.ts` session refresh                      | T8                | 1a    |
+| Sign-in page with two big OAuth buttons              | T10               | 1a    |
+| `/settings/profile` to edit display name, bio, links | T11 (no links UI) | 1a    |
 
 **Additions beyond strict §16 list (justified):**
 
-- T9 `getUser`/`requireUser` helpers — needed by every protected action; cleaner to add now than refactor in Phase 2.
-- T14 home page update — without it, no obvious entry point for sign-in. 5 lines of code.
-- T15 E2E smoke — closes the Phase 1 Done loop ("sign in → profile exists → edit bio").
-- T5 RLS migration — SPEC §5 says "enable RLS on every table from day 1". Profiles + categories deserve their policies now, not deferred.
-- `notification_prefs` column on `profiles` (added in T3) — saves a future migration; matches roadmap §5.4 shape.
-
-**Placeholder scan:** clean. Every code step has complete code. Every command step has expected output. Two `<placeholder>` markers exist (`<PROJECT_REF>` in T2 Step 4; OAuth Client ID/Secret in T1) — these are unavoidable user-supplied values, not author placeholders.
-
-**Type consistency:**
-
-- `createSupabaseServerClient` (T8) used by T9, T11, T13 — same name throughout.
-- `createSupabaseBrowserClient` (T8) used by T12 — same name.
-- `createSupabaseAdminClient` (T8) defined but unused in Phase 1 — Phase 6+ uses it for trigger-side notification writes.
-- `getUser` (T9) used by T12, T13, T14 — same signature.
-- `Database` type (T7) imported by T8, T10, T13 — same source.
-- `UpdateProfileInput` Zod schema (T13) used by both server action and client form — single source of truth.
+- T4 RLS migration — SPEC §5 says "enable RLS on every table from day 1".
+- T5 hand-written `Database` stub — needed because Phase 1a doesn't touch cloud; replaced by MCP-generated types in 1b.
+- T7 `getUser`/`requireUser` helpers — needed by every protected action.
+- T12 home page update — provides an obvious entry point for sign-in.
+- T13 final verification — closes the Phase 1a loop.
+- `notification_prefs` column on `profiles` (added in T2) — saves a future migration; matches roadmap §5.4 shape.
 
 **Adapted from spec deviations (already documented in roadmap):**
 
-- No `supabase start` (no Docker) — use cloud project directly via `supabase db push`.
+- No `supabase start` (no Docker) — use cloud project directly via Supabase MCP (no CLI either).
 - No email — `notification_prefs` shape is push-only.
+- Migration filenames are plain `NNNN_name.sql` (not CLI timestamp format) since we don't use the CLI.
+
+**Placeholder scan:** clean. Every code step has complete code. Every command step has expected output.
+
+**Type consistency:**
+
+- `createSupabaseServerClient` (T6) used by T7, T9, T11 — same name throughout.
+- `createSupabaseBrowserClient` (T6) used by T10 — same name.
+- `createSupabaseAdminClient` (T6) defined but unused in Phase 1 — Phase 6+ uses it.
+- `getUser` (T7) used by T10, T11, T12 — same signature.
+- `Database` type (T5) imported by T6, T8, T11 — same source; regenerated in 1b without changing its name.
+- `UpdateProfileInput` Zod schema (T11) used by both server action and client form — single source of truth.
 
 ---
 
