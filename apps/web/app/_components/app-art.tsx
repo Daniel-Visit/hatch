@@ -170,7 +170,7 @@ export interface AppArtProps {
   glyphSize?: number;
 }
 
-export function AppArt({ kind, accent: _accent, dense, glyphSize }: AppArtProps) {
+export function AppArt({ kind, dense, glyphSize }: AppArtProps) {
   const a = ART[kind] || ART.pixel;
   return (
     <div className="app-art" style={{ background: a.bg }}>
