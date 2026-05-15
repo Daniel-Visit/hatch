@@ -11,11 +11,14 @@
   },
   "dependencies": {
     "@hatch/shared": "workspace:*",
+    "@hookform/resolvers": "^3.9.0",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.0",
     "next": "15.5.18",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-hook-form": "^7.53.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
