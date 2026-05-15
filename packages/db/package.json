@@ -1,0 +1,10 @@
+{
+  "name": "@hatch/db",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "echo 'no lint for db package'",
+    "typecheck": "echo 'no typecheck for db package'",
+    "build": "echo 'no build for db package'"
+  }
+}

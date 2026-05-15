@@ -33,6 +33,10 @@ importers:
         specifier: ^8.0.0
         version: 8.59.3(eslint@9.39.4)(typescript@5.9.3)
 
+  packages/db: {}
+
+  packages/shared: {}
+
 packages:
 
   '@eslint-community/eslint-utils@4.9.1':
