@@ -215,10 +215,7 @@
   box-shadow: 0 6px 14px -4px rgba(230, 0, 35, 0.4);
 }
 .act-save:hover { filter: brightness(1.08); transform: translateY(-1px); }
-/* Saved state keeps the red identity — the ✓ checkmark in the label indicates active.
-   Original prototype flipped to black, which looked off with the red glow shadow. */
-.act-save[data-saved="1"] { background: #c8001f; }
-.act-save[data-saved="1"]:hover { background: #b00019; }
+/* Saved state: same red, only the label changes (✓ Guardado). No color change. */
 
 /* Comments panel */
 .comments {
