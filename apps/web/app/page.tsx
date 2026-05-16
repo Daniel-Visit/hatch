@@ -9,7 +9,7 @@ import { getUser } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { AppArt } from './_components/app-art';
 import { Avatar } from './_components/cards';
-import { fmtNum } from './_components/cards';
+import { fmtNum } from './_components/data-mappers';
 
 import './landing.css';
 
