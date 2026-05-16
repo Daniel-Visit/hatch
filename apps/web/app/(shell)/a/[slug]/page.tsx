@@ -345,10 +345,13 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
               <div className="stat-l">{t('Views')}</div>
             </div>
             <div className="stat-block">
-              <div className="stat-n">
-                {translatedCategoryLabel
-                  ? t('InCategory', { category: translatedCategoryLabel.toLowerCase() })
-                  : ''}
+              <div className="stat-n" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                {app.category && <i style={{ fontStyle: 'normal', fontSize: '20px' }}>{app.category.icon}</i>}
+                <span style={{ fontSize: '15px' }}>
+                  {translatedCategoryLabel
+                    ? t('InCategory', { category: translatedCategoryLabel.toLowerCase() })
+                    : ''}
+                </span>
               </div>
               <div className="stat-l">{t('Category')}</div>
             </div>

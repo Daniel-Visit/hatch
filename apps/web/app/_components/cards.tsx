@@ -353,9 +353,51 @@ export function BentoCard({ app, onOpen, onAuthor }: CardProps) {
   );
 }
 
+// ── 6. Clean professional ────────────────────────────────────────────────────
+export function CleanCard({ app, onOpen, onAuthor }: CardProps) {
+  return (
+    <article
+      className="card-clean"
+      onClick={() => onOpen(app.id)}
+      style={{ '--ax': app.accent } as React.CSSProperties}
+    >
+      <div className="card-preview-wrap">
+        <AppArt kind={app.art} accent={app.accent} glyphSize={52} />
+      </div>
+      <div className="card-body">
+        <div className="card-title-row">
+          <h3 className="card-title">{app.title}</h3>
+          <span className="card-stats">♥ {fmtNum(app.stats.likes)}</span>
+        </div>
+        <button
+          className="card-author"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAuthor(app.author);
+          }}
+        >
+          <Avatar user={app.author} size={20} />
+          <span>{app.author.display_name}</span>
+        </button>
+        <p className="card-tagline">{app.tagline}</p>
+        <div className="card-tags">
+          {app.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className="cat-badge-wrap">
+          <CategoryBadge cat={app.category} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 // ── Switcher ─────────────────────────────────────────────────────────────────
 export interface AppCardProps extends CardProps {
-  style: 'classic' | 'sticker' | 'dark' | 'mono' | 'bento';
+  style: 'classic' | 'sticker' | 'dark' | 'mono' | 'bento' | 'clean';
 }
 
 export function AppCard({ style, app, onOpen, onAuthor }: AppCardProps) {
@@ -369,7 +411,10 @@ export function AppCard({ style, app, onOpen, onAuthor }: AppCardProps) {
       return <MonoCard {...props} />;
     case 'bento':
       return <BentoCard {...props} />;
+    case 'clean':
+      return <CleanCard {...props} />;
     default:
       return <ClassicCard {...props} />;
   }
 }
+
