@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { getUser } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getNotifications } from '@/lib/actions/notifications';
@@ -9,6 +10,9 @@ import { NotificationsBell } from './_components/notifications-bell';
 import { NotificationToaster } from './_components/notification-toast';
 import { ServiceWorkerRegistrar } from './_components/service-worker-registrar';
 import { PushPermissionPrompt } from './_components/push-permission-prompt';
+
+// Routes that render full-bleed without the Shell (sidebar + topbar).
+const BARE_ROUTE_PREFIXES = ['/sign-in'];
 
 import './globals.css';
 import './styles/prototype-base.css';
@@ -26,6 +30,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const result = await getUser();
   const initialTheme = (result?.profile.theme_pref as 'light' | 'dark' | 'system') ?? 'light';
   const signedIn = !!result;
+
+  // Pathname comes from middleware-injected `x-pathname` header.
+  const h = await headers();
+  const pathname = h.get('x-pathname') ?? '';
+  const isBare = BARE_ROUTE_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + '/') || pathname.startsWith(p + '?'),
+  );
 
   // ShellUser shape: { handle, avatar_url, hue, emoji, display_name }
   const shellUser = result
@@ -77,21 +88,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <ThemeController initialTheme={initialTheme} initialDensity="regular" signedIn={signedIn}>
-          <Shell
-            user={shellUser}
-            bell={
-              result ? (
-                <NotificationsBell
-                  userId={result.user.id}
-                  initialUnread={initialUnread}
-                  initialNotifs={initialNotifs}
-                />
-              ) : null
-            }
-          >
-            {children}
-            {result && <PushPermissionPrompt hasPushEnabled={hasPushEnabled} />}
-          </Shell>
+          {isBare ? (
+            children
+          ) : (
+            <Shell
+              user={shellUser}
+              bell={
+                result ? (
+                  <NotificationsBell
+                    userId={result.user.id}
+                    initialUnread={initialUnread}
+                    initialNotifs={initialNotifs}
+                  />
+                ) : null
+              }
+            >
+              {children}
+              {result && <PushPermissionPrompt hasPushEnabled={hasPushEnabled} />}
+            </Shell>
+          )}
         </ThemeController>
         <NotificationToaster />
         <ServiceWorkerRegistrar />

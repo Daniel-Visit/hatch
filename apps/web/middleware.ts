@@ -3,7 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from './lib/supabase/types';
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // Expose pathname to RSC via header so the root layout can branch on route
+  // (e.g., skip the Shell on /sign-in to allow full-bleed layouts).
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,7 +21,7 @@ export async function middleware(request: NextRequest) {
         setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response = NextResponse.next({ request });
+            response = NextResponse.next({ request: { headers: requestHeaders } });
             response.cookies.set(name, value, options as CookieOptions);
           });
         },

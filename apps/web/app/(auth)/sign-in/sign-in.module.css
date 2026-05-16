@@ -1,0 +1,270 @@
+/* /sign-in — full-bleed split layout
+   Left: brand panel with 12-card AppArt grid + real Hatch logo + tagline
+   Right: form panel with OAuth
+   Mobile (≤768): stack vertical */
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface);
+  font-family: var(--display, ui-sans-serif);
+}
+
+/* ─── LEFT PANEL ──────────────────────────────────────── */
+.brand {
+  position: relative;
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 64px;
+  overflow: hidden;
+}
+
+.brandHeader {
+  display: flex;
+  align-items: center;
+}
+
+.brandHeader :global(.logo) {
+  border-right: 0;
+  padding-right: 0;
+  font-size: 20px;
+}
+
+.brandHeader :global(.logo-mark) {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+
+.brandHeader :global(.logo-mark-inner) {
+  width: 14px;
+  height: 14px;
+}
+
+.gridWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 32px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 18px;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 4 / 3;
+}
+
+.gridCard {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.gridCard > * {
+  width: 100%;
+  height: 100%;
+}
+
+.customCard {
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.brandTagline {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-2);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  max-width: 28ch;
+}
+
+.brandTagline em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ─── RIGHT PANEL ─────────────────────────────────────── */
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 64px;
+  background: var(--surface);
+}
+
+.formInner {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileLogo {
+  display: none;
+  margin-bottom: 32px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--text-2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.errorPill {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0;
+  color: var(--text-2);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.footer {
+  font-size: 13px;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.footerLink {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
+.legal {
+  font-size: 12px;
+  color: var(--text-2);
+  text-align: center;
+  margin-top: 24px;
+  line-height: 1.5;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.legal a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .brand,
+  .form {
+    padding: 40px;
+  }
+  .grid {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: auto;
+  }
+
+  .brand {
+    padding: 32px 24px;
+    gap: 24px;
+  }
+
+  .brandHeader {
+    display: none;
+  }
+
+  .gridWrap {
+    padding: 0;
+  }
+
+  .grid {
+    max-width: 100%;
+    aspect-ratio: 4 / 3;
+    gap: 10px;
+  }
+
+  .gridCard {
+    border-radius: 12px;
+  }
+
+  .brandTagline {
+    text-align: center;
+    max-width: none;
+  }
+
+  .form {
+    padding: 40px 24px 56px;
+  }
+
+  .mobileLogo {
+    display: flex;
+    justify-content: center;
+  }
+}
