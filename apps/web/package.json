@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.0.0",
     "@hatch/shared": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
     "@supabase/ssr": "^0.10.3",

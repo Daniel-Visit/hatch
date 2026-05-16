@@ -10,6 +10,17 @@ import { FeaturedHero, GalleryGrid } from './_components/gallery-grid';
 import type { AppDataExtended } from './_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
+// Returns the Monday of the current UTC week as a YYYY-MM-DD string,
+// matching Postgres `date_trunc('week', now())::date` semantics.
+function currentMondayUtcIsoDate(): string {
+  const d = new Date();
+  // JS: getUTCDay() → Sun=0, Mon=1 … Sat=6. Shift so Monday=0.
+  const day = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - day);
+  d.setUTCHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
 // Synthetic "All" entry prepended to the DB categories list — matches prototype.
 const ALL_CATEGORY = { id: 'all', label: 'All', icon: '◇' };
 
@@ -88,8 +99,79 @@ export default async function HomePage() {
     return mapAppRowToCardProps(row, profile, category);
   });
 
-  // Pick featured apps for the hero rail (up to 3).
-  const featured = apps.filter((a) => a.featured).slice(0, 3);
+  // ── Featured hero: prefer featured_apps for this week, fallback to hot_score ──
+
+  const SELECT_FOR_FEATURED =
+    '*, author:profiles!apps_author_id_fkey(handle, hue, emoji, display_name, avatar_url)';
+
+  const monday = currentMondayUtcIsoDate();
+
+  // Step 1: look up featured_apps rows for the current Monday-anchored week.
+  // featured_apps.app_id → apps.id is many-to-one, so Supabase returns row.apps
+  // as a single object, not an array.
+  const { data: featuredJoin } = await supabase
+    .from('featured_apps')
+    .select(`week_of, apps!inner(${SELECT_FOR_FEATURED})`)
+    .eq('week_of', monday)
+    .limit(3);
+
+  // Collect full app rows from the join result.
+  type RawAppRow = NonNullable<typeof appRows>[number];
+  let featuredRaws: RawAppRow[] = [];
+  if (featuredJoin && featuredJoin.length > 0) {
+    for (const row of featuredJoin) {
+      // Supabase types the joined relation as an array due to isOneToOne:false,
+      // but at runtime it returns a single object — handle both.
+      const joined = row.apps;
+      if (Array.isArray(joined)) {
+        featuredRaws = featuredRaws.concat(joined as RawAppRow[]);
+      } else if (joined) {
+        featuredRaws.push(joined as RawAppRow);
+      }
+    }
+  }
+
+  // Step 2: fallback — top 3 by hot_score when the weekly curation is empty.
+  if (featuredRaws.length === 0) {
+    const { data: top } = await supabase
+      .from('apps')
+      .select(SELECT_FOR_FEATURED)
+      .eq('is_published', true)
+      .order('hot_score', { ascending: false, nullsFirst: false })
+      .limit(3);
+    featuredRaws = (top ?? []) as RawAppRow[];
+  }
+
+  // Map featured raws through the same pipeline as the main apps list.
+  const featured: AppDataExtended[] = featuredRaws.map((row) => {
+    const profileData = row.author as {
+      handle: string;
+      hue: number;
+      emoji: string | null;
+      display_name: string;
+      avatar_url: string | null;
+    } | null;
+
+    const profile = profileData
+      ? {
+          id: row.author_id,
+          handle: profileData.handle,
+          hue: profileData.hue,
+          emoji: profileData.emoji,
+          display_name: profileData.display_name,
+          avatar_url: profileData.avatar_url,
+          bio: null,
+          created_at: '',
+          updated_at: '',
+          links: {},
+          notification_prefs: {},
+          theme_pref: '',
+        }
+      : null;
+
+    const category = catMap.get(row.category_id) ?? null;
+    return mapAppRowToCardProps(row, profile, category);
+  });
 
   // Categories strip: synthetic "All" first, then DB categories.
   const allCategories = [

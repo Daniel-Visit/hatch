@@ -49,6 +49,24 @@ export type Database = {
           },
         ];
       };
+      api_rate_limits: {
+        Row: {
+          bucket_start: string;
+          count: number;
+          ip: string;
+        };
+        Insert: {
+          bucket_start: string;
+          count?: number;
+          ip: string;
+        };
+        Update: {
+          bucket_start?: string;
+          count?: number;
+          ip?: string;
+        };
+        Relationships: [];
+      };
       apps: {
         Row: {
           accent: string;
@@ -383,6 +401,35 @@ export type Database = {
           },
         ];
       };
+      featured_apps: {
+        Row: {
+          app_id: string;
+          created_at: string;
+          reason: string;
+          week_of: string;
+        };
+        Insert: {
+          app_id: string;
+          created_at?: string;
+          reason?: string;
+          week_of: string;
+        };
+        Update: {
+          app_id?: string;
+          created_at?: string;
+          reason?: string;
+          week_of?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'featured_apps_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       follows: {
         Row: {
           created_at: string;
@@ -697,11 +744,26 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      compute_hot_score: {
+        Args: {
+          comments: number;
+          likes: number;
+          published: string;
+          saves: number;
+        };
+        Returns: number;
+      };
       find_or_create_conversation: {
         Args: { app: string; user_a: string; user_b: string };
         Returns: string;
       };
+      increment_rate_limit: {
+        Args: { p_bucket_start: string; p_ip: string };
+        Returns: number;
+      };
       is_participant: { Args: { c: string }; Returns: boolean };
+      pick_featured_app: { Args: never; Returns: string };
+      refresh_hot_scores: { Args: never; Returns: number };
       uid: { Args: never; Returns: string };
     };
     Enums: {

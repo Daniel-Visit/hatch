@@ -53,16 +53,16 @@ export function Shell({ user, children, bell }: ShellProps) {
     <div className="shell">
       <header className="topbar">
         <Logo />
-        <div className="topbar-search">
+        <form className="topbar-search" action="/search" method="get">
           <i className="search-i">⌕</i>
           <input
             type="text"
+            name="q"
             placeholder="Search 248 apps, makers, tags…"
             defaultValue=""
-            readOnly
           />
           <span className="kbd">⌘K</span>
-        </div>
+        </form>
         <nav className="topbar-actions">
           <button className="btn btn-ghost">Browse</button>
           <button className="btn btn-publish">

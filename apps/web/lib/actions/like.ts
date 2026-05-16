@@ -37,6 +37,10 @@ export async function toggleLike(input: LikeToggleInputT): Promise<Result<{ like
     if (error) return { ok: false, error: 'db_error' };
   }
 
+  void sb.rpc('refresh_hot_scores').then(
+    () => {},
+    () => {},
+  );
   revalidatePath(`/a/${slug}`);
   return { ok: true, data: { liked: !existing } };
 }

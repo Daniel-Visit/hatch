@@ -55,11 +55,22 @@ key_patterns:
     directory: 'apps/web/lib/actions/'
     example: 'apps/web/lib/actions/profile.ts'
     pattern: 'use server directive, call requireUser(), validate with Zod, call Supabase'
+    phase_5_actions:
+      - 'apps/web/lib/actions/search.ts → searchApps({ query, limit }) — full-text search via apps.search_vector textSearch'
+      - 'apps/web/lib/actions/{like,save,comment}.ts — toggleLike/toggleSave/postComment/toggleCommentLike now fire-and-forget sb.rpc("refresh_hot_scores").then(() => {}, () => {}) after mutation succeeds'
 
   zod_schemas:
     directory: 'apps/web/lib/zod/'
     example: 'apps/web/lib/zod/profile.ts'
     usage: 'Import in server actions for validation; use with react-hook-form in client components'
+    phase_5_schemas:
+      - 'apps/web/lib/zod/search.ts → SearchInput'
+      - 'apps/web/lib/zod/api.ts → ApiAppsList, ApiAppDetail, ApiProfileDetail, ApiSearch (used by /api/v1/* + openapi.json generation)'
+
+  rate_limit_helper:
+    file: 'apps/web/lib/rate-limit.ts'
+    pattern: 'Postgres-backed 60-sec bucket via increment_rate_limit RPC; uses SSR (anon) client; fails open'
+    exports: 'checkRateLimit(ip) → { ok, count }; ipFromRequest(req) → string (x-forwarded-for first IP or fallback)'
 
   form_handling:
     library: 'react-hook-form + @hookform/resolvers + zod'
@@ -74,6 +85,10 @@ database_types:
       key_fields: 'id (uuid, FK to auth.users), handle (unique), display_name, avatar_url, bio, emoji, hue, links (jsonb), notification_prefs (jsonb), theme_pref'
     categories:
       key_fields: 'id (text, PK), label, icon, sort_order'
+    featured_apps:
+      key_fields: 'week_of (date, PK), app_id (FK apps), reason (text default hot_score), created_at — Phase 10'
+    api_rate_limits:
+      key_fields: '(ip, bucket_start) PK, count — Phase 12 (no client access)'
 
 routing_conventions:
   protected_routes: 'Under app/(auth)/ — auth check via middleware + requireUser()'
@@ -82,6 +97,31 @@ routing_conventions:
   api_routes: 'app/api/ pattern (none yet in Phase 0-7)'
   settings: 'app/settings/profile/ (profile), app/settings/notifications/ (Phase 6 — push prefs + browser permission toggle)'
   dynamic_export: "Routes with realtime data set `export const dynamic = 'force-dynamic'` to prevent stale RSC cache (e.g., /notifications, /messages)"
+
+phase_5_routes:
+  public_pages:
+    - '/search?q=<query>           — full-text search results (Server Component)'
+    - '/trending                   — apps from last 7 days ordered by hot_score'
+    - '/following                  — auth-gated; apps from people you follow'
+  public_api:
+    base: '/api/v1/*'
+    cors: 'open (Access-Control-Allow-Origin: *)'
+    rate_limit: '60 req/min/IP via Postgres counter (fails open on DB errors)'
+    endpoints:
+      - 'GET /api/v1/apps           — list (cursor pagination by published_at)'
+      - 'GET /api/v1/apps/{slug}    — single app + author'
+      - 'GET /api/v1/profiles/{handle} — profile + their apps'
+      - 'GET /api/v1/categories'
+      - 'GET /api/v1/search?q='
+      - 'GET /api/v1/openapi.json   — OpenAPI 3 generated from Zod via @asteasolutions/zod-to-openapi'
+  cron_routes:
+    auth: 'Bearer ${CRON_SECRET} header (Vercel Cron injects, env var set in Vercel Project Settings)'
+    schedule_file: 'vercel.json at REPO ROOT, "crons" array'
+    endpoints:
+      - 'GET /api/cron/refresh-scores  — every 15 min (*/15 * * * *) calls refresh_hot_scores RPC'
+      - 'GET /api/cron/pick-featured   — Mondays 09:00 UTC (0 9 * * 1) calls pick_featured_app RPC'
+  agent_routes:
+    - '/llms.txt — llmstxt.org-format index of all public URLs + MCP info'
 
 realtime_patterns:
   hook_location: 'apps/web/app/_components/use-realtime-*.ts (3 hooks: useUnreadTitle, useRealtimeNotifs, useRealtimeThread)'
@@ -119,3 +159,13 @@ known_gotchas:
   - 'RSC-only context cannot set cookies — middleware handles cookie refresh'
   - 'React 19 has native form actions — use with server actions'
   - 'Never use SUPABASE_SERVICE_ROLE_KEY in client components'
+  - 'Vercel Cron only fires in deployed Vercel envs — locally test via curl with Bearer ${CRON_SECRET}. CRON_SECRET must be set in apps/web/.env.local for local tests, and in Vercel Project Settings for prod.'
+  - 'Phase 10 hot_score refresh is fire-and-forget from like/save/comment actions — do NOT await sb.rpc("refresh_hot_scores"); use .then(() => {}, () => {}) to avoid blocking the user response on a full-table rescore'
+  - 'Topbar search in apps/web/app/_components/shell.tsx is wrapped in <form action="/search" method="get"> with name="q" — preserves all prototype-port className strings'
+  - 'FeaturedHero on app/page.tsx reads from featured_apps for current Monday-anchored week and falls back to top-3 by hot_score'
+
+new_deps:
+  - '@asteasolutions/zod-to-openapi (^7) — used by /api/v1/openapi.json route to generate OpenAPI 3 from Zod schemas in apps/web/lib/zod/api.ts'
+
+env_vars:
+  CRON_SECRET: 'Bearer header value for /api/cron/* routes — set in Vercel Project Settings (prod) and apps/web/.env.local (local cron tests via curl)'

@@ -37,6 +37,10 @@ export async function toggleSave(input: SaveToggleInputT): Promise<Result<{ save
     if (error) return { ok: false, error: 'db_error' };
   }
 
+  void sb.rpc('refresh_hot_scores').then(
+    () => {},
+    () => {},
+  );
   revalidatePath(`/a/${slug}`);
   return { ok: true, data: { saved: !existing } };
 }

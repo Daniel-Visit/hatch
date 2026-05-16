@@ -32,6 +32,9 @@ migration_workflow:
     - '0017_phase6_rls.sql — is_participant helper + RLS for 5 Phase 6 tables (conversations has NO client INSERT)'
     - '0018_phase6_seed.sql — sample contact_requests/conversations/messages/notifications + 3 varied notification_prefs (uses session_replication_role=replica to bypass triggers)'
     - '0019_api_keys.sql — Phase 9 api_keys table for MCP Personal Access Tokens; bcrypt-hashed; one active per user via unique partial index; RLS policies block unrevoke'
+    - '0020_ranking.sql — Phase 10 ranking: compute_hot_score (immutable), refresh_hot_scores (SECURITY DEFINER, to authenticated+service_role), featured_apps table + RLS, pick_featured_app (SECURITY DEFINER, to service_role only)'
+    - '0021_api_rate_limits.sql — Phase 12 rate-limit: api_rate_limits table (no client policies), increment_rate_limit RPC (SECURITY DEFINER)'
+    - '0022_rate_limit_anon_grant.sql — Phase 12 follow-up: grant increment_rate_limit execute to anon + authenticated so public API routes can rate-limit via SSR client'
 
 database_schema:
   extensions:
@@ -82,6 +85,21 @@ database_schema:
         - 'api_keys_token_prefix_idx (token_prefix) WHERE revoked_at IS NULL'
         - 'UNIQUE api_keys_one_active_per_user (user_id) WHERE revoked_at IS NULL — enforces one active token per user'
 
+    featured_apps:
+      description: 'Phase 10: weekly featured-app pick. One row per Monday-anchored week.'
+      primary_key: 'week_of (date)'
+      key_columns:
+        app_id: 'uuid not null FK to apps(id) ON DELETE CASCADE'
+        reason: "text default 'hot_score'"
+        created_at: 'timestamptz default now()'
+
+    api_rate_limits:
+      description: 'Phase 12: per-IP rate-limit counter for /api/v1/* (60-sec buckets).'
+      primary_key: '(ip, bucket_start)'
+      key_columns:
+        count: 'int default 0'
+      access: 'service_role only via increment_rate_limit RPC (no client policies)'
+
   rls_policies:
     profiles:
       - 'SELECT: authenticated users can read all profiles'
@@ -93,6 +111,33 @@ database_schema:
       - 'INSERT (users insert own api_keys): with check (user_id = auth.uid())'
       - 'UPDATE (users revoke own api_keys): using (user_id = auth.uid()) with check (user_id = auth.uid() and revoked_at is not null) — blocks unrevoke AND relabel; intentional v1 limitation'
       - 'NO DELETE policy — soft-delete only via revoked_at'
+    featured_apps:
+      - 'SELECT: public read access (using true)'
+      - 'No INSERT/UPDATE/DELETE client policies — service_role only via pick_featured_app SECURITY DEFINER'
+    api_rate_limits:
+      - 'No client policies — only RPC writes'
+
+postgres_functions:
+  compute_hot_score:
+    signature: 'compute_hot_score(likes int, comments int, saves int, published_at timestamptz) returns double precision'
+    volatility: 'IMMUTABLE'
+    grants: 'default (public execute via SQL)'
+    purpose: 'Phase 10 ranking score combining engagement with time decay'
+  refresh_hot_scores:
+    signature: 'refresh_hot_scores() returns int'
+    volatility: 'SECURITY DEFINER, set search_path = public'
+    grants: 'EXECUTE to authenticated, service_role'
+    purpose: 'Recompute hot_score for all apps; called fire-and-forget from like/save/comment actions + /api/cron/refresh-scores every 15 min'
+  pick_featured_app:
+    signature: 'pick_featured_app() returns uuid'
+    volatility: 'SECURITY DEFINER, set search_path = public'
+    grants: 'EXECUTE to service_role only'
+    purpose: 'Inserts featured_apps row for current Monday-anchored week; called by /api/cron/pick-featured (Mondays 09:00 UTC)'
+  increment_rate_limit:
+    signature: 'increment_rate_limit(p_ip text, p_bucket_start timestamptz) returns int'
+    volatility: 'SECURITY DEFINER, set search_path = public'
+    grants: 'EXECUTE to service_role, anon, authenticated (granted in 0022 so SSR anon client can self-rate-limit)'
+    purpose: 'Phase 12 — atomic upsert+increment on api_rate_limits; returns new count for caller to compare vs 60/min budget'
 
 auth_patterns:
   server_client: 'apps/web/lib/supabase/server.ts → createSupabaseServerClient()'

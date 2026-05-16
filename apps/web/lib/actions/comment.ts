@@ -47,6 +47,10 @@ export async function postComment(input: CommentCreateInputT): Promise<Result<{ 
 
   if (error || !data) return { ok: false, error: 'db_error' };
 
+  void sb.rpc('refresh_hot_scores').then(
+    () => {},
+    () => {},
+  );
   revalidatePath(`/a/${slug}`);
   return { ok: true, data: { id: data.id } };
 }
@@ -115,6 +119,10 @@ export async function toggleCommentLike(
     if (error) return { ok: false, error: 'db_error' };
   }
 
+  void sb.rpc('refresh_hot_scores').then(
+    () => {},
+    () => {},
+  );
   revalidatePath(`/a/${slug}`);
   return { ok: true, data: { liked: !existing } };
 }
