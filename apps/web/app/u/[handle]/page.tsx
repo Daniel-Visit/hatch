@@ -191,6 +191,18 @@ export default async function ProfilePage({
             </div>
             <div className="pstat-l">Total remixes</div>
           </div>
+          <div className="pstat">
+            <div className="pstat-n">2.4k</div>
+            <div className="pstat-l">Followers</div>
+          </div>
+          <div className="pstat">
+            <div className="pstat-n">183</div>
+            <div className="pstat-l">Following</div>
+          </div>
+          <div className="pstat">
+            <div className="pstat-n">Mar &apos;24</div>
+            <div className="pstat-l">Joined</div>
+          </div>
         </div>
       </header>
 
