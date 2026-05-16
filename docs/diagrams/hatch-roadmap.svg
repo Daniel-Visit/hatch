@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 480" width="1300" height="480" font-family="'Inter', system-ui, sans-serif">
+  <defs>
+    <filter id="glow-emerald" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#10B981" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-amber" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#F59E0B" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-slate" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#64748B" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <marker id="arrow-emerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#10B981"/>
+    </marker>
+    <marker id="arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748B"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="650" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#E2E8F0" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="0s" dur="0.6s" fill="freeze"/>
+    Hatch · 13-Phase Build · 12 shipped · 1 cut · 1 pending
+  </text>
+  <text x="650" y="58" text-anchor="middle" font-size="12" fill="#94A3B8" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="0.2s" dur="0.6s" fill="freeze"/>
+    each pair groups phases for parallel execution via ADW
+  </text>
+
+  <!-- ============ COLUMN 1: Foundations (Phase 0 + 1) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="0.5s" dur="0.5s" fill="freeze"/>
+    <text x="115" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">FOUNDATIONS</text>
+    <rect x="40" y="120" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="115" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 0 ✓</text>
+    <text x="115" y="156" text-anchor="middle" font-size="9" fill="#94A3B8">monorepo +</text>
+    <text x="115" y="168" text-anchor="middle" font-size="9" fill="#94A3B8">tooling</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="0.7s" dur="0.5s" fill="freeze"/>
+    <rect x="40" y="198" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="115" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 1 ✓</text>
+    <text x="115" y="234" text-anchor="middle" font-size="9" fill="#94A3B8">auth +</text>
+    <text x="115" y="246" text-anchor="middle" font-size="9" fill="#94A3B8">base schema</text>
+  </g>
+
+  <!-- ============ COLUMN 2: Pair 1 (2+3) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.0s" dur="0.5s" fill="freeze"/>
+    <text x="305" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">PAIR 1</text>
+    <rect x="230" y="120" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="305" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 2 ✓</text>
+    <text x="305" y="156" text-anchor="middle" font-size="9" fill="#94A3B8">design system</text>
+    <text x="305" y="168" text-anchor="middle" font-size="9" fill="#94A3B8">+ Shell</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.2s" dur="0.5s" fill="freeze"/>
+    <rect x="230" y="198" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="305" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 3 ✓</text>
+    <text x="305" y="234" text-anchor="middle" font-size="9" fill="#94A3B8">apps read path</text>
+    <text x="305" y="246" text-anchor="middle" font-size="9" fill="#94A3B8">+ 12 demo apps</text>
+  </g>
+
+  <!-- ============ COLUMN 3: Pair 2 (4+5) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.5s" dur="0.5s" fill="freeze"/>
+    <text x="495" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">PAIR 2</text>
+    <rect x="420" y="120" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="495" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 4 ✓</text>
+    <text x="495" y="156" text-anchor="middle" font-size="9" fill="#94A3B8">social: likes saves</text>
+    <text x="495" y="168" text-anchor="middle" font-size="9" fill="#94A3B8">follows comments</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.7s" dur="0.5s" fill="freeze"/>
+    <rect x="420" y="198" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="495" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 5 ✓</text>
+    <text x="495" y="234" text-anchor="middle" font-size="9" fill="#94A3B8">publish flow +</text>
+    <text x="495" y="246" text-anchor="middle" font-size="9" fill="#94A3B8">Storage</text>
+  </g>
+
+  <!-- ============ COLUMN 4: Pair 3 (6+7) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="2.0s" dur="0.5s" fill="freeze"/>
+    <text x="685" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">PAIR 3</text>
+    <rect x="610" y="120" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="685" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 6 ✓</text>
+    <text x="685" y="156" text-anchor="middle" font-size="9" fill="#94A3B8">contact + notifs</text>
+    <text x="685" y="168" text-anchor="middle" font-size="9" fill="#94A3B8">+ Web Push</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="2.2s" dur="0.5s" fill="freeze"/>
+    <rect x="610" y="198" width="150" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="685" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 7 ✓</text>
+    <text x="685" y="234" text-anchor="middle" font-size="9" fill="#94A3B8">messages inbox</text>
+    <text x="685" y="246" text-anchor="middle" font-size="9" fill="#94A3B8">+ Realtime</text>
+  </g>
+
+  <!-- Phase 8 CUT -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="2.4s" dur="0.5s" fill="freeze"/>
+    <rect x="610" y="276" width="150" height="58" rx="8" fill="#0F172A" stroke="#64748B" stroke-width="1.5" stroke-dasharray="4,4" filter="url(#glow-slate)"/>
+    <text x="685" y="294" text-anchor="middle" font-size="12" font-weight="700" fill="#94A3B8">Phase 8 ✗</text>
+    <text x="685" y="312" text-anchor="middle" font-size="9" fill="#64748B" text-decoration="line-through">email (Resend)</text>
+    <text x="685" y="324" text-anchor="middle" font-size="9" fill="#94A3B8">CUT — push absorbs</text>
+  </g>
+
+  <!-- ============ COLUMN 5: Pair 4 (9) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="2.7s" dur="0.5s" fill="freeze"/>
+    <text x="875" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">PAIR 4</text>
+    <rect x="800" y="120" width="150" height="138" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="875" y="142" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 9 ✓</text>
+    <text x="875" y="162" text-anchor="middle" font-size="9" fill="#94A3B8">MCP server</text>
+    <text x="875" y="174" text-anchor="middle" font-size="9" fill="#94A3B8">on Railway</text>
+    <text x="875" y="194" text-anchor="middle" font-size="9" font-family="monospace" fill="#6EE7B7">15 tools</text>
+    <text x="875" y="208" text-anchor="middle" font-size="9" font-family="monospace" fill="#6EE7B7">3 resources</text>
+    <text x="875" y="222" text-anchor="middle" font-size="9" font-family="monospace" fill="#6EE7B7">3 prompts</text>
+    <text x="875" y="242" text-anchor="middle" font-size="9" fill="#94A3B8">+ /settings/api-keys</text>
+  </g>
+
+  <!-- ============ COLUMN 6: Pair 5 (10+11+12) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.1s" dur="0.5s" fill="freeze"/>
+    <text x="1075" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#94A3B8">PAIR 5</text>
+    <rect x="990" y="120" width="170" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="1075" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 10 ✓</text>
+    <text x="1075" y="156" text-anchor="middle" font-size="9" fill="#94A3B8">ranking + pg_cron</text>
+    <text x="1075" y="168" text-anchor="middle" font-size="9" fill="#94A3B8">hot_score + featured</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.3s" dur="0.5s" fill="freeze"/>
+    <rect x="990" y="198" width="170" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="1075" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 11 ✓</text>
+    <text x="1075" y="234" text-anchor="middle" font-size="9" fill="#94A3B8">search (tsvector)</text>
+    <text x="1075" y="246" text-anchor="middle" font-size="9" fill="#94A3B8">+ topbar wire</text>
+  </g>
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.5s" dur="0.5s" fill="freeze"/>
+    <rect x="990" y="276" width="170" height="58" rx="8" fill="#0F172A" stroke="#10B981" stroke-width="1.5" filter="url(#glow-emerald)"/>
+    <text x="1075" y="294" text-anchor="middle" font-size="12" font-weight="700" fill="#A7F3D0">Phase 12 ✓</text>
+    <text x="1075" y="312" text-anchor="middle" font-size="9" fill="#94A3B8">public API +</text>
+    <text x="1075" y="324" text-anchor="middle" font-size="9" fill="#94A3B8">llms.txt + OpenAPI</text>
+  </g>
+
+  <!-- ============ COLUMN 7: Phase 13 (pending) ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.9s" dur="0.5s" fill="freeze"/>
+    <text x="1225" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#FBBF24">POLISH</text>
+    <rect x="1180" y="120" width="90" height="138" rx="8" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5" filter="url(#glow-amber)"/>
+    <text x="1225" y="146" text-anchor="middle" font-size="12" font-weight="700" fill="#FDE68A">Phase 13</text>
+    <text x="1225" y="162" text-anchor="middle" font-size="9" fill="#FCD34D">⏳ pending</text>
+    <text x="1225" y="184" text-anchor="middle" font-size="9" fill="#94A3B8">skeletons</text>
+    <text x="1225" y="196" text-anchor="middle" font-size="9" fill="#94A3B8">OG images</text>
+    <text x="1225" y="208" text-anchor="middle" font-size="9" fill="#94A3B8">sitemap</text>
+    <text x="1225" y="220" text-anchor="middle" font-size="9" fill="#94A3B8">sentry</text>
+    <text x="1225" y="232" text-anchor="middle" font-size="9" fill="#94A3B8">analytics</text>
+    <text x="1225" y="244" text-anchor="middle" font-size="9" fill="#94A3B8">error boundaries</text>
+
+    <!-- Idle pulse on pending -->
+    <rect x="1180" y="120" width="90" height="138" rx="8" fill="none" stroke="#F59E0B" stroke-width="0.8" opacity="0">
+      <animate attributeName="opacity" values="0;0.4;0" dur="3s" begin="10s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- ============ CONNECTIONS between columns ============ -->
+  <!-- Foundations → Pair 1 -->
+  <line x1="190" y1="227" x2="230" y2="227" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-emerald)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="0.9s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+  <!-- Pair 1 → Pair 2 -->
+  <line x1="380" y1="227" x2="420" y2="227" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-emerald)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.4s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+  <!-- Pair 2 → Pair 3 -->
+  <line x1="570" y1="227" x2="610" y2="227" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-emerald)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="1.9s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+  <!-- Pair 3 → Pair 4 -->
+  <line x1="760" y1="227" x2="800" y2="227" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-emerald)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="2.6s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+  <!-- Pair 4 → Pair 5 -->
+  <line x1="950" y1="227" x2="990" y2="227" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-emerald)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.0s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+  <!-- Pair 5 → Phase 13 -->
+  <line x1="1160" y1="227" x2="1180" y2="227" stroke="#64748B" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-slate)" opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="3.7s" dur="0.4s" fill="freeze"/>
+    <animate attributeName="stroke-dashoffset" values="0;-14" dur="1.5s" begin="10s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- ============ STATUS FOOTER ============ -->
+  <g opacity="0">
+    <animate attributeName="opacity" from="0" to="1" begin="4.4s" dur="0.6s" fill="freeze"/>
+    <rect x="40" y="395" width="1220" height="60" rx="8" fill="#0F172A" stroke="#22D3EE" stroke-width="1.2"/>
+    <text x="60" y="418" font-size="11" font-weight="700" fill="#67E8F9">LIVE</text>
+    <text x="60" y="436" font-size="10" font-family="monospace" fill="#A5F3FC">web → hatch-brown.vercel.app</text>
+    <text x="60" y="450" font-size="10" font-family="monospace" fill="#A5F3FC">mcp → hatch-mcp-production.up.railway.app</text>
+
+    <text x="420" y="418" font-size="11" font-weight="700" fill="#A7F3D0">DATA</text>
+    <text x="420" y="436" font-size="10" font-family="monospace" fill="#6EE7B7">Supabase Postgres · 23 migrations applied</text>
+    <text x="420" y="450" font-size="10" font-family="monospace" fill="#6EE7B7">RLS on every table · pg_cron scheduled (active)</text>
+
+    <text x="820" y="418" font-size="11" font-weight="700" fill="#FDE68A">NEXT</text>
+    <text x="820" y="436" font-size="10" font-family="monospace" fill="#FCD34D">Phase 13 polish · slice-through (variable)</text>
+    <text x="820" y="450" font-size="10" font-family="monospace" fill="#FCD34D">skeletons · OG · sitemap · sentry · analytics</text>
+  </g>
+</svg>
