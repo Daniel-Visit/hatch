@@ -30,13 +30,14 @@ export interface ShellProps {
 
 const NAV: {
   href: Route;
-  key: 'Discover' | 'Trending' | 'NewAndFresh' | 'Following';
+  key: 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved';
   icon: string;
 }[] = [
   { href: '/', key: 'Discover', icon: '◇' },
   { href: '/trending', key: 'Trending', icon: '↗' },
   { href: '/new', key: 'NewAndFresh', icon: '✦' },
   { href: '/following', key: 'Following', icon: '◉' },
+  { href: '/saved', key: 'Saved', icon: '▢' },
 ];
 
 function Logo() {

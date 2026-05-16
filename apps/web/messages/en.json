@@ -60,6 +60,7 @@
       "Trending": "Trending",
       "NewAndFresh": "New & fresh",
       "Following": "Following",
+      "Saved": "Saved",
       "Label": "Browse"
     },
     "AvatarMenu": {
@@ -100,6 +101,13 @@
     "BrowseDiscover": "Browse Discover →",
     "FollowButton": "+ Follow",
     "FollowingButton": "✓ Following"
+  },
+  "Saved": {
+    "Title": "Saved",
+    "Subtitle": "Apps you bookmarked. Newest first.",
+    "NothingHereYet": "No saved apps yet",
+    "SaveSomeApps": "Hit Save on any app to keep it here for later.",
+    "BrowseDiscover": "Browse Discover →"
   },
   "Category": {
     "Subtitle": "Browse {category} apps from the Hatch community.",

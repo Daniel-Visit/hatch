@@ -60,6 +60,7 @@
       "Trending": "Tendencias",
       "NewAndFresh": "Nuevo y reciente",
       "Following": "Siguiendo",
+      "Saved": "Guardados",
       "Label": "Explorar"
     },
     "AvatarMenu": {
@@ -100,6 +101,13 @@
     "BrowseDiscover": "Ir a Descubrir →",
     "FollowButton": "+ Seguir",
     "FollowingButton": "✓ Siguiendo"
+  },
+  "Saved": {
+    "Title": "Guardados",
+    "Subtitle": "Apps que marcaste para después. Más recientes primero.",
+    "NothingHereYet": "Aún no tienes apps guardadas",
+    "SaveSomeApps": "Toca Guardar en cualquier app para tenerla aquí.",
+    "BrowseDiscover": "Ir a Descubrir →"
   },
   "Category": {
     "Subtitle": "Explora apps de {category} de la comunidad de Hatch.",
