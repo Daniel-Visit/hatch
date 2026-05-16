@@ -239,11 +239,11 @@ El arte procedural es un **diferenciador** de Hatch — NO se elimina. Se ajusta
 ## 7. Checklist Priorizado
 
 ### P0 — Primera Impresión (hacer primero)
-- [ ] 🎯 **Card UI Cleanup** — Migrar BentoCard → CleanCard (Sección 1)
-  - [ ] CSS `.card-clean` con preview contenido + body separado
-  - [ ] Componente `CleanCard` en `cards.tsx`
-  - [ ] `gallery-grid.tsx` usa `CleanCard`
-  - [ ] Glyph reducido, arte contenido, overlay eliminado
+- [x] 🎯 **Card UI Cleanup** — Migrar BentoCard → CleanCard (Sección 1)
+  - [x] CSS `.card-clean` con preview contenido + body separado
+  - [x] Componente `CleanCard` en `cards.tsx`
+  - [x] `gallery-grid.tsx` usa `CleanCard`
+  - [x] Glyph reducido, arte contenido, overlay eliminado
 - [ ] Limpiar publish form defaults (Slow Forge)
 - [ ] Limpiar contact modal "slope.fund"
 - [ ] Search count dinámico
@@ -251,11 +251,14 @@ El arte procedural es un **diferenciador** de Hatch — NO se elimina. Se ajusta
 ### P1 — Limpieza Técnica
 - [ ] Eliminar 4 fonts no usadas
 - [ ] Eliminar bcryptjs
-- [ ] Limpiar globals.css
+- [x] Limpiar globals.css
 - [ ] Evaluar eliminar Tailwind
 
-### P2 — UX Polish
-- [ ] Fase 13 (skeletons, error boundaries, OG images)
+### P2 — UX Polish & Mobile
+- [x] **Loading Skeletons** (`loading.tsx`) para mejorar performance percibida
+- [x] **Feedback de clicks** (active state y shimmer) en cards
+- [x] **Responsive de pantallas de detalles** (centrado de stats, action-bar adaptable)
+- [x] **Refinamiento de Badges** (diseño pill en CategoryBadge)
 - [ ] Staggered card entry animations
 - [ ] Mobile hero compacto
 - [ ] Category chips horizontal scroll
