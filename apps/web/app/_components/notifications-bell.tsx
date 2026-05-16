@@ -171,6 +171,7 @@ export function NotificationsBell({
       </button>
       <NotificationsPanel
         open={open}
+        unread={unread}
         notifs={notifs as unknown as NotificationItemProps['n'][]}
         enrichedActors={enrichedActors}
         enrichedApps={enrichedApps}

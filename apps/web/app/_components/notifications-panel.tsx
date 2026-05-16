@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { NotificationItem, type NotificationItemProps } from './notification-item';
 
 export type NotificationsPanelProps = {
   open: boolean;
+  unread: number;
   notifs: NotificationItemProps['n'][];
   enrichedActors: Record<string, NotificationItemProps['actor']>;
   enrichedApps: Record<string, NotificationItemProps['app']>;
@@ -18,6 +19,7 @@ export type NotificationsPanelProps = {
 
 export function NotificationsPanel({
   open,
+  unread,
   notifs,
   enrichedActors,
   enrichedApps,
@@ -29,7 +31,6 @@ export function NotificationsPanel({
 }: NotificationsPanelProps) {
   const t = useTranslations('Notifications');
   const ref = useRef<HTMLDivElement>(null);
-  const [tab, setTab] = useState<'all' | 'contact'>('all');
 
   useEffect(() => {
     if (!open) return undefined;
@@ -49,46 +50,40 @@ export function NotificationsPanel({
 
   if (!open) return null;
 
-  const contactList = notifs.filter((n) => n.kind === 'contact_request');
-  const list = tab === 'all' ? notifs : contactList;
-
   return (
     <div className="notifs" ref={ref} role="dialog" aria-label={t('BellAriaLabel')}>
       <header className="notifs-head">
         <h3>{t('PanelTitle')}</h3>
-        <button className="notifs-all" onClick={onAll}>
-          {t('MarkAllRead')}
-        </button>
+        {unread > 0 && (
+          <button
+            type="button"
+            className="notifs-badge"
+            onClick={onAll}
+            aria-label={t('MarkAllReadAria', { count: unread })}
+            title={t('MarkAllRead')}
+          >
+            {unread > 99 ? '99+' : unread}
+          </button>
+        )}
       </header>
-      <div className="notifs-tabs">
-        <button
-          className={'notifs-tab ' + (tab === 'all' ? 'is-on' : '')}
-          onClick={() => setTab('all')}
-        >
-          {t('FilterAll')} <span className="notifs-tab-c">{notifs.length}</span>
-        </button>
-        <button
-          className={'notifs-tab ' + (tab === 'contact' ? 'is-on' : '')}
-          onClick={() => setTab('contact')}
-        >
-          {t('FilterContactRequests')}
-          <span className="notifs-tab-c">{contactList.length}</span>
-        </button>
-      </div>
-      <ul className="notifs-list">
-        {list.map((n) => (
-          <NotificationItem
-            key={n.id}
-            n={n}
-            actor={enrichedActors[n.id] ?? null}
-            app={enrichedApps[n.id] ?? null}
-            contact={enrichedContacts[n.id] ?? null}
-            when={whens[n.id] ?? ''}
-            onAction={onAction}
-          />
-        ))}
-      </ul>
-      <footer className="notifs-foot">{t('PanelFooter')}</footer>
+      {notifs.length === 0 ? (
+        <p className="notifs-empty">{t('Empty')}</p>
+      ) : (
+        <ul className="notifs-list">
+          {notifs.map((n) => (
+            <NotificationItem
+              key={n.id}
+              n={n}
+              actor={enrichedActors[n.id] ?? null}
+              app={enrichedApps[n.id] ?? null}
+              contact={enrichedContacts[n.id] ?? null}
+              when={whens[n.id] ?? ''}
+              onAction={onAction}
+              onNavigate={onClose}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
