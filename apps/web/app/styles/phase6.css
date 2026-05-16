@@ -1,0 +1,137 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * Hatch — Phase 6 (Web Push / Notifications) component styles
+ *
+ * NOT a verbatim prototype port — these are new classes for non-ported
+ * components. All color / radius / shadow values inherit from the design
+ * tokens defined in prototype-base.css (:root and [data-theme="dark"]).
+ *
+ * Do NOT add Tailwind utility classes here. This file is part of the
+ * prototype-port-exception scope.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/* ─── Bell button (topbar) ────────────────────────────────────────────── */
+/*
+ * Transparent icon button that sits in .topbar-actions.
+ * Mirrors the visual weight of .btn-ghost but sized to match topbar height.
+ */
+.bell-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: var(--text-2);
+  font-size: 16px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.bell-btn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.bell-btn:focus-visible {
+  outline: 2px solid var(--ax);
+  outline-offset: 2px;
+}
+
+/* ─── Bell badge (unread count pill) ─────────────────────────────────── */
+/*
+ * Absolute-positioned red count pill at the top-right corner of .bell-btn.
+ * Parent must be position: relative (bell-btn already is).
+ */
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 5px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  /* 2px ring that matches the topbar background, keeping it readable */
+  box-shadow: 0 0 0 2px var(--bg);
+  pointer-events: none;
+}
+
+/* ─── Notifications anchor ────────────────────────────────────────────── */
+/*
+ * Relative wrapper placed around .bell-btn so the .notifs dropdown
+ * (from prototype-contact.css) can use position: absolute; top: 100%; right: 0.
+ * The 8px margin-top aligns with the existing .notifs top: calc(100% + 8px).
+ */
+.notifs-anchor {
+  position: relative;
+}
+/* Spacer so the absolutely-positioned dropdown clears the button */
+.notifs-anchor > .notifs {
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+}
+
+/* ─── Push permission prompt (floating card, bottom-right) ───────────── */
+/*
+ * Small, non-modal nudge card inviting the user to enable push notifications.
+ * Uses the same border/shadow language as .cmodal at a smaller scale.
+ */
+.push-prompt {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 200;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  /* Scaled-down version of .cmodal's shadow */
+  box-shadow:
+    0 8px 30px -8px rgba(0, 0, 0, 0.28),
+    0 0 0 0.5px var(--border);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Entrance animation mirrors .cmodal-pop but lighter */
+  animation: push-prompt-in 0.2s cubic-bezier(0.3, 1.3, 0.4, 1);
+}
+@keyframes push-prompt-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.push-prompt p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.push-prompt strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ─── Push prompt action row ──────────────────────────────────────────── */
+/*
+ * Flex row holding the "Enable" and "Dismiss" buttons inside .push-prompt.
+ */
+.push-prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

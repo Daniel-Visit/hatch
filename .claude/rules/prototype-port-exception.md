@@ -12,6 +12,9 @@ The following paths are byte-for-byte ports of `prototype/apps-gallery/`. They M
 - `apps/web/app/a/[slug]/page.tsx` (detail wired to Supabase)
 - `apps/web/app/u/[handle]/page.tsx` (profile wired to Supabase)
 - `apps/web/app/c/[category]/page.tsx` (category-filtered gallery)
+- `apps/web/app/_components/notifications-panel.tsx`
+- `apps/web/app/_components/notification-item.tsx`
+- `apps/web/app/_components/contact-modal.tsx`
 
 For these files:
 - Tailwind utility classes are FORBIDDEN.

@@ -1,7 +1,11 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  __InternalSupabase: { PostgrestVersion: '14.5' };
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: '14.5';
+  };
   public: {
     Tables: {
       apps: {
@@ -107,15 +111,42 @@ export type Database = {
         ];
       };
       categories: {
-        Row: { icon: string; id: string; label: string; sort_order: number };
-        Insert: { icon: string; id: string; label: string; sort_order?: number };
-        Update: { icon?: string; id?: string; label?: string; sort_order?: number };
+        Row: {
+          icon: string;
+          id: string;
+          label: string;
+          sort_order: number;
+        };
+        Insert: {
+          icon: string;
+          id: string;
+          label: string;
+          sort_order?: number;
+        };
+        Update: {
+          icon?: string;
+          id?: string;
+          label?: string;
+          sort_order?: number;
+        };
         Relationships: [];
       };
       comment_likes: {
-        Row: { comment_id: string; created_at: string; user_id: string };
-        Insert: { comment_id: string; created_at?: string; user_id: string };
-        Update: { comment_id?: string; created_at?: string; user_id?: string };
+        Row: {
+          comment_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
             foreignKeyName: 'comment_likes_comment_id_fkey';
@@ -191,10 +222,142 @@ export type Database = {
           },
         ];
       };
+      contact_requests: {
+        Row: {
+          app_id: string | null;
+          conversation_id: string | null;
+          created_at: string;
+          id: string;
+          note: string;
+          recipient_id: string;
+          responded_at: string | null;
+          role: Database['public']['Enums']['contact_role'];
+          sender_id: string;
+          sender_link: string | null;
+          status: Database['public']['Enums']['contact_status'];
+        };
+        Insert: {
+          app_id?: string | null;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string;
+          recipient_id: string;
+          responded_at?: string | null;
+          role: Database['public']['Enums']['contact_role'];
+          sender_id: string;
+          sender_link?: string | null;
+          status?: Database['public']['Enums']['contact_status'];
+        };
+        Update: {
+          app_id?: string | null;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string;
+          recipient_id?: string;
+          responded_at?: string | null;
+          role?: Database['public']['Enums']['contact_role'];
+          sender_id?: string;
+          sender_link?: string | null;
+          status?: Database['public']['Enums']['contact_status'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'contact_requests_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'contact_requests_conversation_fk';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'contact_requests_recipient_id_fkey';
+            columns: ['recipient_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'contact_requests_sender_id_fkey';
+            columns: ['sender_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      conversations: {
+        Row: {
+          app_id: string | null;
+          created_at: string;
+          id: string;
+          last_message_at: string | null;
+          participant_a: string;
+          participant_b: string;
+        };
+        Insert: {
+          app_id?: string | null;
+          created_at?: string;
+          id?: string;
+          last_message_at?: string | null;
+          participant_a: string;
+          participant_b: string;
+        };
+        Update: {
+          app_id?: string | null;
+          created_at?: string;
+          id?: string;
+          last_message_at?: string | null;
+          participant_a?: string;
+          participant_b?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'conversations_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'conversations_participant_a_fkey';
+            columns: ['participant_a'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'conversations_participant_b_fkey';
+            columns: ['participant_b'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       follows: {
-        Row: { created_at: string; followee_id: string; follower_id: string };
-        Insert: { created_at?: string; followee_id: string; follower_id: string };
-        Update: { created_at?: string; followee_id?: string; follower_id?: string };
+        Row: {
+          created_at: string;
+          followee_id: string;
+          follower_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          followee_id: string;
+          follower_id: string;
+        };
+        Update: {
+          created_at?: string;
+          followee_id?: string;
+          follower_id?: string;
+        };
         Relationships: [
           {
             foreignKeyName: 'follows_followee_id_fkey';
@@ -213,9 +376,21 @@ export type Database = {
         ];
       };
       likes: {
-        Row: { app_id: string; created_at: string; user_id: string };
-        Insert: { app_id: string; created_at?: string; user_id: string };
-        Update: { app_id?: string; created_at?: string; user_id?: string };
+        Row: {
+          app_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          app_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          app_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
             foreignKeyName: 'likes_app_id_fkey';
@@ -227,6 +402,133 @@ export type Database = {
           {
             foreignKeyName: 'likes_user_id_fkey';
             columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      messages: {
+        Row: {
+          body: string;
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          read_at: string | null;
+          sender_id: string;
+        };
+        Insert: {
+          body: string;
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          read_at?: string | null;
+          sender_id: string;
+        };
+        Update: {
+          body?: string;
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          read_at?: string | null;
+          sender_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'messages_conversation_id_fkey';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'messages_sender_id_fkey';
+            columns: ['sender_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          actor_id: string | null;
+          app_id: string | null;
+          comment_id: string | null;
+          contact_request_id: string | null;
+          conversation_id: string | null;
+          created_at: string;
+          id: string;
+          kind: Database['public']['Enums']['notif_kind'];
+          payload: Json;
+          read_at: string | null;
+          recipient_id: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          app_id?: string | null;
+          comment_id?: string | null;
+          contact_request_id?: string | null;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          kind: Database['public']['Enums']['notif_kind'];
+          payload?: Json;
+          read_at?: string | null;
+          recipient_id: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          app_id?: string | null;
+          comment_id?: string | null;
+          contact_request_id?: string | null;
+          conversation_id?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['notif_kind'];
+          payload?: Json;
+          read_at?: string | null;
+          recipient_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_actor_id_fkey';
+            columns: ['actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_comment_id_fkey';
+            columns: ['comment_id'];
+            isOneToOne: false;
+            referencedRelation: 'comments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_contact_request_id_fkey';
+            columns: ['contact_request_id'];
+            isOneToOne: false;
+            referencedRelation: 'contact_requests';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_conversation_id_fkey';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_recipient_id_fkey';
+            columns: ['recipient_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
@@ -278,10 +580,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      push_subscriptions: {
+        Row: {
+          auth: string;
+          created_at: string;
+          endpoint: string;
+          id: string;
+          p256dh: string;
+          user_agent: string | null;
+          user_id: string;
+        };
+        Insert: {
+          auth: string;
+          created_at?: string;
+          endpoint: string;
+          id?: string;
+          p256dh: string;
+          user_agent?: string | null;
+          user_id: string;
+        };
+        Update: {
+          auth?: string;
+          created_at?: string;
+          endpoint?: string;
+          id?: string;
+          p256dh?: string;
+          user_agent?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'push_subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       saves: {
-        Row: { app_id: string; created_at: string; user_id: string };
-        Insert: { app_id: string; created_at?: string; user_id: string };
-        Update: { app_id?: string; created_at?: string; user_id?: string };
+        Row: {
+          app_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          app_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          app_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
             foreignKeyName: 'saves_app_id_fkey';
@@ -300,14 +652,38 @@ export type Database = {
         ];
       };
     };
-    Views: { [_ in never]: never };
-    Functions: { uid: { Args: never; Returns: string } };
-    Enums: { [_ in never]: never };
-    CompositeTypes: { [_ in never]: never };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      find_or_create_conversation: {
+        Args: { app: string; user_a: string; user_b: string };
+        Returns: string;
+      };
+      is_participant: { Args: { c: string }; Returns: boolean };
+      uid: { Args: never; Returns: string };
+    };
+    Enums: {
+      contact_role: 'investor' | 'partner' | 'hire' | 'fan';
+      contact_status: 'pending' | 'accepted' | 'declined' | 'expired';
+      notif_kind:
+        | 'contact_request'
+        | 'contact_accepted'
+        | 'contact_declined'
+        | 'like'
+        | 'comment'
+        | 'comment_reply'
+        | 'follow'
+        | 'message';
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
 };
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
+
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
 
 export type Tables<
@@ -320,7 +696,9 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R;
@@ -344,14 +722,18 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends { Insert: infer I }
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
       ? I
       : never
     : never;
@@ -365,14 +747,18 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends { Update: infer U }
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
       ? U
       : never
     : never;
@@ -386,7 +772,9 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
     ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
@@ -401,10 +789,29 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
     ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never;
 
-export const Constants = { public: { Enums: {} } } as const;
+export const Constants = {
+  public: {
+    Enums: {
+      contact_role: ['investor', 'partner', 'hire', 'fan'],
+      contact_status: ['pending', 'accepted', 'declined', 'expired'],
+      notif_kind: [
+        'contact_request',
+        'contact_accepted',
+        'contact_declined',
+        'like',
+        'comment',
+        'comment_reply',
+        'follow',
+        'message',
+      ],
+    },
+  },
+} as const;

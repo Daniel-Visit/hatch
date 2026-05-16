@@ -22,6 +22,7 @@ export interface ShellUser {
 export interface ShellProps {
   user: ShellUser | null;
   children: React.ReactNode;
+  bell?: React.ReactNode;
 }
 
 const NAV = [
@@ -45,7 +46,7 @@ function Logo() {
   );
 }
 
-export function Shell({ user, children }: ShellProps) {
+export function Shell({ user, children, bell }: ShellProps) {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -106,6 +107,7 @@ export function Shell({ user, children }: ShellProps) {
               </span>
             </span>
           </button>
+          {bell}
           {user ? (
             <div className="me-menu">
               <Link href={`/u/${user.handle}` as Route} className="me-btn">

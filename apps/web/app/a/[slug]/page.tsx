@@ -17,6 +17,7 @@ import { ActionBar } from '@/app/_components/action-bar';
 import { Comments } from '@/app/_components/comments';
 import type { CommentNode } from '@/app/_components/comment-item';
 import { mapAppRowToCardProps, fmtNum } from '@/app/_components/data-mappers';
+import { ContactCTA } from './_components/contact-cta';
 import type { Tables } from '@/lib/supabase/types';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -241,9 +242,35 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
               </span>
             </div>
             <div className="detail-author-actions">
-              <button type="button" className="btn btn-publish" disabled aria-label="coming soon">
-                Contact me
-              </button>
+              <ContactCTA
+                app={{
+                  id: row.id,
+                  slug: row.slug,
+                  title: row.title,
+                  accent: app.accent,
+                  art_kind: row.art_kind,
+                }}
+                author={{
+                  id: row.author_id,
+                  handle: u.handle,
+                  display_name: u.display_name,
+                  avatar_url: profile?.avatar_url ?? null,
+                  hue: u.hue,
+                  emoji: u.emoji,
+                }}
+                viewer={
+                  isAuthenticated && viewer
+                    ? {
+                        handle: viewer.profile.handle,
+                        display_name: viewer.profile.display_name,
+                        avatar_url: viewer.profile.avatar_url,
+                        hue: viewer.profile.hue,
+                        emoji: viewer.profile.emoji,
+                      }
+                    : null
+                }
+                signedIn={isAuthenticated}
+              />
               <button type="button" className="btn btn-ghost-2" disabled aria-label="coming soon">
                 Follow
               </button>
@@ -364,14 +391,35 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
             <i>{u.handle}</i>
             {profile?.bio && <p>{profile.bio}</p>}
             <div className="panel-author-actions">
-              <button
-                type="button"
-                className="btn btn-primary btn-block"
-                disabled
-                aria-label="coming soon"
-              >
-                Contact {u.display_name.split(' ')[0]}
-              </button>
+              <ContactCTA
+                app={{
+                  id: row.id,
+                  slug: row.slug,
+                  title: row.title,
+                  accent: app.accent,
+                  art_kind: row.art_kind,
+                }}
+                author={{
+                  id: row.author_id,
+                  handle: u.handle,
+                  display_name: u.display_name,
+                  avatar_url: profile?.avatar_url ?? null,
+                  hue: u.hue,
+                  emoji: u.emoji,
+                }}
+                viewer={
+                  isAuthenticated && viewer
+                    ? {
+                        handle: viewer.profile.handle,
+                        display_name: viewer.profile.display_name,
+                        avatar_url: viewer.profile.avatar_url,
+                        hue: viewer.profile.hue,
+                        emoji: viewer.profile.emoji,
+                      }
+                    : null
+                }
+                signedIn={isAuthenticated}
+              />
               <a href={`/u/${u.handle}`} className="btn btn-ghost-2 btn-block">
                 View profile
               </a>
