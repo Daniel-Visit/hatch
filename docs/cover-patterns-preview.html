@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hatch cover patterns — pick 18 of 20</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: #f7f6f3;
+        --surface: #ffffff;
+        --border: rgba(15, 12, 8, 0.12);
+        --text: #0d0c0a;
+        --muted: #74716a;
+        --ax: #a855f7;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, 'Inter', system-ui, sans-serif; }
+      .page { max-width: 1320px; margin: 0 auto; padding: 40px 24px 80px; }
+      h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+      h2 { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; margin: 40px 0 14px; color: var(--text); }
+      p.lead { color: var(--muted); margin: 0 0 6px; font-size: 14px; line-height: 1.5; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        position: relative;
+      }
+      .badge {
+        position: absolute;
+        top: 8px; left: 8px;
+        z-index: 5;
+        background: #0d0c0a;
+        color: #fff;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+        letter-spacing: 0.04em;
+      }
+      .cover {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        position: relative;
+      }
+      .meta {
+        padding: 10px 14px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .meta .name { font-weight: 700; font-size: 13.5px; }
+      .meta .fam {
+        font-size: 10.5px;
+        color: var(--muted);
+        font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      /* ===== Group A: emoji-based (from apps/web/app/_components/app-art.tsx) ===== */
+      .app-art { position: relative; width: 100%; height: 100%; overflow: hidden; isolation: isolate; }
+      .art-glyph { position: absolute; inset: 0; display: grid; place-items: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35)); z-index: 2; font-size: 56px; }
+      .art-grid {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(255,255,255,0.4) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255,255,255,0.4) 1px, transparent 1px);
+        background-size: 18px 18px;
+      }
+      .art-grid5 {
+        position: absolute; inset: 12%;
+        background-image:
+          linear-gradient(to right, rgba(0,0,0,0.18) 2px, transparent 2px),
+          linear-gradient(to bottom, rgba(0,0,0,0.18) 2px, transparent 2px);
+        background-size: 20% 20%;
+        border: 2px solid rgba(0,0,0,0.18);
+      }
+      .art-grid8 {
+        position: absolute; inset: 14%;
+        background-image:
+          linear-gradient(to right, rgba(255,255,255,0.35) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255,255,255,0.35) 1px, transparent 1px);
+        background-size: 12.5% 12.5%;
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 4px;
+      }
+      .art-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%,-50%); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+      .art-blob { position: absolute; width: 50%; height: 60%; border-radius: 50%; filter: blur(20px); opacity: 0.6; mix-blend-mode: screen; }
+      .art-stripe { position: absolute; top: 20%; bottom: 20%; width: 8%; border-radius: 4px; opacity: 0.9; }
+      .art-ring { position: absolute; left: 50%; top: 50%; width: 110px; height: 110px; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 50%; transform: translate(-50%,-50%); }
+      .art-card { position: absolute; left: 50%; top: 50%; width: 50%; aspect-ratio: 1.5; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+      .art-trail { position: absolute; left: 10%; top: 30%; width: 70%; height: 4px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.9)); border-radius: 999px; transform: rotate(-12deg); filter: blur(1px); }
+      .art-bar { position: absolute; bottom: 10%; width: 6%; background: rgba(255,255,255,0.55); border-radius: 4px 4px 0 0; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Hatch covers — pick 18 (currently 20 options · dropped: A6, B4, B5, B9)</h1>
+      <p class="lead">Tell me which IDs to <strong>drop</strong> by ID (e.g. <code>A8, B5</code>). I append new ones as you send them — pool grows, then we trim to 18.</p>
+      <p class="lead"><strong>Group A · emoji</strong>: the 12 currently in <code>apps/web/app/_components/app-art.tsx</code>. Each card has a big mascot glyph + decorative blobs/stripes/dots over a gradient.</p>
+      <p class="lead"><strong>Group B · procedural</strong>: 8 from the landing prototype + variants added during iteration. Each is a deterministic SVG seeded by app slug — no emoji, no mascot.</p>
+
+      <h2>Group A — emoji covers (11 active)</h2>
+      <div class="grid" id="grid-a"></div>
+
+      <h2>Group B — procedural covers (9 active)</h2>
+      <div class="grid" id="grid-b"></div>
+    </div>
+
+    <script>
+      // ===== Group A definitions (mirrors app-art.tsx ART map) =====
+      const A = [
+        { id: 'pixel',    glyph: '🍣', bg: 'linear-gradient(135deg,#ff7a59 0%,#fb7185 50%,#a21caf 100%)',
+          deco: [
+            ['art-grid', { opacity: 0.18 }],
+            ['art-dot',  { left: '18%', top: '24%', background: '#fef3c7' }],
+            ['art-dot',  { left: '72%', top: '38%', background: '#fcd34d' }],
+            ['art-dot',  { left: '42%', top: '78%', background: '#fef3c7' }],
+          ]},
+        { id: 'roast',    glyph: '🔥', bg: 'linear-gradient(135deg,#fef3c7 0%,#f59e0b 60%,#dc2626 100%)',
+          deco: [
+            ['art-blob', { background: '#fde047', left: '-10%', top: '50%' }],
+            ['art-blob', { background: '#f97316', right: '-15%', top: '-20%' }],
+          ]},
+        { id: 'palette',  glyph: '🪟', bg: 'linear-gradient(180deg,#0ea5e9 0%,#67e8f9 100%)',
+          deco: [
+            ['art-stripe', { left: '8%',  background: '#fef3c7' }],
+            ['art-stripe', { left: '24%', background: '#f472b6' }],
+            ['art-stripe', { left: '40%', background: '#a78bfa' }],
+            ['art-stripe', { left: '56%', background: '#34d399' }],
+            ['art-stripe', { left: '72%', background: '#fb923c' }],
+            ['art-stripe', { left: '88%', background: '#ffffff' }],
+          ]},
+        { id: 'dj',       glyph: '🪩', bg: 'radial-gradient(circle at 50% 50%,#fbcfe8 0%,#ec4899 40%,#3b0764 100%)',
+          deco: [
+            ['art-ring', {}],
+            ['art-ring', { width: 180, height: 180, opacity: 0.3 }],
+            ['art-ring', { width: 260, height: 260, opacity: 0.15 }],
+          ]},
+        { id: 'letter',   glyph: '✉', bg: 'linear-gradient(160deg,#bae6fd 0%,#3b82f6 100%)',
+          deco: [
+            ['art-card', { transform: 'translate(-70%,-40%) rotate(-6deg)', background: '#fff' }],
+            ['art-card', { transform: 'translate(-30%,-60%) rotate(4deg)',  background: '#e0f2fe' }],
+          ]},
+        { id: 'cursor',   glyph: '✦', bg: 'linear-gradient(135deg,#581c87 0%,#a855f7 50%,#fde047 100%)',
+          deco: [
+            ['art-trail', {}],
+            ['art-dot',   { left: '74%', top: '32%', width: '22px', height: '22px', background: '#fef3c7' }],
+          ]},
+        { id: 'bingo',    glyph: '◧', bg: 'linear-gradient(180deg,#fef9c3 0%,#facc15 100%)',
+          deco: [['art-grid5', {}]]},
+        { id: 'snail',    glyph: '🐝', bg: 'linear-gradient(135deg,#fecdd3 0%,#f43f5e 100%)',
+          deco: [['art-blob', { background: '#fff', opacity: 0.35, left: '60%', top: '40%' }]]},
+        { id: 'karaoke',  glyph: '🎤', bg: 'linear-gradient(135deg,#3b0764 0%,#db2777 50%,#fb923c 100%)',
+          deco: [
+            ['art-bar', { left: '20%', height: '40%' }],
+            ['art-bar', { left: '32%', height: '75%' }],
+            ['art-bar', { left: '44%', height: '55%' }],
+            ['art-bar', { left: '56%', height: '85%' }],
+            ['art-bar', { left: '68%', height: '30%' }],
+          ]},
+        { id: 'tinydraw', glyph: '◰', bg: 'linear-gradient(180deg,#1e3a8a 0%,#60a5fa 100%)',
+          deco: [['art-grid8', {}]]},
+        { id: 'fog',      glyph: '◍', bg: 'linear-gradient(135deg,#022c22 0%,#10b981 100%)',
+          deco: [
+            ['art-blob', { background: '#34d399' }],
+            ['art-dot',  { left: '50%', top: '50%', width: '36px', height: '36px', background: '#fff', transform: 'translate(-50%,-50%)' }],
+          ]},
+        { id: 'pasta',    glyph: '🍝', bg: 'linear-gradient(135deg,#fed7aa 0%,#fb923c 100%)',
+          deco: [['art-blob', { background: '#fde68a', left: '-10%', top: '-10%' }]]},
+      ];
+
+      function styleStr(o) {
+        return Object.entries(o).map(([k, v]) => `${k.replace(/([A-Z])/g,'-$1').toLowerCase()}:${typeof v === 'number' ? v + 'px' : v}`).join(';');
+      }
+
+      const droppedA = new Set([6]); // A6 cursor — user dropped 2026-05-16
+      const gridA = document.getElementById('grid-a');
+      A.forEach((a, i) => {
+        const num = i + 1;
+        if (droppedA.has(num)) return;
+        const decoHtml = a.deco.map(([cls, st]) => `<i class="${cls}" style="${styleStr(st)}"></i>`).join('');
+        gridA.insertAdjacentHTML('beforeend', `
+          <div class="card">
+            <div class="badge">A${num}</div>
+            <div class="cover">
+              <div class="app-art" style="background:${a.bg}">
+                ${decoHtml}
+                <div class="art-glyph">${a.glyph}</div>
+              </div>
+            </div>
+            <div class="meta"><span class="name">${a.id}</span><span class="fam">emoji</span></div>
+          </div>
+        `);
+      });
+
+      // ===== Group B definitions (mirrors landing atoms.jsx Art) =====
+      const PALETTES = [
+        ["#f97316", "#ec4899", "#a855f7"],
+        ["#22c55e", "#0ea5e9", "#a855f7"],
+        ["#f59e0b", "#ef4444", "#ec4899"],
+        ["#0ea5e9", "#8b5cf6", "#22c55e"],
+        ["#ec4899", "#a855f7", "#3b82f6"],
+        ["#f97316", "#f59e0b", "#ef4444"],
+        ["#10b981", "#0ea5e9", "#6366f1"],
+        ["#a855f7", "#ec4899", "#f97316"],
+      ];
+      function seededRand(seed) {
+        let s = seed;
+        return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+      }
+      function renderB(kind, seed) {
+        const p = PALETTES[seed % PALETTES.length];
+        const rand = seededRand(seed * 17 + kind);
+        switch (kind) {
+          case 0: // Gradient mesh
+            return `<svg viewBox="0 0 200 130" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+              <defs>
+                <radialGradient id="b0g${seed}a" cx="20%" cy="20%"><stop offset="0%" stop-color="${p[0]}" stop-opacity="0.9"/><stop offset="100%" stop-color="${p[0]}" stop-opacity="0"/></radialGradient>
+                <radialGradient id="b0g${seed}b" cx="80%" cy="40%"><stop offset="0%" stop-color="${p[1]}" stop-opacity="0.9"/><stop offset="100%" stop-color="${p[1]}" stop-opacity="0"/></radialGradient>
+                <radialGradient id="b0g${seed}c" cx="50%" cy="90%"><stop offset="0%" stop-color="${p[2]}" stop-opacity="0.9"/><stop offset="100%" stop-color="${p[2]}" stop-opacity="0"/></radialGradient>
+              </defs>
+              <rect width="200" height="130" fill="${p[2]}" opacity="0.18"/>
+              <rect width="200" height="130" fill="url(#b0g${seed}a)"/>
+              <rect width="200" height="130" fill="url(#b0g${seed}b)"/>
+              <rect width="200" height="130" fill="url(#b0g${seed}c)"/>
+            </svg>`;
+          case 1: { // Geometric shapes (bokeh)
+            const shapes = Array.from({ length: 8 }, (_, i) => ({
+              x: rand()*200, y: rand()*130, r: 16+rand()*42, c: p[i%3], op: 0.55+rand()*0.4,
+            }));
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="#0f0c08"/>
+              ${shapes.map(s => `<circle cx="${s.x}" cy="${s.y}" r="${s.r}" fill="${s.c}" opacity="${s.op}" style="mix-blend-mode:screen"/>`).join('')}
+            </svg>`;
+          }
+          case 2: { // Grid dots
+            const cells = [];
+            for (let y=0;y<7;y++) for(let x=0;x<11;x++) {
+              const d = Math.hypot(x-5, y-3);
+              cells.push({ x: x*20+10, y: y*20+5, r: 1.5 + (1-d/8)*4, c: p[(x+y)%3] });
+            }
+            return `<svg viewBox="0 0 220 145" style="width:100%;height:100%;display:block">
+              <rect width="220" height="145" fill="${p[2]}" opacity="0.08"/>
+              ${cells.map(c => `<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="${c.c}"/>`).join('')}
+            </svg>`;
+          }
+          case 3: // Diagonal stripes
+            return `<svg viewBox="0 0 200 130" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+              <defs><linearGradient id="b3s${seed}" x1="0" x2="1"><stop offset="0%" stop-color="${p[0]}"/><stop offset="50%" stop-color="${p[1]}"/><stop offset="100%" stop-color="${p[2]}"/></linearGradient></defs>
+              <rect width="200" height="130" fill="url(#b3s${seed})" opacity="0.85"/>
+              ${Array.from({length:6}).map((_,i) => `<rect x="${-50+i*45}" y="-20" width="20" height="200" fill="#fff" opacity="0.08" transform="rotate(20 100 65)"/>`).join('')}
+            </svg>`;
+          case 4: { // Waveform
+            let pathD = "M0,80 ";
+            for (let x=0; x<=200; x+=10) {
+              const y = 65 + Math.sin(x/14 + seed) * 22 + Math.cos(x/24)*8;
+              pathD += `L${x},${y} `;
+            }
+            const fillD = pathD + "L200,130 L0,130 Z";
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <defs><linearGradient id="b4w${seed}" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="${p[0]}"/><stop offset="100%" stop-color="${p[2]}"/></linearGradient></defs>
+              <rect width="200" height="130" fill="${p[1]}" opacity="0.15"/>
+              <path d="${fillD}" fill="url(#b4w${seed})" opacity="0.85"/>
+              <path d="${pathD.replace('M0,80','M0,90')}" stroke="${p[0]}" stroke-width="1.5" fill="none" opacity="0.6"/>
+            </svg>`;
+          }
+          case 5: { // ASCII blocks
+            const cells = [];
+            for (let y=0;y<6;y++) for(let x=0;x<10;x++) {
+              if (rand() > 0.45) cells.push({ x:x*20, y:y*22, c: p[Math.floor(rand()*3)], op: 0.4+rand()*0.5 });
+            }
+            return `<svg viewBox="0 0 200 130" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="#0a0a0c"/>
+              ${cells.map(c => `<rect x="${c.x}" y="${c.y}" width="18" height="20" fill="${c.c}" opacity="${c.op}" rx="2"/>`).join('')}
+            </svg>`;
+          }
+          case 6: // Rings
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="${p[2]}" opacity="0.12"/>
+              ${[40,55,70,85,100].map((r,i) => `<circle cx="100" cy="65" r="${r}" fill="none" stroke="${p[i%3]}" stroke-width="2" opacity="${0.85-i*0.12}"/>`).join('')}
+              <circle cx="100" cy="65" r="14" fill="${p[0]}"/>
+            </svg>`;
+          case 7: { // Glyph
+            const glyphs = ["◆","◇","▲","●","◐","✦","◈","▼"];
+            const g = glyphs[seed % glyphs.length];
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <defs><linearGradient id="b7gly${seed}" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="${p[0]}"/><stop offset="100%" stop-color="${p[2]}"/></linearGradient></defs>
+              <rect width="200" height="130" fill="#0f0c08"/>
+              <text x="100" y="95" font-size="100" font-family="ui-monospace, monospace" text-anchor="middle" fill="url(#b7gly${seed})">${g}</text>
+            </svg>`;
+          }
+          case 8: { // Warm diagonal — user-added 2026-05-16 (image #12).
+            // Sunset-peach palette with broad diagonal bands, alternating tones.
+            // Different from B4: chunkier bands (no gradient base), warmer-only palette.
+            const colors = ['#fb923c', '#fbbf24', '#f59e0b', '#fdba74', '#fb923c', '#fbbf24', '#f87171', '#fdba74', '#fb923c'];
+            return `<svg viewBox="0 0 200 130" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="#fb923c"/>
+              ${colors.map((c, i) => `<rect x="${-40 + i*32}" y="-30" width="32" height="200" fill="${c}" transform="rotate(22 100 65)"/>`).join('')}
+            </svg>`;
+          }
+          case 9: { // Soft rings — user-added 2026-05-16 (image #13). "super bueno".
+            // Cream background, many thin concentric rings in warm palette,
+            // filled orange center. Different from B7 (rings): lighter bg,
+            // more rings, warmer-only, thinner strokes.
+            const ringColors = ['#f472b6', '#fb923c', '#fbbf24', '#f472b6', '#fb923c', '#fbbf24', '#f472b6'];
+            const radii = [22, 36, 50, 64, 78, 92, 106];
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="#fde8e0"/>
+              ${radii.map((r, i) => `<circle cx="100" cy="65" r="${r}" fill="none" stroke="${ringColors[i]}" stroke-width="1.4" opacity="0.85"/>`).join('')}
+              <circle cx="100" cy="65" r="11" fill="#fb923c"/>
+            </svg>`;
+          }
+          case 10: { // Cool stripes — user-added 2026-05-16 (image #14).
+            // Cool-palette (pink→violet→blue) diagonal bands.
+            const colors = ['#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#7c3aed', '#6366f1', '#3b82f6', '#60a5fa', '#ec4899'];
+            return `<svg viewBox="0 0 200 130" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+              <defs><linearGradient id="b10cs${seed}" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#ec4899"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
+              <rect width="200" height="130" fill="url(#b10cs${seed})"/>
+              ${colors.map((c, i) => `<rect x="${-40 + i*32}" y="-30" width="32" height="200" fill="${c}" opacity="0.30" transform="rotate(22 100 65)"/>`).join('')}
+            </svg>`;
+          }
+          case 11: { // Cool bokeh — user-added 2026-05-16 (image #15).
+            // Same composition as B2 (geometric shapes) but cool palette
+            // (greens/teals/blues) on dark — feels lake/forest instead of fire.
+            const cools = ['#22c55e', '#10b981', '#0ea5e9', '#3b82f6', '#06b6d4', '#14b8a6'];
+            const shapes = Array.from({ length: 7 }, (_, i) => ({
+              x: rand()*200, y: rand()*130, r: 22+rand()*44, c: cools[i % cools.length], op: 0.5+rand()*0.4,
+            }));
+            return `<svg viewBox="0 0 200 130" style="width:100%;height:100%;display:block">
+              <rect width="200" height="130" fill="#0a0a0c"/>
+              ${shapes.map(s => `<circle cx="${s.x}" cy="${s.y}" r="${s.r}" fill="${s.c}" opacity="${s.op}" style="mix-blend-mode:screen"/>`).join('')}
+            </svg>`;
+          }
+        }
+      }
+      // Stable IDs (kind never shifts after a drop so user can keep referring to
+      // the same B-number across iterations).
+      const bNames = ['gradient mesh', 'bokeh shapes', 'grid dots', 'diagonal stripes', 'waveform', 'ascii blocks', 'rings', 'glyph mono', 'warm diagonal', 'soft rings', 'cool stripes', 'cool bokeh'];
+      const dropped = new Set([4, 5, 9]); // B4 diagonal stripes + B5 waveform + B9 warm diagonal — user dropped 2026-05-16
+      const gridB = document.getElementById('grid-b');
+      bNames.forEach((name, kind) => {
+        const num = kind + 1;
+        if (dropped.has(num)) return;
+        gridB.insertAdjacentHTML('beforeend', `
+          <div class="card">
+            <div class="badge">B${num}</div>
+            <div class="cover">${renderB(kind, kind + 3)}</div>
+            <div class="meta"><span class="name">${name}</span><span class="fam">procedural</span></div>
+          </div>
+        `);
+      });
+    </script>
+  </body>
+</html>
