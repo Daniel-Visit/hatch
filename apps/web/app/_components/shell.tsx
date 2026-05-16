@@ -81,7 +81,7 @@ export function Shell({ user, children, bell }: ShellProps) {
             href={user ? '/publish' : ('/sign-in?next=/publish' as Route)}
             className="btn btn-publish"
           >
-            <Icon name="plus" /> {t('PublishApp')}
+            <Icon name="plus" /> <span className="btn-publish-label">{t('PublishApp')}</span>
           </Link>
           <LocaleToggle />
           <button

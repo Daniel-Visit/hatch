@@ -501,3 +501,66 @@ a { color: inherit; }
   transform: translateY(-1px);
 }
 .btn-signin-cta:active { transform: translateY(0); }
+
+/* ════════════════════════════════════════════════════════════════════════
+ *  RESPONSIVE
+ *  Prototype-port was desktop-only; below adds the breakpoints needed for
+ *  tablet (≤1024) and mobile (≤640). Larger viewports unchanged.
+ *  Strategy:
+ *    ≤1024 → drop the sidebar, give .main the full width.
+ *    ≤900  → topbar tightens: Browse hides, search shrinks, kbd hides.
+ *    ≤640  → topbar mobile mode: hide locale toggle + theme toggle,
+ *            shrink Publish to icon, search becomes optional.
+ *            Two-column screens stack (detail, profile, publish, hero).
+ *    ≤420  → ultra-tight: hide search input, only logo + sign-in/avatar.
+ * ════════════════════════════════════════════════════════════════════════ */
+
+/* Safety net against accidental horizontal overflow on any page. */
+html, body { overflow-x: hidden; }
+
+@media (max-width: 960px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'top' 'main';
+  }
+  .sidebar { display: none; }
+  :root { --main-pad: 20px; }
+}
+
+@media (max-width: 900px) {
+  .topbar { gap: 12px; padding: 0 16px; }
+  .topbar-actions { gap: 6px; }
+  /* "Browse" link is redundant when the logo links home; hide its label. */
+  .topbar-actions > a.btn-ghost:not(.btn-signin-cta) { display: none; }
+  .topbar-search { max-width: none; }
+  .topbar-search .kbd { display: none; }
+  /* Most two-column screens stack here. */
+  .hero-grid, .detail-grid, .publish-grid, .featured { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  :root { --main-pad: 16px; --topbar-h: 56px; }
+  .topbar { gap: 10px; padding: 0 12px; }
+  .logo { padding-right: 8px; border-right: 0; font-size: 16px; }
+  .logo-text { display: none; } /* keep just the mark */
+  .topbar-search { height: 32px; padding: 0 10px; }
+  .topbar-search input { font-size: 13px; }
+  /* Compact pill controls — hide labels, keep iconography. */
+  .locale-toggle { display: none; }
+  .theme-toggle { display: none; }
+  /* Publish button shrinks to the plus icon only. */
+  .btn-publish { min-width: 0; padding: 0 10px; }
+  .btn-publish > *:not(svg):not(.btn-publish-icon) { display: none; }
+  .btn-publish svg, .btn-publish .btn-publish-icon { margin: 0; }
+  .btn-signin-cta { min-width: 0; padding: 0 12px; }
+  /* Single-column gallery on small screens. */
+  .grid { grid-template-columns: 1fr !important; }
+  /* Inner two/three-column rows that the prototype assumed wide */
+  .hero-side, .featured-side, .pstat-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .topbar-search { display: none; }
+  .topbar-actions > a.btn-publish span { display: none; }
+}
+
