@@ -19,6 +19,8 @@ import type { CommentNode } from '@/app/_components/comment-item';
 import { mapAppRowToCardProps, fmtNum, relativeTime } from '@/app/_components/data-mappers';
 import { ContactCTA } from './_components/contact-cta';
 import TranslatableDescription from './_components/translatable-description';
+import { ShareRow } from './_components/share-row';
+import { FollowPill } from '@/app/_components/follow-pill';
 import { recordView } from '@/lib/actions/views';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -143,7 +145,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
   const isAuthenticated = !!viewer?.user;
   const viewerId = viewer?.user.id ?? null;
 
-  const [likeRow, saveRow, commentsRaw] = await Promise.all([
+  const [likeRow, saveRow, commentsRaw, followRow] = await Promise.all([
     isAuthenticated && viewerId
       ? sb
           .from('likes')
@@ -169,7 +171,17 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
       .eq('app_id', row.id)
       .eq('is_deleted', false)
       .order('created_at', { ascending: false }),
+    isAuthenticated && viewerId && viewerId !== row.author_id
+      ? sb
+          .from('follows')
+          .select('follower_id')
+          .eq('follower_id', viewerId)
+          .eq('followee_id', row.author_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
+  const initialFollowing = !!followRow.data;
+  const isOwnApp = viewerId === row.author_id;
 
   const allComments = (commentsRaw.data ?? []) as unknown as CommentRowWithAuthor[];
 
@@ -287,14 +299,14 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 }
                 signedIn={isAuthenticated}
               />
-              <button
-                type="button"
-                className="btn btn-ghost-2"
-                disabled
-                aria-label={t('ComingSoon')}
-              >
-                {t('Follow')}
-              </button>
+              <FollowPill
+                followeeId={row.author_id}
+                followeeHandle={u.handle}
+                followerHandle={viewer?.profile.handle ?? 'guest'}
+                initialFollowing={initialFollowing}
+                isAuthenticated={isAuthenticated}
+                isOwnProfile={isOwnApp}
+              />
             </div>
           </div>
 
@@ -439,37 +451,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
 
           <div className="panel">
             <h3 className="panel-h">{t('ShareSection')}</h3>
-            <div className="share-row">
-              <button type="button" className="share-btn" disabled aria-label={t('ComingSoon')}>
-                {t('CopyLink')}
-              </button>
-              <div className="share-icons">
-                <button
-                  type="button"
-                  className="btn btn-icon"
-                  disabled
-                  aria-label={t('ComingSoon')}
-                >
-                  𝕏
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-icon"
-                  disabled
-                  aria-label={t('ComingSoon')}
-                >
-                  ↗
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-icon"
-                  disabled
-                  aria-label={t('ComingSoon')}
-                >
-                  ⌬
-                </button>
-              </div>
-            </div>
+            <ShareRow title={row.title} tagline={row.tagline} />
           </div>
 
           <div className="panel">
