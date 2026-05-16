@@ -47,7 +47,11 @@ async function FilterChips({
   return (
     <div className="chips">
       {categories.map((c) => (
-        <Link key={c.id} href={(c.id === 'all' ? '/' : `/c/${c.id}`) as Route} className="chip">
+        <Link
+          key={c.id}
+          href={(c.id === 'all' ? '/gallery' : `/c/${c.id}`) as Route}
+          className="chip"
+        >
           <span className="chip-i">{c.icon}</span>
           <span>{lookupLabel(c.id, c.label)}</span>
         </Link>

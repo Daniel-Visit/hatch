@@ -244,7 +244,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
   return (
     <div className="detail" style={{ '--ax': app.accent } as React.CSSProperties}>
       <div className="detail-crumbs">
-        <Link className="crumb-back" href="/">
+        <Link className="crumb-back" href="/gallery">
           {t('BackToGallery')}
         </Link>
         <span className="crumb-sep">/</span>

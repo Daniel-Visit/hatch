@@ -80,7 +80,7 @@ export default async function SavedPage() {
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '14px' }}>
           {t('SaveSomeApps')}{' '}
-          <Link href="/" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
+          <Link href="/gallery" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
             {t('BrowseDiscover')}
           </Link>
         </p>

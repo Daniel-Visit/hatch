@@ -32,7 +32,7 @@ type NavKey = 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved';
 
 // Browse: feeds anyone can read (no auth required).
 const BROWSE_NAV: { href: Route; key: NavKey; icon: string }[] = [
-  { href: '/', key: 'Discover', icon: '◇' },
+  { href: '/gallery', key: 'Discover', icon: '◇' },
   { href: '/trending', key: 'Trending', icon: '↗' },
   { href: '/new', key: 'NewAndFresh', icon: '✦' },
 ];
@@ -105,7 +105,7 @@ export function Shell({ user, children, bell }: ShellProps) {
           <span className="kbd">⌘K</span>
         </form>
         <nav className="topbar-actions">
-          <Link href="/" className="btn btn-ghost">
+          <Link href="/gallery" className="btn btn-ghost">
             {t('Browse')}
           </Link>
           <Link

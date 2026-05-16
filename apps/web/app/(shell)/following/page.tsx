@@ -55,7 +55,7 @@ export default async function FollowingPage() {
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '14px' }}>
           {t('FollowSomeBuilders')}{' '}
-          <Link href="/" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
+          <Link href="/gallery" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
             {t('BrowseDiscover')}
           </Link>
         </p>
