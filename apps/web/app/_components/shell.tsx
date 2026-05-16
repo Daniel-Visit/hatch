@@ -4,10 +4,11 @@
 // and a slot for the active screen. The shell is shared across all 4 routes
 // (gallery / detail / profile / publish).
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Icon } from './icons';
 import { useTheme } from './theme-controller';
 
@@ -25,11 +26,11 @@ export interface ShellProps {
   bell?: React.ReactNode;
 }
 
-const NAV = [
-  { id: 'gallery', label: 'Discover', icon: '◇' },
-  { id: 'trending', label: 'Trending', icon: '↗' },
-  { id: 'new', label: 'New & fresh', icon: '✦' },
-  { id: 'following', label: 'Following', icon: '◉' },
+const NAV: { href: Route; label: string; icon: string }[] = [
+  { href: '/', label: 'Discover', icon: '◇' },
+  { href: '/trending', label: 'Trending', icon: '↗' },
+  { href: '/new', label: 'New & fresh', icon: '✦' },
+  { href: '/following', label: 'Following', icon: '◉' },
 ];
 
 function Logo() {
@@ -48,6 +49,7 @@ function Logo() {
 
 export function Shell({ user, children, bell }: ShellProps) {
   const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
 
   return (
     <div className="shell">
@@ -64,10 +66,15 @@ export function Shell({ user, children, bell }: ShellProps) {
           <span className="kbd">⌘K</span>
         </form>
         <nav className="topbar-actions">
-          <button className="btn btn-ghost">Browse</button>
-          <button className="btn btn-publish">
+          <Link href="/" className="btn btn-ghost">
+            Browse
+          </Link>
+          <Link
+            href={user ? '/publish' : ('/sign-in?next=/publish' as Route)}
+            className="btn btn-publish"
+          >
             <Icon name="plus" /> Publish app
-          </button>
+          </Link>
           <button
             className="theme-toggle"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -109,36 +116,7 @@ export function Shell({ user, children, bell }: ShellProps) {
           </button>
           {bell}
           {user ? (
-            <div className="me-menu">
-              <Link href={`/u/${user.handle}` as Route} className="me-btn">
-                {user.avatar_url ? (
-                  <Image
-                    src={user.avatar_url}
-                    alt={user.display_name}
-                    width={28}
-                    height={28}
-                    className="me-avatar"
-                  />
-                ) : (
-                  <span
-                    className="me-avatar me-avatar-emoji"
-                    style={{ '--hue': user.hue } as React.CSSProperties}
-                  >
-                    {user.emoji ?? user.display_name[0]}
-                  </span>
-                )}
-              </Link>
-              <div className="me-dropdown">
-                <Link href={`/u/${user.handle}` as Route} className="dropdown-item">
-                  Profile
-                </Link>
-                <form action="/auth/sign-out" method="post">
-                  <button type="submit" className="dropdown-item">
-                    Sign out
-                  </button>
-                </form>
-              </div>
-            </div>
+            <AvatarMenu user={user} />
           ) : (
             <Link href="/sign-in" className="btn btn-ghost">
               Sign in
@@ -150,27 +128,114 @@ export function Shell({ user, children, bell }: ShellProps) {
       <aside className="sidebar">
         <div className="sidebar-sect">
           <div className="sidebar-label">Browse</div>
-          {NAV.map((n) => (
-            <button key={n.id} className="nav-item">
-              <i className="nav-i">{n.icon}</i>
-              <span>{n.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="sidebar-sect sidebar-foot">
-          <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
-            <i className="nav-i">?</i>
-            <span>Docs &amp; guides</span>
-          </a>
-          <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
-            <i className="nav-i">⌂</i>
-            <span>Community</span>
-          </a>
+          {NAV.map((n) => {
+            const isActive = n.href === '/' ? pathname === '/' : pathname === n.href;
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`nav-item${isActive ? ' is-on' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <i className="nav-i">{n.icon}</i>
+                <span>{n.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </aside>
 
       <main className="main">{children}</main>
+    </div>
+  );
+}
+
+function AvatarMenu({ user }: { user: ShellUser }) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e: MouseEvent) {
+      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="me-menu" ref={wrapperRef}>
+      <button
+        type="button"
+        className="me-btn"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title={`@${user.handle}`}
+      >
+        {user.avatar_url ? (
+          <Image
+            src={user.avatar_url}
+            alt={user.display_name}
+            width={28}
+            height={28}
+            className="avatar"
+            style={{ width: 28, height: 28 }}
+          />
+        ) : (
+          <span
+            className="avatar"
+            style={{
+              width: 28,
+              height: 28,
+              fontSize: 28 * 0.55,
+              background: `oklch(72% 0.15 ${user.hue})`,
+            }}
+          >
+            {user.emoji ?? user.display_name[0]}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div className="me-dropdown" role="menu">
+          <div className="me-dropdown-header">
+            <div className="me-dropdown-name">{user.display_name}</div>
+            <div className="me-dropdown-handle">@{user.handle}</div>
+          </div>
+          <Link
+            href={`/u/${user.handle}` as Route}
+            className="me-dropdown-item"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+          >
+            <span className="me-dropdown-i">◆</span>
+            Profile
+          </Link>
+          <Link
+            href={'/settings/profile' as Route}
+            className="me-dropdown-item"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+          >
+            <span className="me-dropdown-i">✎</span>
+            Edit profile
+          </Link>
+          <div className="me-dropdown-sep" />
+          <form action="/auth/sign-out" method="post">
+            <button type="submit" className="me-dropdown-item me-dropdown-danger" role="menuitem">
+              <span className="me-dropdown-i">↩</span>
+              Sign out
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

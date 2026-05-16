@@ -26,7 +26,6 @@ function toAppDataExtended(app: SearchResultApp): AppDataExtended {
     tags: [],
     stats: {
       likes: app.likes_count,
-      remixes: 0,
       views: 0,
     },
     author: {

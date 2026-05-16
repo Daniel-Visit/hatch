@@ -34,7 +34,6 @@ export interface Category {
 
 export interface AppStats {
   likes: number;
-  remixes: number;
   views: number;
 }
 
@@ -141,7 +140,6 @@ export function ClassicCard({ app, onOpen, onAuthor }: CardProps) {
           </button>
           <div className="card-stats">
             <Stat iconName="heart" value={app.stats.likes} />
-            <Stat iconName="remix" value={app.stats.remixes} />
             <Stat iconName="eye" value={app.stats.views} />
           </div>
         </div>
@@ -235,7 +233,6 @@ export function DarkCard({ app, onOpen, onAuthor }: CardProps) {
           </button>
           <div className="card-stats">
             <Stat iconName="heart" value={app.stats.likes} />
-            <Stat iconName="remix" value={app.stats.remixes} />
           </div>
         </div>
       </div>
@@ -290,9 +287,8 @@ export function MonoCard({ app, onOpen, onAuthor }: CardProps) {
             <span>{u.handle}</span>
           </button>
           <span className="mono-stats">
-            <Icon name="heart" size={12} /> {fmtNum(app.stats.likes)}{' '}
-            <Icon name="remix" size={12} /> {fmtNum(app.stats.remixes)}{' '}
-            <Icon name="eye" size={12} /> {fmtNum(app.stats.views)}
+            <Icon name="heart" size={12} /> {fmtNum(app.stats.likes)} <Icon name="eye" size={12} />{' '}
+            {fmtNum(app.stats.views)}
           </span>
         </div>
       </div>

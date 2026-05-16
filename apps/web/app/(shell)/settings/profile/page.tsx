@@ -25,7 +25,9 @@ export default async function SettingsProfilePage() {
           bio: profile.bio,
           links,
           hue: profile.hue ?? 200,
+          banner_gradient: profile.banner_gradient,
         }}
+        initialAvatarUrl={profile.avatar_url}
       />
       <form action="/auth/sign-out" method="post" style={{ marginTop: '3rem' }}>
         <button

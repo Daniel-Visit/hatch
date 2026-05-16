@@ -1,7 +1,7 @@
 // Detail page — async RSC port of prototype/apps-gallery/detail.jsx.
 // Queries Supabase for a single published app by slug, maps the row to the
 // AppData contract, and renders the detail layout verbatim from the prototype.
-// Wires the social action bar (like/save/share/remix counts) and threaded
+// Wires the social action bar (like/save/share counts) and threaded
 // comments (top-level + 1-level replies) via server-side fetches; both
 // components hydrate as client islands with optimistic mutations.
 
@@ -18,7 +18,12 @@ import { Comments } from '@/app/_components/comments';
 import type { CommentNode } from '@/app/_components/comment-item';
 import { mapAppRowToCardProps, fmtNum } from '@/app/_components/data-mappers';
 import { ContactCTA } from './_components/contact-cta';
+import { recordView } from '@/lib/actions/views';
 import type { Tables } from '@/lib/supabase/types';
+
+// Force per-request rendering so recordView fires on every page hit
+// (the DB primary key still dedups per viewer per UTC day).
+export const dynamic = 'force-dynamic';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,6 +51,7 @@ function buildProfile(authorId: string, profileData: ProfileData): Tables<'profi
     links: {},
     notification_prefs: {},
     theme_pref: '',
+    banner_gradient: null,
   };
 }
 
@@ -124,6 +130,9 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
   const row = await fetchApp(slug);
 
   if (!row) notFound();
+
+  // Fire-and-forget view tracking (deduped per viewer per UTC day at the DB layer).
+  await recordView(row.id);
 
   const profileData = row.author as ProfileData;
   const profile = buildProfile(row.author_id, profileData);
@@ -300,24 +309,12 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 <i className="arrow-out">↗</i>
               </button>
             )}
-            <button
-              type="button"
-              className="btn btn-ghost-2 btn-lg"
-              disabled
-              aria-label="coming soon"
-            >
-              Remix
-            </button>
           </div>
 
           <div className="detail-stats">
             <div className="stat-block">
               <div className="stat-n">{fmtNum(app.stats.likes)}</div>
               <div className="stat-l">Likes</div>
-            </div>
-            <div className="stat-block">
-              <div className="stat-n">{fmtNum(app.stats.remixes)}</div>
-              <div className="stat-l">Remixes</div>
             </div>
             <div className="stat-block">
               <div className="stat-n">{fmtNum(app.stats.views)}</div>
@@ -336,7 +333,6 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
       <ActionBar
         appId={row.id}
         slug={row.slug}
-        remixesCount={row.remixes_count}
         initialLikesCount={row.likes_count}
         initialLiked={!!likeRow.data}
         initialSaved={!!saveRow.data}
@@ -453,7 +449,6 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
             <h3 className="panel-h">Stats</h3>
             <div className="stack-row">
               <span className="stack-chip">♥ {fmtNum(app.stats.likes)} likes</span>
-              <span className="stack-chip">⌬ {fmtNum(app.stats.remixes)} remixes</span>
               <span className="stack-chip">◎ {fmtNum(app.stats.views)} views</span>
             </div>
           </div>

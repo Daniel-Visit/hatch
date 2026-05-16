@@ -67,6 +67,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      app_views: {
+        Row: {
+          app_id: string;
+          viewed_at: string;
+          viewed_date: string;
+          viewer_key: string;
+        };
+        Insert: {
+          app_id: string;
+          viewed_at?: string;
+          viewed_date?: string;
+          viewer_key: string;
+        };
+        Update: {
+          app_id?: string;
+          viewed_at?: string;
+          viewed_date?: string;
+          viewer_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'app_views_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       apps: {
         Row: {
           accent: string;
@@ -86,7 +115,6 @@ export type Database = {
           likes_count: number;
           link: string;
           published_at: string;
-          remixes_count: number;
           saves_count: number;
           search_vector: unknown;
           slug: string;
@@ -114,7 +142,6 @@ export type Database = {
           likes_count?: number;
           link: string;
           published_at?: string;
-          remixes_count?: number;
           saves_count?: number;
           search_vector?: unknown;
           slug: string;
@@ -142,7 +169,6 @@ export type Database = {
           likes_count?: number;
           link?: string;
           published_at?: string;
-          remixes_count?: number;
           saves_count?: number;
           search_vector?: unknown;
           slug?: string;
@@ -626,6 +652,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null;
+          banner_gradient: string | null;
           bio: string | null;
           created_at: string;
           display_name: string;
@@ -640,6 +667,7 @@ export type Database = {
         };
         Insert: {
           avatar_url?: string | null;
+          banner_gradient?: string | null;
           bio?: string | null;
           created_at?: string;
           display_name: string;
@@ -654,6 +682,7 @@ export type Database = {
         };
         Update: {
           avatar_url?: string | null;
+          banner_gradient?: string | null;
           bio?: string | null;
           created_at?: string;
           display_name?: string;

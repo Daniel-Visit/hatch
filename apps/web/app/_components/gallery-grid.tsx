@@ -2,7 +2,8 @@
 
 // Thin client wrappers — hold the router callbacks that cards/hero need.
 // All data is passed down from the RSC parent as serialisable props.
-// onOpen → /apps/<id>    onAuthor → /u/<handle>
+// onOpen → /a/<slug>    onAuthor → /u/<handle>
+// (AppData.id is the slug — see data-mappers.ts → id: app.slug)
 
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
@@ -19,7 +20,7 @@ interface GalleryGridProps {
 
 export function GalleryGrid({ apps }: GalleryGridProps) {
   const router = useRouter();
-  const onOpen = (id: string) => router.push(`/apps/${id}` as Route);
+  const onOpen = (id: string) => router.push(`/a/${id}` as Route);
   const onAuthor = (author: User) => router.push(`/u/${author.handle}` as Route);
 
   if (apps.length === 0) {
@@ -49,7 +50,7 @@ interface FeaturedHeroProps {
 
 export function FeaturedHero({ apps }: FeaturedHeroProps) {
   const router = useRouter();
-  const onOpen = (id: string) => router.push(`/apps/${id}` as Route);
+  const onOpen = (id: string) => router.push(`/a/${id}` as Route);
   const onAuthor = (author: User) => router.push(`/u/${author.handle}` as Route);
 
   const [main, a2, a3] = apps;
@@ -85,7 +86,6 @@ export function FeaturedHero({ apps }: FeaturedHeroProps) {
             </button>
             <div className="card-stats">
               <Stat iconName="heart" value={main.stats.likes} />
-              <Stat iconName="remix" value={main.stats.remixes} />
               <Stat iconName="eye" value={main.stats.views} />
             </div>
           </div>

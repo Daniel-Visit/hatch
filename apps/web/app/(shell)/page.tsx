@@ -5,9 +5,9 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { mapAppRowToCardProps } from './_components/data-mappers';
-import { FeaturedHero, GalleryGrid } from './_components/gallery-grid';
-import type { AppDataExtended } from './_components/data-mappers';
+import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
+import { FeaturedHero, GalleryGrid } from '@/app/_components/gallery-grid';
+import type { AppDataExtended } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 // Returns the Monday of the current UTC week as a YYYY-MM-DD string,
@@ -92,6 +92,7 @@ export default async function HomePage() {
           links: {},
           notification_prefs: {},
           theme_pref: '',
+          banner_gradient: null,
         }
       : null;
 
@@ -166,6 +167,7 @@ export default async function HomePage() {
           links: {},
           notification_prefs: {},
           theme_pref: '',
+          banner_gradient: null,
         }
       : null;
 

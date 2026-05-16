@@ -98,7 +98,6 @@ export function mapAppRowToCardProps(
     tags: app.tags ?? [],
     stats: {
       likes: app.likes_count,
-      remixes: app.remixes_count,
       views: app.views_count,
     },
     author,

@@ -109,7 +109,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
     tagline: tagline || 'Your one-line pitch goes here.',
     author: previewAuthor,
     category: previewCategory,
-    stats: { likes: 0, remixes: 0, views: '—' as unknown as number },
+    stats: { likes: 0, views: '—' as unknown as number },
     tags,
     art: artKind,
     accent,

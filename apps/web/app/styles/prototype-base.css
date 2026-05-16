@@ -218,8 +218,61 @@ a { color: inherit; }
   background: transparent; display: grid; place-items: center;
   box-shadow: 0 0 0 1.5px var(--border);
   transition: box-shadow 0.15s;
+  cursor: pointer;
 }
 .me-btn:hover { box-shadow: 0 0 0 2.5px var(--ax); }
+
+.me-menu { position: relative; }
+
+@keyframes me-dropdown-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.me-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px -6px rgba(0,0,0,0.18),
+              0 4px 10px -4px rgba(0,0,0,0.08);
+  padding: 6px;
+  z-index: 1000;
+  transform-origin: top right;
+  animation: me-dropdown-in 0.14s ease-out;
+}
+.me-dropdown-header {
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.me-dropdown-name {
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+  line-height: 1.2;
+}
+.me-dropdown-handle {
+  font-size: 12px; color: var(--muted); margin-top: 2px;
+}
+.me-dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; box-sizing: border-box;
+  padding: 8px 10px;
+  font: inherit; font-size: 13px; color: var(--text);
+  background: transparent; border: 0; border-radius: 8px;
+  text-decoration: none; cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+.me-dropdown-item:hover { background: var(--ax-tint); color: var(--ax); }
+.me-dropdown-i {
+  width: 18px; display: inline-flex; justify-content: center;
+  font-size: 12px; opacity: 0.7;
+}
+.me-dropdown-sep {
+  height: 1px; background: var(--border);
+  margin: 4px 6px;
+}
+.me-dropdown-danger:hover { background: color-mix(in oklab, #ef4444 12%, transparent); color: #ef4444; }
 
 /* ─── Theme toggle (sun/moon sliding pill) ────────────────────────────── */
 .theme-toggle {

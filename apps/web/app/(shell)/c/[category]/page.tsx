@@ -6,9 +6,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { mapAppRowToCardProps } from '../../_components/data-mappers';
-import { GalleryGrid } from '../../_components/gallery-grid';
-import type { AppDataExtended } from '../../_components/data-mappers';
+import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
+import { GalleryGrid } from '@/app/_components/gallery-grid';
+import type { AppDataExtended } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 // Synthetic "All" entry prepended to the DB categories list — matches prototype.
@@ -103,6 +103,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           links: {},
           notification_prefs: {},
           theme_pref: '',
+          banner_gradient: null,
         }
       : null;
 

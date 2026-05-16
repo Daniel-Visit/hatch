@@ -95,19 +95,6 @@ const SVG_ICONS = {
       <path d="M6.7 7 10.3 4.5M6.7 9l3.6 2.5" />
     </svg>
   ),
-  remix: (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="9 14 4 9 9 4" />
-      <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
-    </svg>
-  ),
   eye: (
     <svg
       viewBox="0 0 24 24"

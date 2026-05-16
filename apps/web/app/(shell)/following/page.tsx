@@ -1,17 +1,64 @@
-// Trending page — public gallery of hottest apps in the last 7 days.
-// Ordered by hot_score desc, limited to 60. No auth required.
+// Following page — auth-gated gallery of apps from builders you follow.
+// Redirects to /sign-in if not authenticated. Ordered by published_at desc.
 
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { mapAppRowToCardProps } from '../_components/data-mappers';
-import { GalleryGrid } from '../_components/gallery-grid';
-import type { AppDataExtended } from '../_components/data-mappers';
+import { requireUser } from '@/lib/auth';
+import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
+import { GalleryGrid } from '@/app/_components/gallery-grid';
+import type { AppDataExtended } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TrendingPage() {
+export default async function FollowingPage() {
+  let user: Awaited<ReturnType<typeof requireUser>>['user'];
+  try {
+    ({ user } = await requireUser());
+  } catch {
+    redirect('/sign-in');
+  }
+
   const sb = await createSupabaseServerClient();
-  const since = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+
+  const { data: follows } = await sb
+    .from('follows')
+    .select('followee_id')
+    .eq('follower_id', user.id);
+
+  const followeeIds = (follows ?? []).map((f) => f.followee_id);
+
+  if (followeeIds.length === 0) {
+    return (
+      <div
+        style={{
+          padding: '60px 32px',
+          maxWidth: '500px',
+          margin: '0 auto',
+          textAlign: 'center',
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: 'var(--display)',
+            fontSize: '20px',
+            fontWeight: 600,
+            color: 'var(--text)',
+            margin: 0,
+          }}
+        >
+          Nothing here yet
+        </h1>
+        <p style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '14px' }}>
+          Follow some builders to see their ships here.{' '}
+          <Link href="/" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
+            Browse Discover →
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   const [{ data: appRows }, { data: categoryRows }] = await Promise.all([
     sb
@@ -19,9 +66,9 @@ export default async function TrendingPage() {
       .select(
         '*, author:profiles!apps_author_id_fkey(handle, hue, emoji, display_name, avatar_url)',
       )
+      .in('author_id', followeeIds)
       .eq('is_published', true)
-      .gte('published_at', since)
-      .order('hot_score', { ascending: false, nullsFirst: false })
+      .order('published_at', { ascending: false })
       .limit(60),
     sb.from('categories').select('*').order('sort_order', { ascending: true }),
   ]);
@@ -51,6 +98,7 @@ export default async function TrendingPage() {
           links: {},
           notification_prefs: {},
           theme_pref: '',
+          banner_gradient: null,
         }
       : null;
 
@@ -71,10 +119,10 @@ export default async function TrendingPage() {
             margin: 0,
           }}
         >
-          Trending this week
+          Following
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '4px', fontSize: '13px' }}>
-          {apps.length} app{apps.length === 1 ? '' : 's'} hot in the last 7 days
+          Latest from builders you follow
         </p>
       </div>
       <GalleryGrid apps={apps} />

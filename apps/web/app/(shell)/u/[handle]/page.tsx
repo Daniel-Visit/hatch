@@ -5,12 +5,15 @@
 // Query 4: check follow status for the viewer.
 
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import type { Route } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getUser } from '@/lib/auth';
-import { Avatar } from '../../_components/cards';
-import { GalleryGrid } from '../../_components/gallery-grid';
-import { FollowPill } from '../../_components/follow-pill';
-import { mapAppRowToCardProps } from '../../_components/data-mappers';
+import { Avatar } from '@/app/_components/cards';
+import { GalleryGrid } from '@/app/_components/gallery-grid';
+import { FollowPill } from '@/app/_components/follow-pill';
+import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
+import { resolveBannerCss } from '@/lib/profile-gradients';
 import type { Tables } from '@/lib/supabase/types';
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -108,8 +111,29 @@ export default async function ProfilePage({
   // profile.links is Json — cast to the known link shape.
   const links = (profile.links as { label: string; url: string }[] | null) ?? [];
 
-  // Aggregate stats — remixes were cut from the product (SPEC.md §1).
   const totalLikes = apps.reduce((s, a) => s + a.stats.likes, 0);
+
+  // Dynamic social + tenure stats.
+  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('followee_id', profile.id),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', profile.id),
+  ]);
+
+  const joinedLabel = (() => {
+    const d = new Date(profile.created_at);
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    const yy = String(d.getUTCFullYear()).slice(-2);
+    return `${month} '${yy}`;
+  })();
+
+  const fmtCount = (n: number) =>
+    n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k` : String(n);
 
   // Build a User object for the Avatar component.
   const userForAvatar = {
@@ -130,9 +154,7 @@ export default async function ProfilePage({
       <header className="profile-head">
         <div
           className="profile-banner"
-          style={{
-            background: `linear-gradient(135deg, oklch(72% 0.18 ${profile.hue}), oklch(60% 0.22 ${(profile.hue + 60) % 360}))`,
-          }}
+          style={{ background: resolveBannerCss(profile.banner_gradient, profile.hue) }}
         >
           <i className="banner-noise" />
         </div>
@@ -155,14 +177,24 @@ export default async function ProfilePage({
             )}
           </div>
           <div className="profile-actions">
-            <FollowPill
-              followeeId={profile.id}
-              followeeHandle={profile.handle}
-              followerHandle={viewer?.profile.handle ?? ''}
-              initialFollowing={followingInitial}
-              isAuthenticated={isAuthenticated}
-              isOwnProfile={isOwnProfile}
-            />
+            {isOwnProfile ? (
+              <Link
+                href={'/settings/profile' as Route}
+                className="btn btn-primary"
+                style={{ textDecoration: 'none' }}
+              >
+                Edit profile
+              </Link>
+            ) : (
+              <FollowPill
+                followeeId={profile.id}
+                followeeHandle={profile.handle}
+                followerHandle={viewer?.profile.handle ?? ''}
+                initialFollowing={followingInitial}
+                isAuthenticated={isAuthenticated}
+                isOwnProfile={isOwnProfile}
+              />
+            )}
           </div>
         </div>
 
@@ -180,15 +212,15 @@ export default async function ProfilePage({
             <div className="pstat-l">Total likes</div>
           </div>
           <div className="pstat">
-            <div className="pstat-n">2.4k</div>
+            <div className="pstat-n">{fmtCount(followersCount ?? 0)}</div>
             <div className="pstat-l">Followers</div>
           </div>
           <div className="pstat">
-            <div className="pstat-n">183</div>
+            <div className="pstat-n">{fmtCount(followingCount ?? 0)}</div>
             <div className="pstat-l">Following</div>
           </div>
           <div className="pstat">
-            <div className="pstat-n">Mar &apos;24</div>
+            <div className="pstat-n">{joinedLabel}</div>
             <div className="pstat-l">Joined</div>
           </div>
         </div>

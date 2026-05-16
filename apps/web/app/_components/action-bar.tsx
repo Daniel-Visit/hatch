@@ -1,7 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Icon } from './icons';
 import { fmtNum } from './cards';
 import { toggleLike } from '@/lib/actions/like';
 import { toggleSave } from '@/lib/actions/save';
@@ -9,7 +8,6 @@ import { toggleSave } from '@/lib/actions/save';
 type ActionBarProps = {
   appId: string;
   slug: string;
-  remixesCount: number;
   initialLikesCount: number;
   initialLiked: boolean;
   initialSaved: boolean;
@@ -20,7 +18,6 @@ type ActionBarProps = {
 export function ActionBar({
   appId,
   slug,
-  remixesCount,
   initialLikesCount,
   initialLiked,
   initialSaved,
@@ -84,13 +81,6 @@ export function ActionBar({
       <button className="act-btn" title="Share">
         <span className="act-i">↗</span>
         <span>Share</span>
-      </button>
-      <button className="act-btn" title="Remix">
-        <span className="act-i">
-          <Icon name="remix" size={16} />
-        </span>
-        <span>Remix</span>
-        <span className="act-num">{fmtNum(remixesCount)}</span>
       </button>
       <span className="act-sep" />
       <button className="act-btn" title="More">
