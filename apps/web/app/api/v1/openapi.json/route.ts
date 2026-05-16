@@ -16,6 +16,8 @@ export const revalidate = 3600;
 const CORS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  // HATCH-009: hint shared caches not to mix responses across origins.
+  Vary: 'Origin',
 };
 
 export async function OPTIONS() {

@@ -35,5 +35,10 @@
     "*.{md,json,yaml,yml,css}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.4.32": "^8.4.32"
+    }
   }
 }

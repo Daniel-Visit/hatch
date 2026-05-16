@@ -10,7 +10,11 @@ export type RateLimitResult =
 /**
  * Check whether `ip` has exceeded the 60-req/60-sec rate limit.
  * Backed by a Postgres counter table (api_rate_limits) and an atomic RPC.
- * Fails OPEN on DB errors — legit users should never be locked out by a transient DB hiccup.
+ *
+ * HATCH-010 fix: fail CLOSED on RPC errors. Previously this returned
+ * `{ ok: true }` on DB hiccups, which lets a misbehaving DB amplify any
+ * abuse into a request flood with no rate limiting. Returning a 503-style
+ * blocked result is the safe default for an abuse-control path.
  */
 export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
   const now = Math.floor(Date.now() / 1000);
@@ -25,8 +29,8 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
   });
 
   if (error || typeof data !== 'number') {
-    // Fail open
-    return { ok: true, remaining: LIMIT, resetAt };
+    // Fail CLOSED — never trust an unverifiable rate-limit counter.
+    return { ok: false, remaining: 0, resetAt };
   }
 
   if (data > LIMIT) {
@@ -36,10 +40,19 @@ export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
 }
 
 /**
- * Extract the caller's IP from request headers. Vercel sets `x-forwarded-for`
- * with the originating IP as the first comma-separated value.
+ * Extract the caller's IP from request headers.
+ *
+ * HATCH-010 fix: prefer `x-vercel-forwarded-for` (set by Vercel's edge and
+ * not user-spoofable from the public internet) over `x-forwarded-for`
+ * (which can be appended by attackers behind the edge). Falls back to XFF
+ * for non-Vercel deploys and finally `x-real-ip`.
  */
 export function ipFromRequest(req: Request): string {
+  const vercel = req.headers.get('x-vercel-forwarded-for');
+  if (vercel) {
+    const first = vercel.split(',')[0].trim();
+    if (first) return first;
+  }
   const xff = req.headers.get('x-forwarded-for');
   if (xff) {
     const first = xff.split(',')[0].trim();

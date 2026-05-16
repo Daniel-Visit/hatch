@@ -17,7 +17,9 @@ export async function GET(req: Request) {
   const admin = createSupabaseAdminClient();
   const { data, error } = await admin.rpc('pick_featured_app');
   if (error) {
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+    // eslint-disable-next-line no-console
+    console.error('cron pick_featured_app failed', { message: error.message, code: error.code });
+    return NextResponse.json({ ok: false, error: 'rpc_failed' }, { status: 500 });
   }
   return NextResponse.json({ ok: true, picked: data });
 }

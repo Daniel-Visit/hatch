@@ -158,7 +158,14 @@ export const updateApp: ToolDescriptor = {
       .eq('slug', slug)
       .maybeSingle();
 
-    if (selectError) throw new Error(`db_error: ${selectError.message}`);
+    if (selectError) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: selectError.message,
+        code: (selectError as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
     if (!existing) throw new Error('not_found');
     if (existing.author_id !== ctx.userId) throw new Error('forbidden');
 
@@ -175,14 +182,28 @@ export const updateApp: ToolDescriptor = {
     if (fields.cover_url !== undefined) updatePayload.cover_url = fields.cover_url;
     if (fields.is_published !== undefined) updatePayload.is_published = fields.is_published;
 
+    // HATCH-007 fix: close the TOCTOU window between the SELECT-for-ownership
+    // and the UPDATE by binding the UPDATE to `author_id = ctx.userId` as well.
+    // If the row was transferred to another user between the two queries, the
+    // UPDATE matches zero rows and we reject with `forbidden` (same as the
+    // ownership check would have produced if it had been a single statement).
     const { data, error } = await sb
       .from('apps')
       .update(updatePayload)
       .eq('id', existing.id)
+      .eq('author_id', ctx.userId)
       .select('*')
-      .single();
+      .maybeSingle();
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
+    if (!data) throw new Error('forbidden');
 
     return jsonResult(data);
   },

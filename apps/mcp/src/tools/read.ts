@@ -57,7 +57,14 @@ export const listApps: ToolDescriptor = {
     }
 
     const { data, error } = await query;
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     const apps = data ?? [];
     const next_cursor = apps.length === limit ? apps[apps.length - 1]?.published_at : undefined;
@@ -107,7 +114,14 @@ export const searchApps: ToolDescriptor = {
       .order('hot_score', { ascending: false })
       .limit(limit);
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ apps: data ?? [] });
   },
@@ -143,7 +157,14 @@ export const getApp: ToolDescriptor = {
       .eq('slug', slug)
       .maybeSingle();
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
     if (!data) throw new Error('not_found');
 
     return jsonResult(data);
@@ -172,7 +193,14 @@ export const listCategories: ToolDescriptor = {
       .select('*')
       .order('sort_order', { ascending: true });
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ categories: data ?? [] });
   },
@@ -206,7 +234,14 @@ export const getProfile: ToolDescriptor = {
       .eq('handle', handle)
       .maybeSingle();
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
     if (!profile) throw new Error('not_found');
 
     const [{ count: app_count }, { count: follower_count }] = await Promise.all([
@@ -271,7 +306,14 @@ export const listNotifications: ToolDescriptor = {
     }
 
     const { data, error } = await query;
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ notifications: data ?? [] });
   },

@@ -22,7 +22,14 @@ async function resolveAppId(slug: string, ctx: McpContext): Promise<string> {
     .select('id')
     .eq('slug', slug)
     .maybeSingle();
-  if (error) throw new Error(`db_error: ${error.message}`);
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('mcp db_error', {
+      message: error.message,
+      code: (error as { code?: string }).code,
+    });
+    throw new Error('db_error');
+  }
   if (!data) throw new Error('not_found');
   return data.id;
 }
@@ -34,7 +41,14 @@ async function resolveProfileId(handle: string, ctx: McpContext): Promise<string
     .select('id')
     .eq('handle', handle)
     .maybeSingle();
-  if (error) throw new Error(`db_error: ${error.message}`);
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('mcp db_error', {
+      message: error.message,
+      code: (error as { code?: string }).code,
+    });
+    throw new Error('db_error');
+  }
   if (!data) throw new Error('not_found');
   return data.id;
 }
@@ -60,7 +74,14 @@ export const likeApp: ToolDescriptor = {
       .insert({ user_id: ctx.userId, app_id: appId });
 
     // 23505 = unique_violation → already liked; treat as success (idempotent)
-    if (error && error.code !== '23505') throw new Error(`db_error: ${error.message}`);
+    if (error && error.code !== '23505') {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, liked: true });
   },
@@ -88,7 +109,14 @@ export const unlikeApp: ToolDescriptor = {
       .eq('user_id', ctx.userId)
       .eq('app_id', appId);
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, liked: false });
   },
@@ -115,7 +143,14 @@ export const saveApp: ToolDescriptor = {
       .insert({ user_id: ctx.userId, app_id: appId });
 
     // 23505 = unique_violation → already saved; treat as success
-    if (error && error.code !== '23505') throw new Error(`db_error: ${error.message}`);
+    if (error && error.code !== '23505') {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, saved: true });
   },
@@ -143,7 +178,14 @@ export const unsaveApp: ToolDescriptor = {
       .eq('user_id', ctx.userId)
       .eq('app_id', appId);
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, saved: false });
   },
@@ -172,7 +214,14 @@ export const followUser: ToolDescriptor = {
       .insert({ follower_id: ctx.userId, followee_id: followeeId });
 
     // 23505 = already following; idempotent
-    if (error && error.code !== '23505') throw new Error(`db_error: ${error.message}`);
+    if (error && error.code !== '23505') {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, following: true });
   },
@@ -200,7 +249,14 @@ export const unfollowUser: ToolDescriptor = {
       .eq('follower_id', ctx.userId)
       .eq('followee_id', followeeId);
 
-    if (error) throw new Error(`db_error: ${error.message}`);
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('mcp db_error', {
+        message: error.message,
+        code: (error as { code?: string }).code,
+      });
+      throw new Error('db_error');
+    }
 
     return jsonResult({ ok: true, following: false });
   },

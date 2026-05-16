@@ -41,3 +41,13 @@ test-results/
 *.pem
 .vercel
 .remember/
+
+# Local-only runtime artifacts — never commit (HATCH-002 fix)
+# Hook logs, agent transcripts, and review reports can capture secrets
+# from prompts/responses. Keep strictly local.
+logs/
+agents/
+app_review/
+app_docs/
+tests/__output__/
+tests/test-results/

@@ -9,6 +9,8 @@ const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
+  // HATCH-009: hint shared caches not to mix responses across origins.
+  Vary: 'Origin',
 };
 
 function jsonResponse(body: unknown, status: number, extraHeaders: Record<string, string> = {}) {

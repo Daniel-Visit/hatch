@@ -24,7 +24,11 @@ export async function setThemePref(theme: ThemePref): Promise<ActionResult<{ the
   const sb = await createSupabaseServerClient();
   const { error } = await sb.from('profiles').update({ theme_pref: parsed.data }).eq('id', user.id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('setThemePref db_error', { message: error.message, code: error.code });
+    return { ok: false, error: 'db_error' };
+  }
 
   revalidatePath('/');
   return { ok: true, data: { theme: parsed.data } };

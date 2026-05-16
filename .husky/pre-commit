@@ -1,1 +1,14 @@
 pnpm exec lint-staged
+
+# HATCH-002 fix: secret scan on the staged diff before allowing the commit.
+# Uses gitleaks if installed locally; silent no-op if the dev hasn't
+# installed it yet so the hook never blocks a fresh clone.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner || {
+    echo ""
+    echo "Commit blocked: gitleaks detected a possible secret in the staged diff."
+    echo "Review the redacted hit above. To bypass for a confirmed false positive,"
+    echo "stage a .gitleaks.toml allowlist entry and retry."
+    exit 1
+  }
+fi

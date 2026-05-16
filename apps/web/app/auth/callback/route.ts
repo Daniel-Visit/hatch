@@ -1,10 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
+// HATCH-003 fix: only accept same-origin, leading-slash, non-protocol-relative
+// redirect targets. Anything else (`//evil.com`, `https://evil.com`,
+// `/\\evil.com`, backslash-prefixed, etc.) falls back to /settings/profile.
+function sanitizeNext(raw: string | null): string {
+  const fallback = '/settings/profile';
+  if (!raw) return fallback;
+  // Must start with a single forward slash; reject //, /\, and any non-relative URL.
+  if (!raw.startsWith('/')) return fallback;
+  if (raw.startsWith('//') || raw.startsWith('/\\')) return fallback;
+  return raw;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/settings/profile';
+  const next = sanitizeNext(searchParams.get('next'));
 
   if (code) {
     const supabase = await createSupabaseServerClient();
