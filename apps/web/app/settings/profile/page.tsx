@@ -24,6 +24,7 @@ export default async function SettingsProfilePage() {
           display_name: profile.display_name,
           bio: profile.bio,
           links,
+          hue: profile.hue ?? 200,
         }}
       />
       <form action="/auth/sign-out" method="post" style={{ marginTop: '3rem' }}>

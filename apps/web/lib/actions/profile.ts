@@ -28,6 +28,7 @@ export async function updateProfile(
     display_name: parsed.data.display_name,
     bio: parsed.data.bio,
     links: parsed.data.links,
+    hue: parsed.data.hue,
   };
   const { error } = await sb.from('profiles').update(payload).eq('id', user.id);
 
