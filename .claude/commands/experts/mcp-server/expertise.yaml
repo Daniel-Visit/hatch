@@ -1,0 +1,155 @@
+# MCP Server Implementation Expertise
+# Hatch — Product-Hunt-for-builders
+# Created: 2026-05-15 (adapt-codebase Phase 4)
+# Updated: 2026-05-16 (Phase 9 shipped)
+
+overview:
+  description: 'Streamable HTTP MCP server exposing Hatch data to Claude clients via 15 tools, 3 resources, 3 prompts. Bearer-token auth via api_keys table. Service-role Supabase client (bypasses RLS — handlers enforce ownership manually). Deployed to Railway with Nixpacks.'
+  package: 'apps/mcp/'
+  type: 'Node HTTP server with Streamable HTTP MCP transport (single POST /mcp endpoint + GET /health)'
+  sdk: '@modelcontextprotocol/sdk@^1.0.0'
+  spec: 'MCP spec 2025-03-26 (Streamable HTTP transport)'
+  language: 'TypeScript (ESM modules)'
+  port: 8080
+  status: 'Phase 9 shipped — MCP server with 15 tools, 3 resources, 3 prompts, Streamable HTTP transport, Railway deploy'
+
+directory_structure:
+  app_root: 'apps/mcp/'
+  entry_point: 'apps/mcp/src/index.ts'
+  server: 'apps/mcp/src/server.ts (tool registration)'
+  auth: 'apps/mcp/src/auth.ts (bearer-token resolution)'
+  supabase: 'apps/mcp/src/supabase.ts (service-role singleton)'
+  resources: 'apps/mcp/src/resources/index.ts'
+  prompts: 'apps/mcp/src/prompts/index.ts'
+  dist: 'apps/mcp/dist/'
+  tsconfig: 'apps/mcp/tsconfig.json'
+  nixpacks: 'apps/mcp/nixpacks.toml'
+
+implementation:
+  http_server:
+    file: 'apps/mcp/src/index.ts'
+    description: 'Node HTTP server hosting Streamable HTTP MCP transport'
+    endpoints:
+      health: 'GET /health → {ok: true, service: hatch-mcp, version}'
+      mcp: 'POST /mcp → StreamableHTTPServerTransport handles MCP protocol messages'
+      default: 'All other routes → 404'
+    port: 'process.env.PORT ?? 8080 (Railway injects PORT)'
+
+  transport:
+    type: 'Streamable HTTP (MCP spec 2025-03-26)'
+    sdk_import: "import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'"
+    pattern: 'Single POST /mcp endpoint — per-request transport instance handles each MCP message; sessions/streams managed by the SDK'
+
+  auth:
+    file: 'apps/mcp/src/auth.ts'
+    function: 'resolveUserId(authHeader): Promise<string | null>'
+    flow: |
+      1. Parse `Authorization: Bearer <token>` header
+      2. Look up api_keys WHERE token_prefix = token.slice(0, 12) AND revoked_at IS NULL
+      3. bcrypt.compare(plain_token, row.token_hash)
+      4. On match: UPDATE api_keys SET last_used_at = now(); return user_id
+      5. On miss: return null (caller responds 401)
+    hashing: 'bcryptjs cost 10 (matches /settings/api-keys generator)'
+
+  database_client:
+    file: 'apps/mcp/src/supabase.ts'
+    pattern: 'Service-role singleton — bypasses RLS'
+    critical: 'Every tool/resource handler MUST enforce ownership/visibility manually since RLS is bypassed (compare row.user_id/author_id to resolved userId).'
+
+  tools:
+    file: 'apps/mcp/src/server.ts'
+    count: 15
+    read:
+      - 'list_apps'
+      - 'search_apps'
+      - 'get_app'
+      - 'list_categories'
+      - 'get_profile'
+      - 'list_notifications'
+    publish:
+      - 'publish_app'
+      - 'update_app (ownership check: author_id == userId)'
+    social:
+      - 'like_app / unlike_app'
+      - 'save_app / unsave_app'
+      - 'follow_user / unfollow_user'
+      - 'send_message (requires accepted contact_request; uses find_or_create_conversation RPC)'
+
+  resources:
+    file: 'apps/mcp/src/resources/index.ts'
+    count: 3
+    list:
+      - 'hatch://app/{slug}'
+      - 'hatch://profile/{handle}'
+      - 'hatch://notifications'
+    pattern: 'Resource handlers reuse tool handler implementations'
+
+  prompts:
+    file: 'apps/mcp/src/prompts/index.ts'
+    count: 3
+    list:
+      - 'draft_app_description'
+      - 'review_my_apps'
+      - 'compose_message'
+
+  shared_types:
+    re_export: 'packages/shared/src/database.ts re-exports Database type for cross-package import'
+    consumer_usage: "import type { Database } from '@hatch/shared'"
+    tsconfig_widening: 'packages/shared/tsconfig.json has rootDir widened to "../.." to accept the cross-package import from apps/web/lib/supabase/types.ts'
+
+  dependencies:
+    '@modelcontextprotocol/sdk': '^1.0.0'
+    '@hatch/shared': 'workspace:* (shared TypeScript types — incl. re-exported Database type)'
+    '@supabase/supabase-js': 'service-role client used by tool handlers'
+    bcryptjs: 'token comparison against api_keys.token_hash (cost 10)'
+    '@types/bcryptjs': 'dev — bcryptjs type defs'
+    zod: 'tool input schemas'
+
+dev_commands:
+  dev: 'pnpm dev:mcp (tsx watch src/index.ts)'
+  build: 'tsc -p tsconfig.json'
+  start: 'node dist/index.js'
+  typecheck: 'tsc -p tsconfig.json --noEmit'
+  lint: 'eslint src --max-warnings=0'
+
+mcp_protocol:
+  description: 'Model Context Protocol — enables Claude clients to call tools, read resources, and invoke prompts in this server'
+  integration: 'Users generate a Personal Access Token at /settings/api-keys, then paste the MCP config snippet (URL + bearer token) into Claude Desktop / Claude Code'
+  mcp_url: 'NEXT_PUBLIC_MCP_URL env var (web exposes it to UI). Production: https://<deploy>.up.railway.app/mcp. Dev: http://localhost:8080/mcp'
+
+api_keys:
+  ui: 'apps/web/app/(auth)/settings/api-keys/'
+  actions: 'apps/web/lib/actions/api-keys.ts → generateApiKey, revokeApiKey'
+  storage: 'api_keys table (Supabase) — token_prefix (first 12 chars) + token_hash (bcryptjs cost 10) + label + last_used_at + revoked_at'
+  uniqueness: 'One active token per user enforced by unique partial index api_keys_one_active_per_user (user_id) WHERE revoked_at IS NULL'
+  visibility: 'Plain token shown ONCE on creation — never re-displayed. User must revoke + regenerate to rotate.'
+
+deploy:
+  target: 'Railway'
+  builder: 'Nixpacks (no Dockerfile)'
+  config: 'apps/mcp/nixpacks.toml — uses corepack to install pnpm 10'
+  url_pattern: 'https://<deploy>.up.railway.app/mcp (POST endpoint exposed to clients)'
+  web_wiring: 'NEXT_PUBLIC_MCP_URL on web app points at Railway URL so /settings/api-keys can show the right config snippet'
+
+env_vars:
+  PORT: '8080 (default) — Railway injects'
+  SUPABASE_URL: 'Supabase project URL'
+  SUPABASE_SERVICE_ROLE_KEY: 'Service role key for server-to-Supabase calls (bypasses RLS — handlers enforce ownership)'
+  LOG_LEVEL: 'info (default)'
+
+roadmap:
+  phase_2_done: 'Server stub (HTTP + /health)'
+  phase_9_done: 'Streamable HTTP transport, bearer-token auth via api_keys table, 15 tools (6 read / 2 publish / 7 social), 3 resources, 3 prompts, Railway deploy with Nixpacks, /settings/api-keys UI for token lifecycle'
+  note: 'Service-role client bypasses RLS — when adding new tools, always enforce ownership against resolved userId before mutating rows'
+
+known_gotchas:
+  - 'ESM modules (type: module in package.json) — use import/export, not require()'
+  - 'tsx is used for dev mode (hot reload); tsc for production build'
+  - 'Shared types from @hatch/shared are imported directly from source (no build needed)'
+  - 'Database type is re-exported via packages/shared/src/database.ts — packages/shared/tsconfig.json has rootDir widened to "../.." to accept the cross-package import from apps/web/lib/supabase/types.ts'
+  - 'Service-role Supabase client BYPASSES RLS — every tool/resource handler must enforce ownership/visibility manually (compare author_id/user_id to resolved userId from bearer token)'
+  - 'Bearer token lookup uses token_prefix (first 12 chars) as index probe, then bcrypt-compares plain token to token_hash — never query by full token'
+  - 'send_message tool requires an accepted contact_request between sender and recipient; uses find_or_create_conversation RPC (only way to create a conversation since conversations RLS has no client INSERT policy)'
+  - 'Streamable HTTP transport (spec 2025-03-26) — do NOT use the legacy SSE/stdio transports; single POST /mcp endpoint with per-request StreamableHTTPServerTransport instance'
+  - 'One active api_key per user — generateApiKey must revoke existing active key first or rely on unique partial index to reject'
+  - 'Railway uses Nixpacks not Docker (hard project constraint) — apps/mcp/nixpacks.toml uses corepack to pin pnpm 10'

@@ -1,0 +1,17 @@
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@10.0.0 --activate",
+  "pnpm install --frozen-lockfile"
+]
+
+[phases.build]
+cmds = ["pnpm --filter mcp build"]
+
+[start]
+cmd = "pnpm --filter mcp start"

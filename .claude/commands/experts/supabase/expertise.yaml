@@ -31,6 +31,7 @@ migration_workflow:
     - '0016_push_subscriptions.sql — Web Push subscription endpoints'
     - '0017_phase6_rls.sql — is_participant helper + RLS for 5 Phase 6 tables (conversations has NO client INSERT)'
     - '0018_phase6_seed.sql — sample contact_requests/conversations/messages/notifications + 3 varied notification_prefs (uses session_replication_role=replica to bypass triggers)'
+    - '0019_api_keys.sql — Phase 9 api_keys table for MCP Personal Access Tokens; bcrypt-hashed; one active per user via unique partial index; RLS policies block unrevoke'
 
 database_schema:
   extensions:
@@ -65,12 +66,33 @@ database_schema:
         icon: 'text'
         sort_order: 'int'
 
+    api_keys:
+      description: 'Phase 9 — Personal Access Tokens for MCP bearer auth. Plain token shown ONCE on creation; bcryptjs cost 10 hashed at rest.'
+      primary_key: 'id (uuid)'
+      key_columns:
+        user_id: 'uuid NOT NULL, FK to auth.users ON DELETE CASCADE'
+        token_hash: 'text NOT NULL (bcryptjs cost 10)'
+        token_prefix: 'text NOT NULL (first 12 chars of plain token — index probe for fast lookup before bcrypt compare)'
+        label: 'text nullable (user-chosen label)'
+        created_at: 'timestamptz DEFAULT now()'
+        last_used_at: 'timestamptz nullable (bumped by MCP server on successful auth)'
+        revoked_at: 'timestamptz nullable (soft-delete — never hard-delete)'
+      indexes:
+        - 'api_keys_user_id_idx (user_id) WHERE revoked_at IS NULL'
+        - 'api_keys_token_prefix_idx (token_prefix) WHERE revoked_at IS NULL'
+        - 'UNIQUE api_keys_one_active_per_user (user_id) WHERE revoked_at IS NULL — enforces one active token per user'
+
   rls_policies:
     profiles:
       - 'SELECT: authenticated users can read all profiles'
       - 'UPDATE: users can only update their own profile (auth.uid() = id)'
     categories:
       - 'SELECT: public read access'
+    api_keys:
+      - 'SELECT (users read own api_keys): using (user_id = auth.uid())'
+      - 'INSERT (users insert own api_keys): with check (user_id = auth.uid())'
+      - 'UPDATE (users revoke own api_keys): using (user_id = auth.uid()) with check (user_id = auth.uid() and revoked_at is not null) — blocks unrevoke AND relabel; intentional v1 limitation'
+      - 'NO DELETE policy — soft-delete only via revoked_at'
 
 auth_patterns:
   server_client: 'apps/web/lib/supabase/server.ts → createSupabaseServerClient()'
