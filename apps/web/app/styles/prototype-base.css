@@ -548,11 +548,17 @@ html, body { overflow-x: hidden; }
   /* Compact pill controls — hide labels, keep iconography. */
   .locale-toggle { display: none; }
   .theme-toggle { display: none; }
-  /* Publish button shrinks to the plus icon only. */
-  .btn-publish { min-width: 0; padding: 0 10px; }
-  .btn-publish > *:not(svg):not(.btn-publish-icon) { display: none; }
-  .btn-publish svg, .btn-publish .btn-publish-icon { margin: 0; }
-  .btn-signin-cta { min-width: 0; padding: 0 12px; }
+  /* Publish becomes a compact 36×36 circular icon-only button on mobile.
+     The desktop rule sets min-width:134px at higher specificity, so the
+     selector here matches it (.topbar-actions > .btn-publish). */
+  .topbar-actions > .btn-publish {
+    min-width: 0; width: 36px; height: 36px;
+    padding: 0; border-radius: 999px;
+    gap: 0;
+  }
+  .btn-publish-label { display: none; }
+  /* Match the desktop topbar min-width override too — sign-in stays text. */
+  .topbar-actions > .btn-signin-cta { min-width: 0; padding: 0 12px; }
   /* Single-column gallery on small screens. */
   .grid { grid-template-columns: 1fr !important; }
   /* Inner two/three-column rows that the prototype assumed wide */
