@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { NotificationPrefsUpdate, type NotificationPrefsT } from '@/lib/zod/notification-prefs';
 import { updateNotificationPrefs } from '@/lib/actions/notification-prefs';
 import { subscribeToBrowserPush, unsubscribeFromBrowserPush } from '@/lib/push/client';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export function NotificationsForm({ initialPrefs }: Props) {
+  const t = useTranslations('Settings.NotificationsForm');
   const [busy, setBusy] = useState(false);
 
   const { register, watch, handleSubmit, setValue } = useForm<NotificationPrefsT>({
@@ -30,7 +32,7 @@ export function NotificationsForm({ initialPrefs }: Props) {
       const result = await subscribeToBrowserPush();
       if (!result.ok) {
         setValue('push_enabled', false);
-        toast.error(`Could not enable: ${result.reason}`);
+        toast.error(t('CouldNotEnable', { reason: result.reason }));
         setBusy(false);
         return;
       }
@@ -40,8 +42,8 @@ export function NotificationsForm({ initialPrefs }: Props) {
 
     // Persist the new master state immediately
     const result = await updateNotificationPrefs({ push_enabled: newValue });
-    if (!result.ok) toast.error('Failed to save');
-    else toast.success(newValue ? 'Browser notifications on' : 'Browser notifications off');
+    if (!result.ok) toast.error(t('FailedToast'));
+    else toast.success(newValue ? t('EnabledToast') : t('DisabledToast'));
     setBusy(false);
   };
 
@@ -49,8 +51,8 @@ export function NotificationsForm({ initialPrefs }: Props) {
     setBusy(true);
     const result = await updateNotificationPrefs(values);
     setBusy(false);
-    if (result.ok) toast.success('Saved');
-    else toast.error('Failed to save');
+    if (result.ok) toast.success(t('SavedToast'));
+    else toast.error(t('FailedToast'));
   };
 
   return (
@@ -58,29 +60,29 @@ export function NotificationsForm({ initialPrefs }: Props) {
       onSubmit={handleSubmit(onSubmit)}
       style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
     >
-      <Row label="Enable browser notifications" sub="Required for any push to reach you off-site.">
+      <Row label={t('EnableMaster')} sub={t('EnableMasterSub')}>
         <Toggle checked={pushEnabled} onChange={(v) => void onMasterToggle(v)} disabled={busy} />
       </Row>
 
       <hr style={{ border: 'none', borderTop: '1px solid var(--border)' }} />
 
-      <Row label="Contact requests" sub="When someone wants to reach out about your app">
+      <Row label={t('ContactRequests')} sub={t('ContactRequestsSub')}>
         <input
           type="checkbox"
           {...register('push_contact_requests')}
           disabled={!pushEnabled || busy}
         />
       </Row>
-      <Row label="Messages" sub="New messages in an active conversation">
+      <Row label={t('Messages')} sub={t('MessagesSub')}>
         <input type="checkbox" {...register('push_messages')} disabled={!pushEnabled || busy} />
       </Row>
-      <Row label="Comments" sub="When someone comments on your app">
+      <Row label={t('Comments')} sub={t('CommentsSub')}>
         <input type="checkbox" {...register('push_comments')} disabled={!pushEnabled || busy} />
       </Row>
-      <Row label="Likes" sub="When someone likes your app">
+      <Row label={t('Likes')} sub={t('LikesSub')}>
         <input type="checkbox" {...register('push_likes')} disabled={!pushEnabled || busy} />
       </Row>
-      <Row label="Follows" sub="When someone follows you">
+      <Row label={t('Follows')} sub={t('FollowsSub')}>
         <input type="checkbox" {...register('push_follows')} disabled={!pushEnabled || busy} />
       </Row>
 
@@ -90,7 +92,7 @@ export function NotificationsForm({ initialPrefs }: Props) {
         disabled={busy}
         style={{ marginTop: 16, alignSelf: 'flex-start' }}
       >
-        Save preferences
+        {t('SavePreferences')}
       </button>
     </form>
   );

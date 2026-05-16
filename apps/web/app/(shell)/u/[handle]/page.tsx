@@ -7,6 +7,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getUser } from '@/lib/auth';
 import { Avatar } from '@/app/_components/cards';
@@ -28,7 +29,12 @@ export default async function ProfilePage({
   const { handle } = await params;
   const tab = (await searchParams).tab ?? 'apps';
 
-  const [supabase, viewer] = await Promise.all([createSupabaseServerClient(), getUser()]);
+  const [supabase, viewer, locale, tProfile] = await Promise.all([
+    createSupabaseServerClient(),
+    getUser(),
+    getLocale() as Promise<'en' | 'es'>,
+    getTranslations('Profile'),
+  ]);
 
   // Query 1 — profile by handle (citext → case-insensitive comparison).
   const { data: profile } = await supabase
@@ -56,7 +62,7 @@ export default async function ProfilePage({
 
   // Re-use the already-fetched profile row — no second join needed.
   const apps = (appRows ?? []).map((row) =>
-    mapAppRowToCardProps(row, profile, catMap.get(row.category_id) ?? null),
+    mapAppRowToCardProps(row, profile, catMap.get(row.category_id) ?? null, locale),
   );
 
   // Query 3 — liked apps (only when tab='liked' to avoid unnecessary work).
@@ -91,6 +97,7 @@ export default async function ProfilePage({
           row,
           authorMap.get(row.author_id) ?? null,
           catMap.get(row.category_id) ?? null,
+          locale,
         ),
       );
     }
@@ -127,7 +134,8 @@ export default async function ProfilePage({
 
   const joinedLabel = (() => {
     const d = new Date(profile.created_at);
-    const month = d.toLocaleString('en-US', { month: 'short' });
+    const intlLocale = locale === 'es' ? 'es-ES' : 'en-US';
+    const month = d.toLocaleString(intlLocale, { month: 'short' });
     const yy = String(d.getUTCFullYear()).slice(-2);
     return `${month} '${yy}`;
   })();
@@ -183,7 +191,7 @@ export default async function ProfilePage({
                 className="btn btn-primary"
                 style={{ textDecoration: 'none' }}
               >
-                Edit profile
+                {tProfile('EditProfile')}
               </Link>
             ) : (
               <FollowPill
@@ -201,7 +209,7 @@ export default async function ProfilePage({
         <div className="profile-stats" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
           <div className="pstat">
             <div className="pstat-n">{apps.length}</div>
-            <div className="pstat-l">Apps shipped</div>
+            <div className="pstat-l">{tProfile('AppsShipped')}</div>
           </div>
           <div className="pstat">
             <div className="pstat-n">
@@ -209,19 +217,19 @@ export default async function ProfilePage({
                 ? `${(totalLikes / 1000).toFixed(1).replace(/\.0$/, '')}k`
                 : totalLikes}
             </div>
-            <div className="pstat-l">Total likes</div>
+            <div className="pstat-l">{tProfile('TotalLikes')}</div>
           </div>
           <div className="pstat">
             <div className="pstat-n">{fmtCount(followersCount ?? 0)}</div>
-            <div className="pstat-l">Followers</div>
+            <div className="pstat-l">{tProfile('Followers')}</div>
           </div>
           <div className="pstat">
             <div className="pstat-n">{fmtCount(followingCount ?? 0)}</div>
-            <div className="pstat-l">Following</div>
+            <div className="pstat-l">{tProfile('Following')}</div>
           </div>
           <div className="pstat">
             <div className="pstat-n">{joinedLabel}</div>
-            <div className="pstat-l">Joined</div>
+            <div className="pstat-l">{tProfile('Joined')}</div>
           </div>
         </div>
       </header>
@@ -232,13 +240,15 @@ export default async function ProfilePage({
           href={`/u/${profile.handle}?tab=apps`}
           className={'tab ' + (tab === 'apps' ? 'is-on' : '')}
         >
-          Apps · {apps.length}
+          {tProfile('AppsTab', { count: apps.length })}
         </a>
         <a
           href={`/u/${profile.handle}?tab=liked`}
           className={'tab ' + (tab === 'liked' ? 'is-on' : '')}
         >
-          Liked · {tab === 'liked' ? likedApps.length : '?'}
+          {tab === 'liked'
+            ? tProfile('LikedTab', { count: likedApps.length })
+            : tProfile('LikedTabUnknown')}
         </a>
       </div>
 

@@ -1,6 +1,7 @@
 // Search results page — server-rendered, query driven by ?q= param.
 // Maps SearchResultApp[] from searchApps() into AppDataExtended[] for GalleryGrid.
 
+import { getLocale, getTranslations } from 'next-intl/server';
 import { searchApps } from '@/lib/actions/search';
 import { GalleryGrid } from '@/app/_components/gallery-grid';
 import { relativeTime } from '@/app/_components/data-mappers';
@@ -14,7 +15,7 @@ interface Props {
 }
 
 /** Convert a SearchResultApp (flat from action) to AppDataExtended (card contract). */
-function toAppDataExtended(app: SearchResultApp): AppDataExtended {
+function toAppDataExtended(app: SearchResultApp, locale: 'en' | 'es' = 'en'): AppDataExtended {
   return {
     id: app.slug,
     title: app.title,
@@ -39,7 +40,7 @@ function toAppDataExtended(app: SearchResultApp): AppDataExtended {
       label: app.category_id,
       icon: '◇',
     },
-    published: relativeTime(app.published_at),
+    published: relativeTime(app.published_at, locale),
     featured: false,
   };
 }
@@ -47,14 +48,16 @@ function toAppDataExtended(app: SearchResultApp): AppDataExtended {
 export default async function SearchPage({ searchParams }: Props) {
   const { q } = await searchParams;
   const query = (q ?? '').trim();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const t = await getTranslations('Search');
 
   if (query.length < 2) {
     return (
       <div className="gallery dens-default style-bento">
         <div className="gal-head">
           <div className="gal-head-left">
-            <h1>Search</h1>
-            <p className="gal-sub">Type at least 2 characters to search.</p>
+            <h1>{t('Title')}</h1>
+            <p className="gal-sub">{t('MinCharsHint')}</p>
           </div>
         </div>
       </div>
@@ -68,8 +71,8 @@ export default async function SearchPage({ searchParams }: Props) {
       <div className="gallery dens-default style-bento">
         <div className="gal-head">
           <div className="gal-head-left">
-            <h1>Search</h1>
-            <p className="gal-sub">Search failed. Try again.</p>
+            <h1>{t('Title')}</h1>
+            <p className="gal-sub">{t('Failed')}</p>
           </div>
         </div>
       </div>
@@ -77,7 +80,7 @@ export default async function SearchPage({ searchParams }: Props) {
   }
 
   const { apps: rawApps } = result.data;
-  const apps: AppDataExtended[] = rawApps.map(toAppDataExtended);
+  const apps: AppDataExtended[] = rawApps.map((a) => toAppDataExtended(a, locale));
 
   return (
     <div className="gallery dens-default style-bento">
@@ -85,13 +88,11 @@ export default async function SearchPage({ searchParams }: Props) {
         <div className="gal-head-left">
           <h1>
             {apps.length > 0
-              ? `${apps.length} result${apps.length === 1 ? '' : 's'} for "${query}"`
-              : `No results for "${query}"`}
+              ? t('ResultsFor', { count: apps.length, q: query })
+              : t('NoMatches', { q: query })}
             {apps.length > 0 && <span className="gal-count">{apps.length}</span>}
           </h1>
-          {apps.length > 0 && (
-            <p className="gal-sub">Apps, makers, and tags matching your search.</p>
-          )}
+          {apps.length > 0 && <p className="gal-sub">{t('ResultsSubtitle')}</p>}
         </div>
       </div>
 

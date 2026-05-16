@@ -12,6 +12,7 @@
 // so the gallery can swap styles without touching the rest of the UI.
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Icon, SVG_ICONS } from './icons';
 import { AppArt } from './app-art';
 
@@ -80,11 +81,22 @@ export function Avatar({ user, size = 22 }: { user: User; size?: number }) {
 }
 
 export function CategoryBadge({ cat }: { cat: Category | null | undefined }) {
+  // Hooks must be called unconditionally — call before the early return.
+  const t = useTranslations('Categories');
   if (!cat) return null;
+  // next-intl returns the key path string when the key is missing; fall back
+  // to the DB-provided label as defensive insurance.
+  let label: string;
+  try {
+    const looked = (t as unknown as (key: string) => string)(cat.id);
+    label = looked && looked !== `Categories.${cat.id}` ? looked : cat.label;
+  } catch {
+    label = cat.label;
+  }
   return (
     <span className="cat-badge">
       <i>{cat.icon}</i>
-      {cat.label}
+      {label}
     </span>
   );
 }

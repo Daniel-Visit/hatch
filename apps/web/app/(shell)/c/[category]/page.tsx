@@ -5,6 +5,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
 import { GalleryGrid } from '@/app/_components/gallery-grid';
@@ -12,17 +13,29 @@ import type { AppDataExtended } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 // Synthetic "All" entry prepended to the DB categories list — matches prototype.
+// `label` is a fallback only; the chip strip prefers the translated label below.
 const ALL_CATEGORY = { id: 'all', label: 'All', icon: '◇' };
 
 // ── FilterChips (server — links only, active chip highlighted) ────────────────
 
-function FilterChips({
+async function FilterChips({
   categories,
   activeId,
 }: {
   categories: { id: string; label: string; icon: string }[];
   activeId: string;
 }) {
+  const tCat = await getTranslations('Categories');
+  const tCategory = await getTranslations('Category');
+  const lookupLabel = (id: string, fallback: string): string => {
+    if (id === 'all') return tCategory('AllLabel');
+    try {
+      const looked = (tCat as unknown as (key: string) => string)(id);
+      return looked && looked !== `Categories.${id}` ? looked : fallback;
+    } catch {
+      return fallback;
+    }
+  };
   return (
     <div className="chips">
       {categories.map((c) => {
@@ -35,7 +48,7 @@ function FilterChips({
             aria-current={isActive ? 'page' : undefined}
           >
             <span className="chip-i">{c.icon}</span>
-            <span>{c.label}</span>
+            <span>{lookupLabel(c.id, c.label)}</span>
           </Link>
         );
       })}
@@ -48,6 +61,10 @@ function FilterChips({
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category: categoryId } = await params;
   const supabase = await createSupabaseServerClient();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const tCat = await getTranslations('Categories');
+  const tCategory = await getTranslations('Category');
+  const tHome = await getTranslations('Home');
 
   // Query 1: validate category exists.
   const { data: categoryRow } = await supabase
@@ -104,11 +121,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   // Categories strip: synthetic "All" first, then DB categories.
@@ -117,16 +135,26 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
     ...(categoryRows ?? []).map((c) => ({ id: c.id, label: c.label, icon: c.icon })),
   ];
 
+  // Resolve the translated category label (fallback to DB row label).
+  const translatedCategoryLabel: string = (() => {
+    try {
+      const looked = (tCat as unknown as (key: string) => string)(categoryRow.id);
+      return looked && looked !== `Categories.${categoryRow.id}` ? looked : categoryRow.label;
+    } catch {
+      return categoryRow.label;
+    }
+  })();
+
   return (
     <div className="gallery dens-default style-bento">
       <div className="gal-head">
         <div className="gal-head-left">
           <h1>
-            {categoryRow.icon} {categoryRow.label}
+            {categoryRow.icon} {translatedCategoryLabel}
             <span className="gal-count">{apps.length}</span>
           </h1>
           <p className="gal-sub">
-            Browse {categoryRow.label.toLowerCase()} apps from the Hatch community.
+            {tCategory('Subtitle', { category: translatedCategoryLabel.toLowerCase() })}
           </p>
         </div>
       </div>
@@ -135,7 +163,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
       <div className="gal-toolbar">
         <span className="gal-toolbar-l">
-          Showing <b>{apps.length}</b> {apps.length === 1 ? 'app' : 'apps'}
+          {tHome.rich('ShowingApps', {
+            count: apps.length,
+            b: (chunks) => <b>{chunks}</b>,
+          })}
         </span>
       </div>
 

@@ -661,6 +661,7 @@ export type Database = {
           hue: number;
           id: string;
           links: Json;
+          locale_pref: string | null;
           notification_prefs: Json;
           theme_pref: string;
           updated_at: string;
@@ -676,6 +677,7 @@ export type Database = {
           hue?: number;
           id: string;
           links?: Json;
+          locale_pref?: string | null;
           notification_prefs?: Json;
           theme_pref?: string;
           updated_at?: string;
@@ -691,6 +693,7 @@ export type Database = {
           hue?: number;
           id?: string;
           links?: Json;
+          locale_pref?: string | null;
           notification_prefs?: Json;
           theme_pref?: string;
           updated_at?: string;

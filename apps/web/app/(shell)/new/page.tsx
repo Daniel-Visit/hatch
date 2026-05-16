@@ -1,6 +1,7 @@
 // New & fresh page — public gallery of recently published apps.
 // Ordered by published_at desc, limited to 60. No auth required.
 
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
 import { GalleryGrid } from '@/app/_components/gallery-grid';
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function NewPage() {
   const sb = await createSupabaseServerClient();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const t = await getTranslations('New');
 
   const [{ data: appRows }, { data: categoryRows }] = await Promise.all([
     sb
@@ -50,11 +53,12 @@ export default async function NewPage() {
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   return (
@@ -70,10 +74,10 @@ export default async function NewPage() {
             margin: 0,
           }}
         >
-          New &amp; fresh
+          {t('NewAndFresh')}
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '4px', fontSize: '13px' }}>
-          {apps.length} app{apps.length === 1 ? '' : 's'} just shipped
+          {t('AppsJustShipped', { count: apps.length })}
         </p>
       </div>
       <GalleryGrid apps={apps} />

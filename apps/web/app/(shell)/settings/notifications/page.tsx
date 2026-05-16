@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Route } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { requireUser } from '@/lib/auth';
 import { NotificationsForm } from './_components/notifications-form';
 import type { NotificationPrefsT } from '@/lib/zod/notification-prefs';
@@ -24,13 +25,15 @@ export default async function SettingsNotificationsRoute() {
   }
 
   const prefs = (profile.notification_prefs as NotificationPrefsT | null) ?? DEFAULT_PREFS;
+  const t = await getTranslations('Settings');
+  const tForm = await getTranslations('Settings.NotificationsForm');
 
   return (
     <main style={{ maxWidth: 640, margin: '0 auto', padding: '32px 16px' }}>
-      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: 8 }}>Notifications</h1>
-      <p style={{ color: 'var(--text-2)', marginBottom: 24 }}>
-        Choose what fires a browser notification when Hatch isn&apos;t in front of you.
-      </p>
+      <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: 8 }}>
+        {t('Notifications')}
+      </h1>
+      <p style={{ color: 'var(--text-2)', marginBottom: 24 }}>{tForm('Subtitle')}</p>
       <NotificationsForm initialPrefs={prefs} />
     </main>
   );

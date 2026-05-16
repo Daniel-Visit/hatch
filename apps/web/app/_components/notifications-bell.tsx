@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { NotificationsPanel } from './notifications-panel';
 import type { NotificationItemProps } from './notification-item';
 import { useRealtimeNotifs } from './use-realtime-notifs';
@@ -15,12 +16,15 @@ type NotificationsBellProps = {
   initialNotifs: NotificationRow[];
 };
 
-function formatWhen(iso: string): string {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return 'Just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
+function useFormatWhen(): (iso: string) => string {
+  const t = useTranslations('Time');
+  return (iso: string) => {
+    const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (seconds < 60) return t('shortJustNow');
+    if (seconds < 3600) return t('shortAgoMinutes', { count: Math.floor(seconds / 60) });
+    if (seconds < 86400) return t('shortAgoHours', { count: Math.floor(seconds / 3600) });
+    return t('shortAgoDays', { count: Math.floor(seconds / 86400) });
+  };
 }
 
 export function NotificationsBell({
@@ -28,27 +32,34 @@ export function NotificationsBell({
   initialUnread,
   initialNotifs,
 }: NotificationsBellProps) {
+  const t = useTranslations('Notifications');
+  const formatWhen = useFormatWhen();
   const [open, setOpen] = useState(false);
   const [notifs, setNotifs] = useState<NotificationRow[]>(initialNotifs);
   const [unread, setUnread] = useState(initialUnread);
 
   useUnreadTitle(unread);
 
-  const onInsert = useCallback((row: NotificationRow) => {
-    setNotifs((prev) => [row, ...prev.filter((n) => n.id !== row.id)].slice(0, 20));
-    setUnread((u) => u + 1);
-    // Per SPEC roadmap §5.3 surfacing rules — fire toast on high-signal kinds
-    const actorName = row.actor?.display_name ?? 'Someone';
-    if (row.kind === 'contact_request') {
-      toast(`${actorName} wants to contact you`, { description: 'Open Inbox to respond' });
-    } else if (row.kind === 'message') {
-      const preview = (row.payload as { preview?: string }).preview ?? '';
-      toast(`${actorName}`, { description: preview });
-    } else if (row.kind === 'comment_reply') {
-      toast(`${actorName} replied to your comment`);
-    }
-    // like / follow / comment: bell only (no toast)
-  }, []);
+  const onInsert = useCallback(
+    (row: NotificationRow) => {
+      setNotifs((prev) => [row, ...prev.filter((n) => n.id !== row.id)].slice(0, 20));
+      setUnread((u) => u + 1);
+      // Per SPEC roadmap §5.3 surfacing rules — fire toast on high-signal kinds
+      const actorName = row.actor?.display_name ?? t('Someone');
+      if (row.kind === 'contact_request') {
+        toast(t('WantsToContactYou', { name: actorName }), {
+          description: t('OpenInboxToRespond'),
+        });
+      } else if (row.kind === 'message') {
+        const preview = (row.payload as { preview?: string }).preview ?? '';
+        toast(`${actorName}`, { description: preview });
+      } else if (row.kind === 'comment_reply') {
+        toast(t('RepliedToYourComment', { name: actorName }));
+      }
+      // like / follow / comment: bell only (no toast)
+    },
+    [t],
+  );
 
   const onBackfill = useCallback((rows: NotificationRow[]) => {
     setNotifs(rows.slice(0, 20));
@@ -84,7 +95,7 @@ export function NotificationsBell({
       w[n.id] = formatWhen(n.created_at);
     }
     return { enrichedActors: actors, enrichedApps: apps, enrichedContacts: contacts, whens: w };
-  }, [notifs]);
+  }, [notifs, formatWhen]);
 
   const onAction = useCallback(
     async (id: string, action: 'accept' | 'later' | 'decline') => {
@@ -101,9 +112,9 @@ export function NotificationsBell({
             prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)),
           );
           setUnread((u) => Math.max(0, u - 1));
-          toast.success('Contact accepted — opening conversation…');
+          toast.success(t('ContactAcceptedOpeningConversation'));
         } else {
-          toast.error('Could not accept');
+          toast.error(t('CouldNotAccept'));
         }
       } else if (action === 'decline') {
         const result = await declineContactRequest({
@@ -115,14 +126,14 @@ export function NotificationsBell({
             prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)),
           );
           setUnread((u) => Math.max(0, u - 1));
-          toast('Declined');
+          toast(t('Declined'));
         } else {
-          toast.error('Could not decline');
+          toast.error(t('CouldNotDecline'));
         }
       }
       // 'later' = no-op, just close
     },
-    [notifs],
+    [notifs, t],
   );
 
   const onMarkAll = useCallback(async () => {
@@ -139,7 +150,7 @@ export function NotificationsBell({
       <button
         type="button"
         className="bell-btn"
-        aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
+        aria-label={unread > 0 ? t('BellAriaLabelUnread', { count: unread }) : t('BellAriaLabel')}
         onClick={() => setOpen((v) => !v)}
       >
         {/* Bell SVG glyph — simple line icon matching topbar visual weight */}

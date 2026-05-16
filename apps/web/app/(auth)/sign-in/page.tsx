@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Route } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth';
 import { SignInButtons } from './sign-in-buttons';
 import { SignInArt } from './sign-in-art';
@@ -17,6 +18,7 @@ export default async function SignInPage({
   if (user) redirect((params.next ?? '/settings/profile') as Route);
 
   const next = params.next ?? '/settings/profile';
+  const t = await getTranslations('SignIn');
 
   return (
     <div className={styles.shell}>
@@ -30,8 +32,9 @@ export default async function SignInPage({
         </div>
 
         <p className={styles.brandTagline}>
-          <em>Show what you&apos;re building.</em> A community gallery for indie builders shipping
-          side projects in public.
+          {t.rich('BrandTagline', {
+            em: (chunks) => <em>{chunks}</em>,
+          })}
         </p>
       </aside>
 
@@ -42,28 +45,22 @@ export default async function SignInPage({
           </div>
 
           <div className={styles.heading}>
-            <h1 className={styles.title}>Welcome back</h1>
-            <p className={styles.subtitle}>
-              Sign in to like, save, comment on apps, and talk to other builders.
-            </p>
+            <h1 className={styles.title}>{t('WelcomeBack')}</h1>
+            <p className={styles.subtitle}>{t('Subtitle')}</p>
           </div>
 
-          {params.error && (
-            <div className={styles.errorPill}>Sign-in failed. Please try again.</div>
-          )}
+          {params.error && <div className={styles.errorPill}>{t('SignInFailed')}</div>}
 
           <SignInButtons next={next} />
 
-          <p className={styles.legal}>
-            By continuing you agree to Hatch&apos;s Terms of Service and Privacy Policy.
-          </p>
+          <p className={styles.legal}>{t('LegalLine')}</p>
 
-          <div className={styles.divider}>or</div>
+          <div className={styles.divider}>{t('OrSeparator')}</div>
 
           <p className={styles.footer}>
-            Just browsing?{' '}
+            {t('JustBrowsing')}{' '}
             <Link href={'/' as Route} className={styles.footerLink}>
-              Back to Hatch →
+              {t('BackToHatch')}
             </Link>
           </p>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { subscribeToBrowserPush } from '@/lib/push/client';
 import { toast } from 'sonner';
 
@@ -11,6 +12,7 @@ type PushPermissionPromptProps = {
 };
 
 export function PushPermissionPrompt({ hasPushEnabled }: PushPermissionPromptProps) {
+  const t = useTranslations('Push');
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -27,10 +29,10 @@ export function PushPermissionPrompt({ hasPushEnabled }: PushPermissionPromptPro
   const onEnable = async () => {
     const result = await subscribeToBrowserPush();
     if (result.ok) {
-      toast.success('Notifications enabled');
+      toast.success(t('EnabledToast'));
       setShow(false);
     } else {
-      toast.error(`Could not enable: ${result.reason}`);
+      toast.error(t('CouldNotEnable', { reason: result.reason }));
     }
   };
 
@@ -40,14 +42,14 @@ export function PushPermissionPrompt({ hasPushEnabled }: PushPermissionPromptPro
   };
 
   return (
-    <div className="push-prompt" role="dialog" aria-label="Enable notifications">
-      <p>🔔 Get notified about new contact requests</p>
+    <div className="push-prompt" role="dialog" aria-label={t('AriaLabel')}>
+      <p>{t('EnableNotifications')}</p>
       <div className="push-prompt-actions">
         <button type="button" className="btn btn-publish" onClick={onEnable}>
-          Enable
+          {t('EnableButton')}
         </button>
         <button type="button" className="btn btn-ghost-2" onClick={onDismiss}>
-          Not now
+          {t('MaybeLater')}
         </button>
       </div>
     </div>

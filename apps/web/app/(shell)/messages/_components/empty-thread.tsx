@@ -1,4 +1,7 @@
-export function EmptyThread() {
+import { getTranslations } from 'next-intl/server';
+
+export async function EmptyThread() {
+  const t = await getTranslations('Messages');
   return (
     <section
       style={{
@@ -10,10 +13,8 @@ export function EmptyThread() {
         color: 'var(--text-2)',
       }}
     >
-      <p style={{ fontSize: '1.1rem' }}>Select a conversation</p>
-      <p style={{ fontSize: '0.85rem' }}>
-        Choose a chat on the left, or accept a contact request to start a new one.
-      </p>
+      <p style={{ fontSize: '1.1rem' }}>{t('EmptyThread')}</p>
+      <p style={{ fontSize: '0.85rem' }}>{t('EmptyThreadHint')}</p>
     </section>
   );
 }

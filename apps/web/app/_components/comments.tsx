@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Avatar } from './cards';
 import { CommentItem, type CommentNode, type AuthorMini } from './comment-item';
 import { postComment, toggleCommentLike } from '@/lib/actions/comment';
@@ -15,6 +16,8 @@ type CommentsProps = {
 
 export function Comments({ appId, slug, initialComments, isAuthenticated, viewer }: CommentsProps) {
   const router = useRouter();
+  const t = useTranslations('Detail');
+  const tTime = useTranslations('Time');
   const [text, setText] = useState('');
   const [comments, setComments] = useState<CommentNode[]>(initialComments);
   const [, startTransition] = useTransition();
@@ -36,7 +39,7 @@ export function Comments({ appId, slug, initialComments, isAuthenticated, viewer
     const optimistic: CommentNode = {
       id: tempId,
       body,
-      relative_time: 'just now',
+      relative_time: tTime('justNow'),
       is_creator: false,
       likes_count: 0,
       viewer_liked: false,
@@ -73,9 +76,9 @@ export function Comments({ appId, slug, initialComments, isAuthenticated, viewer
   return (
     <div className="comments" id="comments-section">
       <div className="comments-head">
-        <h3>Conversation</h3>
-        <span className="comments-count">{comments.length} comments</span>
-        <span className="comments-sort">sorted by · most loved</span>
+        <h3>{t('Conversation')}</h3>
+        <span className="comments-count">{t('CommentsCount', { count: comments.length })}</span>
+        <span className="comments-sort">{t('SortedByMostLoved')}</span>
       </div>
 
       <div className="comment-compose">
@@ -83,7 +86,7 @@ export function Comments({ appId, slug, initialComments, isAuthenticated, viewer
         <div className="comment-compose-body">
           <textarea
             className="comment-textarea"
-            placeholder="Say something nice about this app…"
+            placeholder={t('PlaceholderSayNice')}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -96,11 +99,11 @@ export function Comments({ appId, slug, initialComments, isAuthenticated, viewer
           <div className="comment-compose-actions">
             <span className="comment-hint">
               <span className="comment-hint-kbd">⌘</span>
-              <span className="comment-hint-kbd">↵</span>
-              to post · Markdown supported
+              <span className="comment-hint-kbd">↵</span> {t('KbdToPost')} ·{' '}
+              {t('MarkdownSupported')}
             </span>
             <button className="comment-send" disabled={!text.trim()} onClick={send}>
-              Post comment
+              {t('PostComment')}
             </button>
           </div>
         </div>

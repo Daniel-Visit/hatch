@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { NotificationItem, type NotificationItemProps } from './notification-item';
 
 export type NotificationsPanelProps = {
@@ -26,6 +27,7 @@ export function NotificationsPanel({
   onClose,
   onAll,
 }: NotificationsPanelProps) {
+  const t = useTranslations('Notifications');
   const ref = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<'all' | 'contact'>('all');
 
@@ -51,11 +53,11 @@ export function NotificationsPanel({
   const list = tab === 'all' ? notifs : contactList;
 
   return (
-    <div className="notifs" ref={ref} role="dialog" aria-label="Notifications">
+    <div className="notifs" ref={ref} role="dialog" aria-label={t('BellAriaLabel')}>
       <header className="notifs-head">
-        <h3>Inbox</h3>
+        <h3>{t('PanelTitle')}</h3>
         <button className="notifs-all" onClick={onAll}>
-          Mark all read
+          {t('MarkAllRead')}
         </button>
       </header>
       <div className="notifs-tabs">
@@ -63,13 +65,13 @@ export function NotificationsPanel({
           className={'notifs-tab ' + (tab === 'all' ? 'is-on' : '')}
           onClick={() => setTab('all')}
         >
-          All <span className="notifs-tab-c">{notifs.length}</span>
+          {t('FilterAll')} <span className="notifs-tab-c">{notifs.length}</span>
         </button>
         <button
           className={'notifs-tab ' + (tab === 'contact' ? 'is-on' : '')}
           onClick={() => setTab('contact')}
         >
-          Contact requests
+          {t('FilterContactRequests')}
           <span className="notifs-tab-c">{contactList.length}</span>
         </button>
       </div>
@@ -86,9 +88,7 @@ export function NotificationsPanel({
           />
         ))}
       </ul>
-      <footer className="notifs-foot">
-        Only people you accept can email you. Decline keeps your inbox tidy.
-      </footer>
+      <footer className="notifs-foot">{t('PanelFooter')}</footer>
     </div>
   );
 }

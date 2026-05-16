@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { UpdateProfileInput, type UpdateProfileInputType } from '@/lib/zod/profile';
 import { updateProfile, uploadAvatar } from '@/lib/actions/profile';
 import { BANNER_GRADIENTS, resolveBannerCss } from '@/lib/profile-gradients';
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export function ProfileForm({ initial, initialAvatarUrl }: Props) {
+  const t = useTranslations('Settings.Profile');
+  const tGradient = useTranslations('Settings.gradient');
   const { register, handleSubmit, control, watch, formState } = useForm<UpdateProfileInputType>({
     resolver: zodResolver(UpdateProfileInput),
     defaultValues: initial,
@@ -73,7 +76,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
       style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
     >
       <div>
-        <div style={{ fontWeight: 500, marginBottom: 8 }}>Avatar</div>
+        <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Avatar')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div
             style={{
@@ -90,7 +93,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
             {avatarUrl ? (
               <Image
                 src={avatarUrl}
-                alt="Your avatar"
+                alt={t('AvatarAlt')}
                 width={72}
                 height={72}
                 style={{ width: 72, height: 72, objectFit: 'cover' }}
@@ -113,11 +116,13 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
                 fontSize: 14,
               }}
             >
-              {avatarStatus === 'uploading' ? 'Uploading…' : 'Upload new avatar'}
+              {avatarStatus === 'uploading' ? t('Uploading') : t('UploadNew')}
             </button>
-            <small style={{ color: '#666' }}>PNG, JPG, WEBP or GIF · up to 2 MB</small>
+            <small style={{ color: '#666' }}>{t('AvatarHelp')}</small>
             {avatarStatus === 'error' && (
-              <small style={{ color: 'crimson' }}>Upload failed: {avatarError}</small>
+              <small style={{ color: 'crimson' }}>
+                {t('UploadFailed', { error: avatarError ?? '' })}
+              </small>
             )}
           </div>
           <input
@@ -131,7 +136,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
       </div>
 
       <label>
-        Display name
+        {t('DisplayName')}
         <input {...register('display_name')} style={inputStyle} />
         {formState.errors.display_name && (
           <small style={{ color: 'crimson' }}>{formState.errors.display_name.message}</small>
@@ -139,7 +144,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
       </label>
 
       <label>
-        Bio
+        {t('Bio')}
         <textarea {...register('bio')} rows={3} style={inputStyle} />
         {formState.errors.bio && (
           <small style={{ color: 'crimson' }}>{formState.errors.bio.message}</small>
@@ -147,7 +152,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
       </label>
 
       <div>
-        <div style={{ fontWeight: 500, marginBottom: 8 }}>Banner gradient</div>
+        <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('BannerGradient')}</div>
         <div
           aria-hidden
           style={{
@@ -163,7 +168,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
           render={({ field }) => (
             <div
               role="radiogroup"
-              aria-label="Banner gradient"
+              aria-label={t('BannerGradient')}
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(6, 1fr)',
@@ -173,14 +178,15 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
             >
               {BANNER_GRADIENTS.map((g) => {
                 const selected = field.value === g.css;
+                const label = tGradient(g.id);
                 return (
                   <button
                     key={g.id}
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    aria-label={g.label}
-                    title={g.label}
+                    aria-label={label}
+                    title={label}
                     onClick={() => field.onChange(g.css)}
                     style={{
                       aspectRatio: '1 / 1',
@@ -198,7 +204,7 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
           )}
         />
         <small style={{ color: '#666', display: 'block', marginTop: 6 }}>
-          Pick one of the presets to set your profile banner.
+          {t('BannerGradientHelp')}
         </small>
       </div>
 
@@ -208,11 +214,13 @@ export function ProfileForm({ initial, initialAvatarUrl }: Props) {
         className="btn btn-publish btn-lg"
         style={{ alignSelf: 'flex-start' }}
       >
-        {formState.isSubmitting ? 'Saving…' : 'Save profile'}
+        {formState.isSubmitting ? t('Saving') : t('SaveProfile')}
       </button>
 
-      {serverError && <small style={{ color: 'crimson' }}>Error: {serverError}</small>}
-      {savedAt && <small style={{ color: 'green' }}>Saved.</small>}
+      {serverError && (
+        <small style={{ color: 'crimson' }}>{t('ErrorPrefix', { error: serverError })}</small>
+      )}
+      {savedAt && <small style={{ color: 'green' }}>{t('Saved')}</small>}
     </form>
   );
 }

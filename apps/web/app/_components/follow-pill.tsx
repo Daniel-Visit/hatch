@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { toggleFollow } from '@/lib/actions/follow';
 
 type FollowPillProps = {
@@ -22,6 +23,7 @@ export function FollowPill({
   isOwnProfile,
 }: FollowPillProps) {
   const router = useRouter();
+  const t = useTranslations('Following');
   const [following, setFollowing] = useState(initialFollowing);
   const [, startTransition] = useTransition();
 
@@ -49,7 +51,7 @@ export function FollowPill({
   // When following, show "✓ Following" to signal state.
   return (
     <button className="btn btn-ghost-2" data-following={following ? '1' : '0'} onClick={onClick}>
-      {following ? '✓ Following' : '+ Follow'}
+      {following ? t('FollowingButton') : t('FollowButton')}
     </button>
   );
 }

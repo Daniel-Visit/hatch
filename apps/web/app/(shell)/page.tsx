@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
 import { FeaturedHero, GalleryGrid } from '@/app/_components/gallery-grid';
@@ -22,21 +23,33 @@ function currentMondayUtcIsoDate(): string {
 }
 
 // Synthetic "All" entry prepended to the DB categories list — matches prototype.
+// `label` is a fallback only; the chip strip prefers the translated label below.
 const ALL_CATEGORY = { id: 'all', label: 'All', icon: '◇' };
 
 // ── FilterChips (server — links only, no client state) ───────────────────────
 
-function FilterChips({
+async function FilterChips({
   categories,
 }: {
   categories: { id: string; label: string; icon: string }[];
 }) {
+  const tCat = await getTranslations('Categories');
+  const tCategory = await getTranslations('Category');
+  const lookupLabel = (id: string, fallback: string): string => {
+    if (id === 'all') return tCategory('AllLabel');
+    try {
+      const looked = (tCat as unknown as (key: string) => string)(id);
+      return looked && looked !== `Categories.${id}` ? looked : fallback;
+    } catch {
+      return fallback;
+    }
+  };
   return (
     <div className="chips">
       {categories.map((c) => (
         <Link key={c.id} href={(c.id === 'all' ? '/' : `/c/${c.id}`) as Route} className="chip">
           <span className="chip-i">{c.icon}</span>
-          <span>{c.label}</span>
+          <span>{lookupLabel(c.id, c.label)}</span>
         </Link>
       ))}
     </div>
@@ -47,6 +60,8 @@ function FilterChips({
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const tHome = await getTranslations('Home');
 
   // Fetch up to 24 published apps ordered by hot_score desc, then newest.
   // Join the author profile in a single query using Supabase's PostgREST syntax.
@@ -93,11 +108,12 @@ export default async function HomePage() {
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   // ── Featured hero: prefer featured_apps for this week, fallback to hot_score ──
@@ -168,11 +184,12 @@ export default async function HomePage() {
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   // Categories strip: synthetic "All" first, then DB categories.
@@ -189,12 +206,10 @@ export default async function HomePage() {
       <div className="gal-head">
         <div className="gal-head-left">
           <h1>
-            Discover
+            {tHome('DiscoverTitle')}
             <span className="gal-count">{apps.length}</span>
           </h1>
-          <p className="gal-sub">
-            Side-projects, weekend builds and unreasonable ideas from the Hatch community.
-          </p>
+          <p className="gal-sub">{tHome('Subtitle')}</p>
         </div>
       </div>
 
@@ -202,7 +217,10 @@ export default async function HomePage() {
 
       <div className="gal-toolbar">
         <span className="gal-toolbar-l">
-          Showing <b>{apps.length}</b> {apps.length === 1 ? 'app' : 'apps'}
+          {tHome.rich('ShowingApps', {
+            count: apps.length,
+            b: (chunks) => <b>{chunks}</b>,
+          })}
         </span>
       </div>
 
@@ -210,8 +228,8 @@ export default async function HomePage() {
 
       {showHero && (
         <div className="section-head">
-          <h2>Fresh out the oven</h2>
-          <span className="section-sub">{apps.length} apps</span>
+          <h2>{tHome('FreshOutTheOven')}</h2>
+          <span className="section-sub">{tHome('AppsSubtitle', { count: apps.length })}</span>
         </div>
       )}
 

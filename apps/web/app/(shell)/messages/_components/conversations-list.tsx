@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
 
 export type ConversationListItem = {
   id: string;
@@ -22,16 +23,22 @@ type Props = {
   activeId: string | null;
 };
 
-function formatTime(iso: string | null | undefined): string {
-  if (!iso) return '';
-  const ms = Date.now() - new Date(iso).getTime();
-  if (ms < 60_000) return 'now';
-  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m`;
-  if (ms < 86_400_000) return `${Math.floor(ms / 3_600_000)}h`;
-  return `${Math.floor(ms / 86_400_000)}d`;
+function useFormatTime() {
+  const tTime = useTranslations('Time');
+  return (iso: string | null | undefined): string => {
+    if (!iso) return '';
+    const ms = Date.now() - new Date(iso).getTime();
+    if (ms < 60_000) return tTime('now');
+    if (ms < 3_600_000) return tTime('shortMinutes', { count: Math.floor(ms / 60_000) });
+    if (ms < 86_400_000) return tTime('shortHours', { count: Math.floor(ms / 3_600_000) });
+    return tTime('shortDays', { count: Math.floor(ms / 86_400_000) });
+  };
 }
 
 export function ConversationsList({ items, activeId }: Props) {
+  const t = useTranslations('Messages');
+  const formatTime = useFormatTime();
+
   return (
     <aside
       style={{
@@ -41,12 +48,10 @@ export function ConversationsList({ items, activeId }: Props) {
       }}
     >
       <header style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>Messages</h2>
+        <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>{t('Title')}</h2>
       </header>
       {items.length === 0 ? (
-        <p style={{ padding: '16px', color: 'var(--text-2)' }}>
-          You haven&apos;t started any conversations yet — accept a contact request to begin.
-        </p>
+        <p style={{ padding: '16px', color: 'var(--text-2)' }}>{t('EmptyConversations')}</p>
       ) : (
         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {items.map((item) => {
@@ -73,7 +78,7 @@ export function ConversationsList({ items, activeId }: Props) {
                     }}
                   >
                     <strong style={{ fontSize: '0.9rem' }}>
-                      {item.other?.display_name ?? 'Unknown'}
+                      {item.other?.display_name ?? t('UnknownUser')}
                     </strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-2)' }}>
                       {formatTime(item.lastMessage?.createdAt ?? null)}
@@ -96,7 +101,7 @@ export function ConversationsList({ items, activeId }: Props) {
                         maxWidth: 220,
                       }}
                     >
-                      {item.lastMessage?.body ?? 'No messages yet'}
+                      {item.lastMessage?.body ?? t('NoMessagesYet')}
                     </span>
                     {item.unread > 0 && (
                       <span

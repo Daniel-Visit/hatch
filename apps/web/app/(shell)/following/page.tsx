@@ -3,6 +3,7 @@
 
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth';
 import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
@@ -21,6 +22,8 @@ export default async function FollowingPage() {
   }
 
   const sb = await createSupabaseServerClient();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const t = await getTranslations('Following');
 
   const { data: follows } = await sb
     .from('follows')
@@ -48,12 +51,12 @@ export default async function FollowingPage() {
             margin: 0,
           }}
         >
-          Nothing here yet
+          {t('NothingHereYet')}
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '14px' }}>
-          Follow some builders to see their ships here.{' '}
+          {t('FollowSomeBuilders')}{' '}
           <Link href="/" style={{ color: 'var(--ax)', textDecoration: 'underline' }}>
-            Browse Discover →
+            {t('BrowseDiscover')}
           </Link>
         </p>
       </div>
@@ -99,11 +102,12 @@ export default async function FollowingPage() {
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   return (
@@ -119,11 +123,9 @@ export default async function FollowingPage() {
             margin: 0,
           }}
         >
-          Following
+          {t('Title')}
         </h1>
-        <p style={{ color: 'var(--muted)', marginTop: '4px', fontSize: '13px' }}>
-          Latest from builders you follow
-        </p>
+        <p style={{ color: 'var(--muted)', marginTop: '4px', fontSize: '13px' }}>{t('Subtitle')}</p>
       </div>
       <GalleryGrid apps={apps} />
     </div>

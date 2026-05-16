@@ -12,17 +12,13 @@
 // Presentation-only: parent wires onSubmit to the sendContactRequest server action.
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Avatar } from './cards';
 import { AppArt } from './app-art';
 
 type ContactRole = 'investor' | 'partner' | 'hire' | 'fan';
 
-const ROLES = [
-  { id: 'investor', label: 'Investor', sub: 'Looking to invest in this builder' },
-  { id: 'partner', label: 'Partner / Collaborator', sub: 'Want to build something together' },
-  { id: 'hire', label: 'Hiring', sub: 'Have a job or freelance gig' },
-  { id: 'fan', label: 'Just a fan', sub: 'Cheering or feedback' },
-] as const;
+const ROLE_IDS = ['investor', 'partner', 'hire', 'fan'] as const;
 
 export type ContactModalApp = {
   id: string;
@@ -50,6 +46,9 @@ export type ContactModalProps = {
 };
 
 export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: ContactModalProps) {
+  const t = useTranslations('Contact');
+  const tRole = useTranslations('Contact.role');
+  const tRoleSub = useTranslations('Contact.roleSub');
   const [stage, setStage] = useState<'compose' | 'done'>('compose');
   const [role, setRole] = useState<ContactRole>('investor');
   const [note, setNote] = useState('');
@@ -82,8 +81,6 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
 
   if (!open || !app || !author || !viewer) return null;
 
-  const roleObj = ROLES.find((r) => r.id === role)!;
-
   const submit = async () => {
     setError(null);
     setSubmitting(true);
@@ -91,7 +88,7 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
       await onSubmit({ role, note, link });
       setStage('done');
     } catch {
-      setError('Failed to send. Try again.');
+      setError(t('Failed'));
     } finally {
       setSubmitting(false);
     }
@@ -107,7 +104,7 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
         onClick={(e) => e.stopPropagation()}
         style={{ '--ax': app.accent } as React.CSSProperties}
       >
-        <button className="cmodal-x" onClick={onClose} aria-label="Close">
+        <button className="cmodal-x" onClick={onClose} aria-label={t('CloseAria')}>
           <svg
             viewBox="0 0 16 16"
             width="14"
@@ -129,40 +126,46 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
               </div>
               <div>
                 <h2>
-                  Contact <b>{author.display_name.split(' ')[0]}</b>
+                  {t.rich('Title', {
+                    name: author.display_name.split(' ')[0],
+                    b: (chunks) => <b>{chunks}</b>,
+                  })}
                 </h2>
                 <p>
-                  about <i>{app.title}</i>
+                  {t.rich('About', {
+                    app: app.title,
+                    i: (chunks) => <i>{chunks}</i>,
+                  })}
                 </p>
               </div>
             </header>
 
             <div className="cmodal-body">
               <section className="cm-sect">
-                <h4 className="cm-h">Who&apos;s reaching out</h4>
+                <h4 className="cm-h">{t('WhosReachingOut')}</h4>
                 <div className="cm-me">
                   <Avatar user={viewerForAvatar} size={36} />
                   <div className="cm-me-id">
                     <b>{viewer.display_name}</b>
                     <i>{viewer.handle} · slope.fund</i>
                   </div>
-                  <span className="cm-me-edit">Edit profile →</span>
+                  <span className="cm-me-edit">{t('EditProfile')}</span>
                 </div>
               </section>
 
               <section className="cm-sect">
-                <h4 className="cm-h">Why are you reaching out?</h4>
+                <h4 className="cm-h">{t('WhyAreYouReachingOut')}</h4>
                 <div className="cm-roles">
-                  {ROLES.map((r) => (
+                  {ROLE_IDS.map((r) => (
                     <button
-                      key={r.id}
+                      key={r}
                       type="button"
-                      className={'cm-role ' + (role === r.id ? 'is-on' : '')}
-                      onClick={() => setRole(r.id)}
+                      className={'cm-role ' + (role === r ? 'is-on' : '')}
+                      onClick={() => setRole(r)}
                     >
                       <span className="cm-role-dot" />
-                      <b>{r.label}</b>
-                      <i>{r.sub}</i>
+                      <b>{tRole(r)}</b>
+                      <i>{tRoleSub(r)}</i>
                     </button>
                   ))}
                 </div>
@@ -170,27 +173,30 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
 
               <section className="cm-sect">
                 <h4 className="cm-h">
-                  Your message <i className="cm-h-opt">optional</i>
+                  {t('YourMessage')} <i className="cm-h-opt">{t('Optional')}</i>
                 </h4>
                 <textarea
                   className="cm-textarea"
                   rows={4}
                   maxLength={400}
-                  placeholder={`Hi ${author.display_name.split(' ')[0]}, I lead pre-seed at Slope Partners. Loved ${app.title} — would love 25 mins to learn how you're thinking about it…`}
+                  placeholder={t('MessagePlaceholder', {
+                    name: author.display_name.split(' ')[0],
+                    app: app.title,
+                  })}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
-                <div className="cm-counter">{note.length}/400</div>
+                <div className="cm-counter">{t('Counter', { count: note.length })}</div>
               </section>
 
               <section className="cm-sect">
                 <h4 className="cm-h">
-                  Add a link <i className="cm-h-opt">optional · LinkedIn, fund site, portfolio</i>
+                  {t('AddLink')} <i className="cm-h-opt">{t('AddLinkHint')}</i>
                 </h4>
                 <input
                   className="cm-input"
                   type="url"
-                  placeholder="https://"
+                  placeholder={t('LinkPlaceholder')}
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
                 />
@@ -213,11 +219,13 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
                   </svg>
                 </span>
                 <div>
-                  <b>Heads up — this shares your contact info.</b>
+                  <b>{t('HeadsUpTitle')}</b>
                   <p>
-                    If <b>{author.display_name}</b> accepts, they&apos;ll see your name, handle,
-                    email ({viewer.handle.replace('@', '')}@hatch.dev), profile, and the link above.
-                    They can reply directly. You can revoke access anytime.
+                    {t.rich('HeadsUpBody', {
+                      name: author.display_name,
+                      email: viewer.handle.replace('@', ''),
+                      b: (chunks) => <b>{chunks}</b>,
+                    })}
                   </p>
                 </div>
               </section>
@@ -229,8 +237,11 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
                   onChange={(e) => setConsent(e.target.checked)}
                 />
                 <span>
-                  I&apos;m sharing my contact details with <b>{author.display_name}</b> for the
-                  purpose of this <b>{roleObj.label.toLowerCase()}</b> inquiry.
+                  {t.rich('ConsentLabel', {
+                    name: author.display_name,
+                    role: tRole(role).toLowerCase(),
+                    b: (chunks) => <b>{chunks}</b>,
+                  })}
                 </span>
               </label>
             </div>
@@ -257,14 +268,14 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
                 </div>
               )}
               <button className="btn btn-ghost-2" onClick={onClose}>
-                Cancel
+                {t('Cancel')}
               </button>
               <button
                 className="btn btn-publish"
                 disabled={!consent || submitting}
                 onClick={submit}
               >
-                {submitting ? 'Sending…' : 'Send request'}
+                {submitting ? t('Sending') : t('Send')}
                 <svg
                   viewBox="0 0 16 16"
                   width="13"
@@ -299,21 +310,26 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
                   <path d="m5 12 4 4L19 8" />
                 </svg>
               </span>
-              <h2>Request sent to {author.display_name.split(' ')[0]}</h2>
+              <h2>{t('RequestSentToName', { name: author.display_name.split(' ')[0] })}</h2>
               <p>
-                {author.display_name} typically replies within <b>1–2 days</b>. We&apos;ll notify
-                you when they accept or decline.
+                {t.rich('RepliesWithin', {
+                  name: author.display_name,
+                  b: (chunks) => <b>{chunks}</b>,
+                })}
               </p>
               <div className="cm-done-card">
                 <header>
                   <span className="cm-done-tag" style={{ background: app.accent }}>
-                    {roleObj.label}
+                    {tRole(role)}
                   </span>
-                  <span className="cm-done-when">Just now</span>
+                  <span className="cm-done-when">{t('JustNow')}</span>
                 </header>
                 <p>
                   {note.trim() ||
-                    `Hi ${author.display_name.split(' ')[0]}, I'd love to chat about ${app.title}.`}
+                    t('DefaultMessage', {
+                      name: author.display_name.split(' ')[0],
+                      app: app.title,
+                    })}
                 </p>
                 <footer>
                   <Avatar user={viewerForAvatar} size={20} />
@@ -324,10 +340,10 @@ export function ContactModal({ open, app, author, viewer, onClose, onSubmit }: C
               </div>
               <div className="cm-done-actions">
                 <button className="btn btn-ghost-2" onClick={onClose}>
-                  Close
+                  {t('Close')}
                 </button>
                 <button className="btn btn-publish" onClick={onClose}>
-                  Done
+                  {t('Done')}
                 </button>
               </div>
             </div>

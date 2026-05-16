@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useOptimistic, useRef, useState, useTransition } from 'react';
+import { useTranslations } from 'next-intl';
 import { sendMessage, markConversationRead } from '@/lib/actions/messages';
 import { useRealtimeThread, type MessageRow } from '@/app/_components/use-realtime-thread';
 import { toast } from 'sonner';
@@ -24,6 +25,7 @@ type OptimisticMessage = MessageRow & { __optimistic?: boolean };
 const AT_BOTTOM_THRESHOLD_PX = 80;
 
 export function MessageThread({ conversationId, userId, other, initialMessages }: Props) {
+  const t = useTranslations('Messages');
   const [serverMessages, setServerMessages] = useState<MessageRow[]>(initialMessages);
   const [optimistic, addOptimistic] = useOptimistic<OptimisticMessage[], OptimisticMessage>(
     serverMessages,
@@ -146,10 +148,10 @@ export function MessageThread({ conversationId, userId, other, initialMessages }
       } else {
         // Rollback: restore textarea content and surface an error toast
         setBody(previousBody);
-        toast.error('Failed to send message. Please try again.');
+        toast.error(t('FailedToSend'));
       }
     });
-  }, [body, conversationId, userId, addOptimistic]);
+  }, [body, conversationId, userId, addOptimistic, t]);
 
   const onTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -226,7 +228,7 @@ export function MessageThread({ conversationId, userId, other, initialMessages }
             whiteSpace: 'nowrap',
           }}
         >
-          ↓ New messages
+          {t('NewMessages')}
         </button>
       )}
 
@@ -243,7 +245,7 @@ export function MessageThread({ conversationId, userId, other, initialMessages }
           value={body}
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={onTextareaKeyDown}
-          placeholder="Type a message — ⌘↵ to send"
+          placeholder={t('ComposerPlaceholder')}
           rows={2}
           style={{
             width: '100%',
@@ -288,7 +290,7 @@ export function MessageThread({ conversationId, userId, other, initialMessages }
                 }}
               />
             )}
-            Send
+            {t('Send')}
           </button>
         </div>
       </footer>

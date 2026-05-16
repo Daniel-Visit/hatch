@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   endpoint: string;
 }
 
 export function McpConfigSnippet({ endpoint }: Props) {
+  const t = useTranslations('Settings.ApiKeysPage');
   const [copied, setCopied] = useState(false);
 
   const config = JSON.stringify(
@@ -38,7 +40,7 @@ export function McpConfigSnippet({ endpoint }: Props) {
         onClick={handleCopy}
         className="absolute right-2 top-2 rounded-md bg-neutral-700 px-2 py-1 text-xs font-medium text-white hover:bg-neutral-600"
       >
-        {copied ? 'Copied!' : 'Copy'}
+        {copied ? t('Copied') : t('Copy')}
       </button>
     </div>
   );

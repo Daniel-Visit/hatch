@@ -7,6 +7,7 @@
 
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
 import { AppArt } from './app-art';
 import { BentoCard, Avatar, CategoryBadge, Stat, fmtNum } from './cards';
 import type { AppDataExtended } from './data-mappers';
@@ -20,6 +21,7 @@ interface GalleryGridProps {
 
 export function GalleryGrid({ apps }: GalleryGridProps) {
   const router = useRouter();
+  const t = useTranslations('Home.Empty');
   const onOpen = (id: string) => router.push(`/a/${id}` as Route);
   const onAuthor = (author: User) => router.push(`/u/${author.handle}` as Route);
 
@@ -27,8 +29,8 @@ export function GalleryGrid({ apps }: GalleryGridProps) {
     return (
       <div className="empty">
         <div className="empty-glyph">◌</div>
-        <h3>No apps match your filters</h3>
-        <p>Try clearing the search or picking a different category.</p>
+        <h3>{t('NoAppsMatch')}</h3>
+        <p>{t('TryClearing')}</p>
       </div>
     );
   }
@@ -50,6 +52,7 @@ interface FeaturedHeroProps {
 
 export function FeaturedHero({ apps }: FeaturedHeroProps) {
   const router = useRouter();
+  const t = useTranslations('Home.FeaturedHero');
   const onOpen = (id: string) => router.push(`/a/${id}` as Route);
   const onAuthor = (author: User) => router.push(`/u/${author.handle}` as Route);
 
@@ -68,7 +71,7 @@ export function FeaturedHero({ apps }: FeaturedHeroProps) {
         </div>
         <div className="hero-info">
           <div className="hero-tag">
-            <span className="hero-pill">App of the week</span>
+            <span className="hero-pill">{t('AppOfTheWeek')}</span>
             <CategoryBadge cat={main.category} />
           </div>
           <h2 className="hero-title">{main.title}</h2>
@@ -91,9 +94,9 @@ export function FeaturedHero({ apps }: FeaturedHeroProps) {
           </div>
           <div className="hero-cta">
             <span className="btn btn-primary" style={{ background: main.accent }}>
-              Open app →
+              {t('OpenApp')}
             </span>
-            <span className="btn btn-ghost-2">Read more</span>
+            <span className="btn btn-ghost-2">{t('ReadMore')}</span>
           </div>
         </div>
       </div>

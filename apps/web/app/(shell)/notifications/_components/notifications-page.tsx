@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { Route } from 'next';
 import { NotificationItem, type NotificationItemProps } from '@/app/_components/notification-item';
 import { useRealtimeNotifs } from '@/app/_components/use-realtime-notifs';
@@ -24,21 +25,16 @@ type Props = {
   initialFilter: Filter;
 };
 
-function formatWhen(iso: string): string {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return 'Just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
+function useFormatWhen(): (iso: string) => string {
+  const t = useTranslations('Time');
+  return (iso: string) => {
+    const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (seconds < 60) return t('shortJustNow');
+    if (seconds < 3600) return t('shortAgoMinutes', { count: Math.floor(seconds / 60) });
+    if (seconds < 86400) return t('shortAgoHours', { count: Math.floor(seconds / 3600) });
+    return t('shortAgoDays', { count: Math.floor(seconds / 86400) });
+  };
 }
-
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'unread', label: 'Unread' },
-  { id: 'contact', label: 'Contact requests' },
-  { id: 'message', label: 'Messages' },
-  { id: 'social', label: 'Likes & follows' },
-];
 
 import type { NotificationFilterT } from '@/lib/zod/notifications';
 
@@ -75,6 +71,16 @@ function localFilter(rows: NotificationRow[], filter: Filter): NotificationRow[]
 export function NotificationsPage({ userId, initialRows, initialCursor, initialFilter }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('Notifications');
+  const tCommon = useTranslations('Common');
+  const formatWhen = useFormatWhen();
+  const FILTERS: { id: Filter; label: string }[] = [
+    { id: 'all', label: t('FilterAll') },
+    { id: 'unread', label: t('FilterUnread') },
+    { id: 'contact', label: t('FilterContactRequests') },
+    { id: 'message', label: t('FilterMessages') },
+    { id: 'social', label: t('FilterLikesAndFollows') },
+  ];
   const [rows, setRows] = useState<NotificationRow[]>(initialRows);
   const [cursor, setCursor] = useState<string | null>(initialCursor);
   const [loading, setLoading] = useState(false);
@@ -112,7 +118,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
     const result = await getNotifications({ ...filterToQuery(filter), cursor });
     setLoading(false);
     if (!result.ok) {
-      toast.error('Could not load more');
+      toast.error(t('CouldNotLoadMore'));
       return;
     }
     setRows((prev) => {
@@ -133,7 +139,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
     if (!result.ok) {
       // Revert on error
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, read_at: null } : r)));
-      toast.error('Could not mark as read');
+      toast.error(t('CouldNotMarkRead'));
     }
   };
 
@@ -142,7 +148,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
     if (result.ok) {
       const now = new Date().toISOString();
       setRows((prev) => prev.map((r) => ({ ...r, read_at: r.read_at ?? now })));
-      toast.success('Inbox cleared');
+      toast.success(t('InboxCleared'));
     }
   };
 
@@ -158,10 +164,10 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
         setRows((prev) =>
           prev.map((r) => (r.id === id ? { ...r, read_at: new Date().toISOString() } : r)),
         );
-        toast.success('Accepted — opening conversation…');
+        toast.success(t('AcceptedOpeningConversation'));
         router.push(`/messages/${result.data.conversationId}` as Route);
       } else {
-        toast.error('Could not accept');
+        toast.error(t('CouldNotAccept'));
       }
     } else if (action === 'decline') {
       const result = await declineContactRequest({
@@ -172,7 +178,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
         setRows((prev) =>
           prev.map((r) => (r.id === id ? { ...r, read_at: new Date().toISOString() } : r)),
         );
-        toast('Declined');
+        toast(t('Declined'));
       }
     }
     // 'later' is a no-op — user dismissed the action but doesn't want to act yet
@@ -190,10 +196,10 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
           marginBottom: 16,
         }}
       >
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>Inbox</h1>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>{t('Title')}</h1>
         {unread > 0 && (
           <button type="button" className="btn btn-ghost-2" onClick={() => void onMarkAll()}>
-            Mark all read
+            {t('MarkAllRead')}
           </button>
         )}
       </header>
@@ -227,9 +233,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
       </nav>
 
       {visible.length === 0 ? (
-        <p style={{ color: 'var(--text-2)', padding: 32, textAlign: 'center' }}>
-          No notifications yet.
-        </p>
+        <p style={{ color: 'var(--text-2)', padding: 32, textAlign: 'center' }}>{t('Empty')}</p>
       ) : (
         <ul className="notifs-list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {visible.map((n) => (
@@ -272,7 +276,7 @@ export function NotificationsPage({ userId, initialRows, initialCursor, initialF
             onClick={() => void loadMore()}
             disabled={loading}
           >
-            {loading ? 'Loading…' : 'Load more'}
+            {loading ? tCommon('LoadingMore') : tCommon('LoadMore')}
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Avatar } from './cards';
 
 export type NotificationKind =
@@ -60,6 +61,8 @@ export function NotificationItem({
   when,
   onAction,
 }: NotificationItemProps) {
+  const t = useTranslations('Notifications');
+  const tBody = useTranslations('Notifications.body');
   const u = actor ?? { handle: '', display_name: '', avatar_url: null, hue: 200, emoji: '◇' };
 
   if (n.kind === 'contact_request') {
@@ -80,7 +83,7 @@ export function NotificationItem({
             <span className="notif-when">{when}</span>
           </div>
           <div className="notif-meta">
-            wants to contact you about{' '}
+            {t('WantsToContactYouAbout')}{' '}
             <span className="notif-app">
               <i className="notif-app-dot" style={{ background: app?.accent_color }} />
               <b>{app?.title}</b>
@@ -101,15 +104,15 @@ export function NotificationItem({
               >
                 <path d="m4 8 3 3 5-6" />
               </svg>
-              You accepted · <a href={`mailto:${c.email}`}>{c.email}</a>
+              {t('YouAccepted')} <a href={`mailto:${c.email}`}>{c.email}</a>
             </div>
           ) : (
             <div className="notif-contact-info">
               <span>
-                <b>Email:</b> {c.email}
+                <b>{t('EmailLabel')}</b> {c.email}
               </span>
               <span>
-                <b>Link:</b> {c.link}
+                <b>{t('LinkLabel')}</b> {c.link}
               </span>
             </div>
           )}
@@ -119,12 +122,16 @@ export function NotificationItem({
                 className="btn btn-publish notif-btn"
                 onClick={() => onAction(n.id, 'accept')}
               >
-                Accept & reply
+                {t('AcceptAndReply')}
               </button>
               <button className="btn btn-ghost-2 notif-btn" onClick={() => onAction(n.id, 'later')}>
-                Maybe later
+                {t('MaybeLater')}
               </button>
-              <button className="notif-x" title="Decline" onClick={() => onAction(n.id, 'decline')}>
+              <button
+                className="notif-x"
+                title={t('DeclineTitle')}
+                onClick={() => onAction(n.id, 'decline')}
+              >
                 <svg
                   viewBox="0 0 16 16"
                   width="12"
@@ -145,28 +152,30 @@ export function NotificationItem({
   }
 
   const title = app?.title ?? '';
-  let text = '';
+  const name = u.display_name;
+  const actorTag = { actor: (chunks: React.ReactNode) => <b>{chunks}</b> };
+  let body: React.ReactNode = null;
   switch (n.kind) {
     case 'like':
-      text = ' liked ' + title + '.';
+      body = tBody.rich('like', { ...actorTag, name, app: title });
       break;
     case 'comment':
-      text = ' commented on ' + title + '.';
+      body = tBody.rich('comment', { ...actorTag, name, app: title });
       break;
     case 'comment_reply':
-      text = ' replied to your comment on ' + title + '.';
+      body = tBody.rich('comment_reply', { ...actorTag, name, app: title });
       break;
     case 'follow':
-      text = ' followed you.';
+      body = tBody.rich('follow', { ...actorTag, name });
       break;
     case 'contact_accepted':
-      text = ' accepted your contact request.';
+      body = tBody.rich('contact_accepted', { ...actorTag, name });
       break;
     case 'contact_declined':
-      text = ' declined your contact request.';
+      body = tBody.rich('contact_declined', { ...actorTag, name });
       break;
     case 'message':
-      text = ' sent you a message: "' + (n.payload.preview || '') + '"';
+      body = tBody.rich('message', { ...actorTag, name, preview: n.payload.preview ?? '' });
       break;
   }
 
@@ -174,9 +183,7 @@ export function NotificationItem({
     <li className={'notif notif-mini ' + (n.read_at == null ? 'is-unread' : '')}>
       <Avatar user={u} size={32} />
       <div className="notif-body">
-        <p className="notif-mini-text">
-          <b>{u.display_name}</b> {text}
-        </p>
+        <p className="notif-mini-text">{body}</p>
         <span className="notif-when">{when}</span>
       </div>
     </li>

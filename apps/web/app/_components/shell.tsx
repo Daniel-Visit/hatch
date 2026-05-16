@@ -9,8 +9,10 @@ import type { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Icon } from './icons';
 import { useTheme } from './theme-controller';
+import { LocaleToggle } from './locale-toggle';
 
 export interface ShellUser {
   handle: string;
@@ -26,21 +28,26 @@ export interface ShellProps {
   bell?: React.ReactNode;
 }
 
-const NAV: { href: Route; label: string; icon: string }[] = [
-  { href: '/', label: 'Discover', icon: '◇' },
-  { href: '/trending', label: 'Trending', icon: '↗' },
-  { href: '/new', label: 'New & fresh', icon: '✦' },
-  { href: '/following', label: 'Following', icon: '◉' },
+const NAV: {
+  href: Route;
+  key: 'Discover' | 'Trending' | 'NewAndFresh' | 'Following';
+  icon: string;
+}[] = [
+  { href: '/', key: 'Discover', icon: '◇' },
+  { href: '/trending', key: 'Trending', icon: '↗' },
+  { href: '/new', key: 'NewAndFresh', icon: '✦' },
+  { href: '/following', key: 'Following', icon: '◉' },
 ];
 
 function Logo() {
+  const t = useTranslations('Shell');
   return (
     <Link href="/" className="logo">
       <span className="logo-mark">
         <i className="logo-mark-inner" />
       </span>
       <span className="logo-text">
-        hatch
+        {t('Logo')}
         <i className="logo-dot" />
       </span>
     </Link>
@@ -50,6 +57,7 @@ function Logo() {
 export function Shell({ user, children, bell }: ShellProps) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const t = useTranslations('Shell');
 
   return (
     <div className="shell">
@@ -60,26 +68,27 @@ export function Shell({ user, children, bell }: ShellProps) {
           <input
             type="text"
             name="q"
-            placeholder="Search 248 apps, makers, tags…"
+            placeholder={t('SearchPlaceholder', { count: 248 })}
             defaultValue=""
           />
           <span className="kbd">⌘K</span>
         </form>
         <nav className="topbar-actions">
           <Link href="/" className="btn btn-ghost">
-            Browse
+            {t('Browse')}
           </Link>
           <Link
             href={user ? '/publish' : ('/sign-in?next=/publish' as Route)}
             className="btn btn-publish"
           >
-            <Icon name="plus" /> Publish app
+            <Icon name="plus" /> {t('PublishApp')}
           </Link>
+          <LocaleToggle />
           <button
             className="theme-toggle"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            aria-label="Toggle theme"
+            title={theme === 'dark' ? t('SwitchToLight') : t('SwitchToDark')}
+            aria-label={t('ToggleTheme')}
             data-theme={theme}
           >
             <span className="theme-track">
@@ -119,7 +128,7 @@ export function Shell({ user, children, bell }: ShellProps) {
             <AvatarMenu user={user} />
           ) : (
             <Link href="/sign-in" className="btn btn-ghost">
-              Sign in
+              {t('SignIn')}
             </Link>
           )}
         </nav>
@@ -127,7 +136,7 @@ export function Shell({ user, children, bell }: ShellProps) {
 
       <aside className="sidebar">
         <div className="sidebar-sect">
-          <div className="sidebar-label">Browse</div>
+          <div className="sidebar-label">{t('Nav.Label')}</div>
           {NAV.map((n) => {
             const isActive = n.href === '/' ? pathname === '/' : pathname === n.href;
             return (
@@ -138,7 +147,7 @@ export function Shell({ user, children, bell }: ShellProps) {
                 aria-current={isActive ? 'page' : undefined}
               >
                 <i className="nav-i">{n.icon}</i>
-                <span>{n.label}</span>
+                <span>{t(`Nav.${n.key}`)}</span>
               </Link>
             );
           })}
@@ -153,6 +162,7 @@ export function Shell({ user, children, bell }: ShellProps) {
 function AvatarMenu({ user }: { user: ShellUser }) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('Shell.AvatarMenu');
 
   useEffect(() => {
     if (!open) return;
@@ -216,7 +226,7 @@ function AvatarMenu({ user }: { user: ShellUser }) {
             onClick={() => setOpen(false)}
           >
             <span className="me-dropdown-i">◆</span>
-            Profile
+            {t('Profile')}
           </Link>
           <Link
             href={'/settings/profile' as Route}
@@ -225,13 +235,13 @@ function AvatarMenu({ user }: { user: ShellUser }) {
             onClick={() => setOpen(false)}
           >
             <span className="me-dropdown-i">✎</span>
-            Edit profile
+            {t('EditProfile')}
           </Link>
           <div className="me-dropdown-sep" />
           <form action="/auth/sign-out" method="post">
             <button type="submit" className="me-dropdown-item me-dropdown-danger" role="menuitem">
               <span className="me-dropdown-i">↩</span>
-              Sign out
+              {t('SignOut')}
             </button>
           </form>
         </div>

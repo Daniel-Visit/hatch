@@ -1,6 +1,7 @@
 // Trending page — public gallery of hottest apps in the last 7 days.
 // Ordered by hot_score desc, limited to 60. No auth required.
 
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
 import { GalleryGrid } from '@/app/_components/gallery-grid';
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function TrendingPage() {
   const sb = await createSupabaseServerClient();
+  const locale = (await getLocale()) as 'en' | 'es';
+  const t = await getTranslations('Trending');
   const since = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
 
   const [{ data: appRows }, { data: categoryRows }] = await Promise.all([
@@ -52,11 +55,12 @@ export default async function TrendingPage() {
           notification_prefs: {},
           theme_pref: '',
           banner_gradient: null,
+          locale_pref: null,
         }
       : null;
 
     const category = catMap.get(row.category_id) ?? null;
-    return mapAppRowToCardProps(row, profile, category);
+    return mapAppRowToCardProps(row, profile, category, locale);
   });
 
   return (
@@ -72,10 +76,10 @@ export default async function TrendingPage() {
             margin: 0,
           }}
         >
-          Trending this week
+          {t('TrendingThisWeek')}
         </h1>
         <p style={{ color: 'var(--muted)', marginTop: '4px', fontSize: '13px' }}>
-          {apps.length} app{apps.length === 1 ? '' : 's'} hot in the last 7 days
+          {t('AppsHotInLast7Days', { count: apps.length })}
         </p>
       </div>
       <GalleryGrid apps={apps} />

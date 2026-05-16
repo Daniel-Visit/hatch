@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import styles from './sign-in.module.css';
 
 export function SignInButtons({ next }: { next: string }) {
+  const t = useTranslations('SignIn');
   const [pending, setPending] = useState<'github' | 'google' | null>(null);
 
   async function signIn(provider: 'github' | 'google') {
@@ -21,14 +23,14 @@ export function SignInButtons({ next }: { next: string }) {
     <div className={styles.buttons}>
       <OauthButton
         onClick={() => signIn('github')}
-        label={pending === 'github' ? 'Redirecting…' : 'Continue with GitHub'}
+        label={pending === 'github' ? t('Redirecting') : t('ContinueWithGitHub')}
         disabled={pending !== null}
       >
         <GithubIcon />
       </OauthButton>
       <OauthButton
         onClick={() => signIn('google')}
-        label={pending === 'google' ? 'Redirecting…' : 'Continue with Google'}
+        label={pending === 'google' ? t('Redirecting') : t('ContinueWithGoogle')}
         disabled={pending !== null}
       >
         <GoogleIcon />

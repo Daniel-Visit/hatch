@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Route } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth';
 import { ProfileForm } from './profile-form';
 
@@ -9,15 +10,22 @@ export default async function SettingsProfilePage() {
   const result = await getUser();
   if (!result) redirect('/sign-in?next=/settings/profile' as Route);
 
+  const t = await getTranslations('Settings');
+
   const { profile } = result;
   // `links` is jsonb; Supabase-generated types model it as Json. The shape is
   // enforced at write time by ProfileLinkSchema (lib/zod/profile.ts).
   const links = (profile.links as ProfileLink[] | null) ?? [];
   return (
     <main style={{ maxWidth: 600, margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>Edit profile</h1>
+      <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+        {t('EditProfile')}
+      </h1>
       <p style={{ color: '#666', marginBottom: '2rem' }}>
-        Signed in as <strong>@{profile.handle}</strong>
+        {t.rich('SignedInAs', {
+          handle: profile.handle,
+          b: (chunks) => <strong>{chunks}</strong>,
+        })}
       </p>
       <ProfileForm
         initial={{
@@ -40,7 +48,7 @@ export default async function SettingsProfilePage() {
             backgroundColor: 'white',
           }}
         >
-          Sign out
+          {t('SignOut')}
         </button>
       </form>
     </main>

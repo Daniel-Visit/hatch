@@ -461,3 +461,22 @@ a { color: inherit; }
 }
 .chip-i { color: var(--muted); }
 .chip.is-on .chip-i { color: var(--bg); }
+
+/* ─── Locale toggle (segmented EN/ES pill) ───────────────────────────── */
+.locale-toggle {
+  display: inline-flex; align-items: center;
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 2px; background: var(--surface-2); gap: 0;
+}
+.locale-toggle__segment {
+  appearance: none; border: 0; background: transparent;
+  color: var(--muted); font: inherit;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px;
+  cursor: pointer; letter-spacing: 0.04em;
+  transition: background 120ms, color 120ms;
+}
+.locale-toggle__segment[data-active='true'] {
+  background: var(--surface); color: var(--text);
+}
+.locale-toggle__segment:disabled { cursor: not-allowed; opacity: 0.6; }

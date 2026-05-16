@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { fmtNum } from './cards';
 import { toggleLike } from '@/lib/actions/like';
 import { toggleSave } from '@/lib/actions/save';
@@ -25,6 +26,7 @@ export function ActionBar({
   isAuthenticated,
 }: ActionBarProps) {
   const router = useRouter();
+  const t = useTranslations('Detail');
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(initialLikesCount);
   const [saved, setSaved] = useState(initialSaved);
@@ -69,26 +71,26 @@ export function ActionBar({
         className="act-btn like"
         data-on={liked ? '1' : '0'}
         onClick={onLike}
-        title="Love this"
+        title={t('Love')}
       >
         <span className="act-i">{liked ? '♥' : '♡'}</span>
         <span className="act-num">{fmtNum(likes)}</span>
       </button>
-      <button className="act-btn" onClick={onComments} title="Comments">
+      <button className="act-btn" onClick={onComments} title={t('Comments')}>
         <span className="act-i">◌</span>
         <span className="act-num">{commentCount}</span>
       </button>
-      <button className="act-btn" title="Share">
+      <button className="act-btn" title={t('Share')}>
         <span className="act-i">↗</span>
-        <span>Share</span>
+        <span>{t('Share')}</span>
       </button>
       <span className="act-sep" />
-      <button className="act-btn" title="More">
+      <button className="act-btn" title={t('More')}>
         <span className="act-i">⋯</span>
       </button>
       <span className="act-grow" />
       <button className="act-save" data-saved={saved ? '1' : '0'} onClick={onSave}>
-        {saved ? '✓ Saved' : '＋ Save'}
+        {saved ? t('Saved') : t('Save')}
       </button>
     </div>
   );

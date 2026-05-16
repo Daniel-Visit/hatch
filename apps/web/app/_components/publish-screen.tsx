@@ -14,6 +14,7 @@ import { useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { Route } from 'next';
 import {
   PublishAppInput,
@@ -48,7 +49,21 @@ export type PublishScreenProps = {
 
 export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: PublishScreenProps) {
   const router = useRouter();
+  const t = useTranslations('Publish');
+  const tCommon = useTranslations('Common');
+  const tCat = useTranslations('Categories');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Translated category label with defensive fallback to the DB-provided
+  // label (matches the lookup pattern in CategoryBadge).
+  const translateCategoryLabel = (id: string, fallback: string): string => {
+    try {
+      const looked = (tCat as unknown as (key: string) => string)(id);
+      return looked && looked !== `Categories.${id}` ? looked : fallback;
+    } catch {
+      return fallback;
+    }
+  };
 
   const { control, register, handleSubmit, watch, setValue, getValues } = useForm<PublishAppInputT>(
     {
@@ -105,8 +120,8 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
   };
   const previewApp: AppData = {
     id: 'preview',
-    title: title || 'Your app title',
-    tagline: tagline || 'Your one-line pitch goes here.',
+    title: title || t('Placeholders.Title'),
+    tagline: tagline || t('Placeholders.Tagline'),
     author: previewAuthor,
     category: previewCategory,
     stats: { likes: 0, views: '—' as unknown as number },
@@ -155,24 +170,22 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
     <div className="publish">
       <div className="detail-crumbs">
         <button className="crumb-back" onClick={onCancel}>
-          ← Cancel
+          {t('CancelCrumb')}
         </button>
         <span className="crumb-sep">/</span>
-        <span className="crumb-here">Publish a new app</span>
+        <span className="crumb-here">{t('PageTitle')}</span>
       </div>
 
       <div className="publish-head">
         <div>
-          <h1>Ship it.</h1>
-          <p>Fill the template, preview on the right, hit publish. Takes 90 seconds.</p>
+          <h1>{t('HeroTitle')}</h1>
+          <p>{t('HeroSubtitle')}</p>
         </div>
         <div className="publish-progress">
           <div className="prog-bar">
             <i style={{ width: pct + '%' }} />
           </div>
-          <div className="prog-l">
-            {completion}/{total} fields complete
-          </div>
+          <div className="prog-l">{t('FieldsComplete', { completed: completion, total })}</div>
         </div>
       </div>
 
@@ -180,56 +193,54 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
         <form className="publish-form" onSubmit={onSubmit}>
           <section className="psec">
             <header className="psec-head">
-              <h2>The basics</h2>
-              <p>Name, pitch, and a link people can click.</p>
+              <h2>{t('Sections.BasicsTitle')}</h2>
+              <p>{t('Sections.BasicsSubtitle')}</p>
             </header>
             <div className="psec-body">
               <label className="f">
                 <span>
-                  App name <i>required</i>
+                  {t('AppName')} <i>{tCommon('Required')}</i>
                 </span>
                 <input type="text" maxLength={32} {...register('title')} />
-                <span className="f-hint">{(title ?? '').length}/32 · short, memorable</span>
+                <span className="f-hint">{t('AppNameHint', { count: (title ?? '').length })}</span>
               </label>
               <label className="f">
                 <span>
-                  One-line pitch <i>required</i>
+                  {t('OneLinePitch')} <i>{tCommon('Required')}</i>
                 </span>
                 <input type="text" maxLength={90} {...register('tagline')} />
                 <span className="f-hint">
-                  {(tagline ?? '').length}/90 · tell us what it does in a tweet
+                  {t('OneLinePitchHint', { count: (tagline ?? '').length })}
                 </span>
               </label>
               <label className="f">
                 <span>
-                  Live link <i>required</i>
+                  {t('LiveLink')} <i>{tCommon('Required')}</i>
                 </span>
                 <input type="url" {...register('link')} />
-                <span className="f-hint">URL where people can actually use the app</span>
+                <span className="f-hint">{t('LiveLinkHint')}</span>
               </label>
             </div>
           </section>
 
           <section className="psec">
             <header className="psec-head">
-              <h2>Tell the story</h2>
-              <p>The longer pitch. What it does, why it exists.</p>
+              <h2>{t('Sections.StoryTitle')}</h2>
+              <p>{t('Sections.StorySubtitle')}</p>
             </header>
             <div className="psec-body">
               <label className="f">
-                <span>The longer pitch</span>
+                <span>{t('LongerPitch')}</span>
                 <textarea rows={5} {...register('description')} />
-                <span className="f-hint">
-                  What inspired it, what it does, what makes it different. Markdown ok.
-                </span>
+                <span className="f-hint">{t('LongerPitchHint')}</span>
               </label>
             </div>
           </section>
 
           <section className="psec">
             <header className="psec-head">
-              <h2>Discoverability</h2>
-              <p>Help the right people stumble onto your app.</p>
+              <h2>{t('Sections.DiscoverabilityTitle')}</h2>
+              <p>{t('Sections.DiscoverabilitySubtitle')}</p>
             </header>
             <div className="psec-body">
               <Controller
@@ -237,7 +248,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                 name="categoryId"
                 render={({ field }) => (
                   <label className="f">
-                    <span>Category</span>
+                    <span>{t('Category')}</span>
                     <div className="cat-grid">
                       {categories
                         .filter((c) => c.id !== 'all')
@@ -249,7 +260,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                             onClick={() => field.onChange(c.id)}
                           >
                             <span className="cat-tile-i">{c.icon}</span>
-                            {c.label}
+                            {translateCategoryLabel(c.id, c.label)}
                           </button>
                         ))}
                     </div>
@@ -263,13 +274,13 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                 render={({ field }) => (
                   <label className="f">
                     <span>
-                      Tags <i>up to 6</i>
+                      {t('Tags')} <i>{t('TagsUpTo6')}</i>
                     </span>
                     <div className="tag-input">
-                      {field.value.map((t) => (
-                        <span key={t} className="tag-pill">
-                          {t}
-                          <button type="button" onClick={() => removeTag(t)}>
+                      {field.value.map((tag) => (
+                        <span key={tag} className="tag-pill">
+                          {tag}
+                          <button type="button" onClick={() => removeTag(tag)}>
                             ×
                           </button>
                         </span>
@@ -277,7 +288,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                       {field.value.length < 6 && (
                         <input
                           type="text"
-                          placeholder="add a tag…"
+                          placeholder={t('TagsAddPlaceholder')}
                           onKeyDown={(e) => {
                             const target = e.currentTarget;
                             if (e.key === 'Enter') {
@@ -292,9 +303,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                         />
                       )}
                     </div>
-                    <span className="f-hint">
-                      Press Enter to add. Use stack names, not buzzwords.
-                    </span>
+                    <span className="f-hint">{t('TagsHint')}</span>
                   </label>
                 )}
               />
@@ -303,8 +312,8 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
 
           <section className="psec">
             <header className="psec-head">
-              <h2>Cover art</h2>
-              <p>Pick a vibe & accent. Or upload your own screenshot.</p>
+              <h2>{t('Sections.CoverArtTitle')}</h2>
+              <p>{t('Sections.CoverArtSubtitle')}</p>
             </header>
             <div className="psec-body">
               <Controller
@@ -312,7 +321,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                 name="artKind"
                 render={({ field }) => (
                   <label className="f">
-                    <span>Pick a vibe</span>
+                    <span>{t('PickAVibe')}</span>
                     <div className="art-picker">
                       {ART_KINDS.map((a) => (
                         <button
@@ -328,7 +337,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                       ))}
                     </div>
                     <span className="f-hint">
-                      Or upload your own PNG (1200×800, {'<'} 2MB).{' '}
+                      {t('UploadHint')}{' '}
                       <a
                         href="#"
                         onClick={(e) => {
@@ -336,7 +345,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                           fileInputRef.current?.click();
                         }}
                       >
-                        Upload →
+                        {t('UploadLink')}
                       </a>
                     </span>
                     <input
@@ -366,7 +375,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
                 name="accent"
                 render={({ field }) => (
                   <label className="f">
-                    <span>Accent color</span>
+                    <span>{t('AccentColor')}</span>
                     <div className="color-row">
                       {ACCENT_COLORS.map((c) => (
                         <button
@@ -385,30 +394,35 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
           </section>
 
           <div className="publish-actions">
-            <button type="button" className="btn btn-ghost-2" disabled title="Drafts coming soon">
-              Save draft
+            <button
+              type="button"
+              className="btn btn-ghost-2"
+              disabled
+              title={t('DraftsComingSoon')}
+            >
+              {t('SaveDraft')}
             </button>
             <button type="submit" className="btn btn-primary btn-lg">
-              Publish to Hatch →
+              {t('PublishToHatch')}
             </button>
           </div>
         </form>
 
         <aside className="publish-preview">
           <div className="prev-head">
-            <span className="prev-dot" /> Live preview
-            <span className="prev-style">style: {cardStyle}</span>
+            <span className="prev-dot" /> {t('LivePreview')}
+            <span className="prev-style">{t('PreviewStyle', { style: cardStyle })}</span>
           </div>
           <div className="prev-stage">
             <ClassicCard app={previewApp} onOpen={() => {}} onAuthor={() => {}} />
           </div>
           <div className="prev-tips">
-            <h4>Tips for getting on the front page</h4>
+            <h4>{t('TipsTitle')}</h4>
             <ul>
-              <li>Ship a one-line pitch that makes someone laugh or curious.</li>
-              <li>Real screenshots beat slick covers — show the actual thing.</li>
-              <li>Reply to early comments. Builders remember.</li>
-              <li>Add at least 2 tags so people in your stack can find it.</li>
+              <li>{t('Tips.Pitch')}</li>
+              <li>{t('Tips.Screenshots')}</li>
+              <li>{t('Tips.Reply')}</li>
+              <li>{t('Tips.Tags')}</li>
             </ul>
           </div>
         </aside>

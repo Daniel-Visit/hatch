@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ContactModal } from '@/app/_components/contact-modal';
 import { sendContactRequest } from '@/lib/actions/contact-requests';
 import { toast } from 'sonner';
@@ -27,6 +28,10 @@ type Props = {
 
 export function ContactCTA({ app, author, viewer, signedIn }: Props) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations('Contact');
+  const tDetail = useTranslations('Detail');
+
+  const firstName = author.display_name.split(' ')[0];
 
   if (!signedIn) {
     // Anon: link to /sign-in?next back to this app
@@ -36,7 +41,7 @@ export function ContactCTA({ app, author, viewer, signedIn }: Props) {
         className="btn btn-publish"
         style={{ width: '100%', justifyContent: 'center' }}
       >
-        Contact {author.display_name.split(' ')[0]}
+        {tDetail('ContactFirstName', { name: firstName })}
       </a>
     );
   }
@@ -49,7 +54,7 @@ export function ContactCTA({ app, author, viewer, signedIn }: Props) {
         style={{ width: '100%', justifyContent: 'center' }}
         onClick={() => setOpen(true)}
       >
-        Contact {author.display_name.split(' ')[0]}
+        {tDetail('ContactFirstName', { name: firstName })}
       </button>
       <ContactModal
         open={open}
@@ -69,7 +74,7 @@ export function ContactCTA({ app, author, viewer, signedIn }: Props) {
           if (!result.ok) {
             throw new Error(result.error);
           }
-          toast.success('Request sent');
+          toast.success(t('RequestSent'));
         }}
       />
     </>

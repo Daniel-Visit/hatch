@@ -8,16 +8,17 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getUser } from '@/lib/auth';
 import { Avatar, CategoryBadge } from '@/app/_components/cards';
 import { AppArt } from '@/app/_components/app-art';
-import { Markdown } from '@/app/_components/markdown';
 import { ActionBar } from '@/app/_components/action-bar';
 import { Comments } from '@/app/_components/comments';
 import type { CommentNode } from '@/app/_components/comment-item';
-import { mapAppRowToCardProps, fmtNum } from '@/app/_components/data-mappers';
+import { mapAppRowToCardProps, fmtNum, relativeTime } from '@/app/_components/data-mappers';
 import { ContactCTA } from './_components/contact-cta';
+import TranslatableDescription from './_components/translatable-description';
 import { recordView } from '@/lib/actions/views';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -52,6 +53,7 @@ function buildProfile(authorId: string, profileData: ProfileData): Tables<'profi
     notification_prefs: {},
     theme_pref: '',
     banner_gradient: null,
+    locale_pref: null,
   };
 }
 
@@ -86,7 +88,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const row = await fetchApp(slug);
-  if (!row) return { title: 'App not found' };
+  const t = await getTranslations('Detail');
+  if (!row) return { title: t('AppNotFound') };
   return {
     title: `${row.title} — Hatch`,
     description: row.tagline,
@@ -114,17 +117,6 @@ type CommentRowWithAuthor = {
   author: CommentAuthorJoin | null;
 };
 
-function formatRelativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `${days}d`;
-}
-
 export default async function AppDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const row = await fetchApp(slug);
@@ -134,11 +126,15 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
   // Fire-and-forget view tracking (deduped per viewer per UTC day at the DB layer).
   await recordView(row.id);
 
+  const locale = (await getLocale()) as 'en' | 'es';
+  const t = await getTranslations('Detail');
+  const tCategories = await getTranslations('Categories');
+
   const profileData = row.author as ProfileData;
   const profile = buildProfile(row.author_id, profileData);
   const category = await fetchCategory(row.category_id);
 
-  const app = mapAppRowToCardProps(row, profile, category);
+  const app = mapAppRowToCardProps(row, profile, category, locale);
   const u = app.author;
 
   // ── viewer + social data ──────────────────────────────────────────────────
@@ -194,7 +190,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
   const toNode = (c: CommentRowWithAuthor): CommentNode => ({
     id: c.id,
     body: c.body,
-    relative_time: formatRelativeTime(c.created_at),
+    relative_time: relativeTime(c.created_at, locale),
     is_creator: c.author_id === row.author_id,
     likes_count: c.likes_count,
     viewer_liked: likedCommentIds.has(c.id),
@@ -216,17 +212,28 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
       repliesByParent.set(c.parent_id, arr);
     }
   }
-  const commentTree: CommentNode[] = topLevel.map((t) => ({
-    ...t,
-    replies: repliesByParent.get(t.id),
+  const commentTree: CommentNode[] = topLevel.map((tl) => ({
+    ...tl,
+    replies: repliesByParent.get(tl.id),
   }));
   const totalCommentCount = allComments.length;
+
+  // Translated category label (falls back to the DB label if no key exists)
+  const translatedCategoryLabel = (() => {
+    if (!app.category) return null;
+    try {
+      const looked = (tCategories as unknown as (key: string) => string)(app.category.id);
+      return looked && looked !== `Categories.${app.category.id}` ? looked : app.category.label;
+    } catch {
+      return app.category.label;
+    }
+  })();
 
   return (
     <div className="detail" style={{ '--ax': app.accent } as React.CSSProperties}>
       <div className="detail-crumbs">
         <Link className="crumb-back" href="/">
-          ← Back to gallery
+          {t('BackToGallery')}
         </Link>
         <span className="crumb-sep">/</span>
         <CategoryBadge cat={app.category} />
@@ -235,7 +242,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
       <header className="detail-head">
         <div className="detail-art">
           <AppArt kind={app.art} accent={app.accent} glyphSize={220} />
-          <span className="detail-shipped">Shipped {app.published}</span>
+          <span className="detail-shipped">{t('Shipped', { when: app.published })}</span>
         </div>
 
         <div className="detail-info">
@@ -280,8 +287,13 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 }
                 signedIn={isAuthenticated}
               />
-              <button type="button" className="btn btn-ghost-2" disabled aria-label="coming soon">
-                Follow
+              <button
+                type="button"
+                className="btn btn-ghost-2"
+                disabled
+                aria-label={t('ComingSoon')}
+              >
+                {t('Follow')}
               </button>
             </div>
           </div>
@@ -295,7 +307,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 className="btn btn-primary btn-lg"
                 style={{ background: app.accent }}
               >
-                Open app
+                {t('OpenApp')}
                 <i className="arrow-out">↗</i>
               </a>
             ) : (
@@ -305,7 +317,7 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 style={{ background: app.accent }}
                 disabled
               >
-                Open app
+                {t('OpenApp')}
                 <i className="arrow-out">↗</i>
               </button>
             )}
@@ -314,17 +326,19 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
           <div className="detail-stats">
             <div className="stat-block">
               <div className="stat-n">{fmtNum(app.stats.likes)}</div>
-              <div className="stat-l">Likes</div>
+              <div className="stat-l">{t('Likes')}</div>
             </div>
             <div className="stat-block">
               <div className="stat-n">{fmtNum(app.stats.views)}</div>
-              <div className="stat-l">Views</div>
+              <div className="stat-l">{t('Views')}</div>
             </div>
             <div className="stat-block">
               <div className="stat-n">
-                {app.category ? `In ${app.category.label.toLowerCase()}` : ''}
+                {translatedCategoryLabel
+                  ? t('InCategory', { category: translatedCategoryLabel.toLowerCase() })
+                  : ''}
               </div>
-              <div className="stat-l">Category</div>
+              <div className="stat-l">{t('Category')}</div>
             </div>
           </div>
         </div>
@@ -343,19 +357,19 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
       <div className="detail-grid">
         <section className="detail-col">
           <div className="panel">
-            <h3 className="panel-h">About this app</h3>
+            <h3 className="panel-h">{t('AboutThisApp')}</h3>
             <div className="panel-body">
-              <Markdown>{row.description}</Markdown>
+              <TranslatableDescription text={row.description} targetLocale={locale} />
             </div>
           </div>
 
           <div className="panel">
-            <h3 className="panel-h">Built with</h3>
+            <h3 className="panel-h">{t('BuiltWith')}</h3>
             <div className="stack-row">
-              {app.tags.map((t) => (
-                <span key={t} className="stack-chip">
+              {app.tags.map((tag) => (
+                <span key={tag} className="stack-chip">
                   <i className="stack-dot" style={{ background: app.accent }} />
-                  {t}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -417,28 +431,41 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
                 signedIn={isAuthenticated}
               />
               <a href={`/u/${u.handle}`} className="btn btn-ghost-2 btn-block">
-                View profile
+                {t('ViewProfile')}
               </a>
             </div>
-            <span className="panel-author-tip">
-              Investor or partner? Drop a DM — they review every inquiry.
-            </span>
+            <span className="panel-author-tip">{t('InvestorOrPartner')}</span>
           </div>
 
           <div className="panel">
-            <h3 className="panel-h">Share</h3>
+            <h3 className="panel-h">{t('ShareSection')}</h3>
             <div className="share-row">
-              <button type="button" className="share-btn" disabled aria-label="coming soon">
-                ⌘C Copy link
+              <button type="button" className="share-btn" disabled aria-label={t('ComingSoon')}>
+                {t('CopyLink')}
               </button>
               <div className="share-icons">
-                <button type="button" className="btn btn-icon" disabled aria-label="coming soon">
+                <button
+                  type="button"
+                  className="btn btn-icon"
+                  disabled
+                  aria-label={t('ComingSoon')}
+                >
                   𝕏
                 </button>
-                <button type="button" className="btn btn-icon" disabled aria-label="coming soon">
+                <button
+                  type="button"
+                  className="btn btn-icon"
+                  disabled
+                  aria-label={t('ComingSoon')}
+                >
                   ↗
                 </button>
-                <button type="button" className="btn btn-icon" disabled aria-label="coming soon">
+                <button
+                  type="button"
+                  className="btn btn-icon"
+                  disabled
+                  aria-label={t('ComingSoon')}
+                >
                   ⌬
                 </button>
               </div>
@@ -446,10 +473,14 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
           </div>
 
           <div className="panel">
-            <h3 className="panel-h">Stats</h3>
+            <h3 className="panel-h">{t('Stats')}</h3>
             <div className="stack-row">
-              <span className="stack-chip">♥ {fmtNum(app.stats.likes)} likes</span>
-              <span className="stack-chip">◎ {fmtNum(app.stats.views)} views</span>
+              <span className="stack-chip">
+                {t('LikesWithCount', { count: fmtNum(app.stats.likes) })}
+              </span>
+              <span className="stack-chip">
+                {t('ViewsWithCount', { count: fmtNum(app.stats.views) })}
+              </span>
             </div>
           </div>
         </aside>

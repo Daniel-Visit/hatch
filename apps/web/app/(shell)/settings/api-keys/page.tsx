@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth';
 import { GenerateKeyFlow } from './_components/generate-key-flow';
@@ -9,9 +10,9 @@ export const dynamic = 'force-dynamic';
 
 const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL ?? 'http://localhost:8080/mcp';
 
-function formatDate(iso: string | null): string {
-  if (!iso) return 'never';
-  return new Date(iso).toLocaleString();
+function formatDate(iso: string | null, locale: string, neverLabel: string): string {
+  if (!iso) return neverLabel;
+  return new Date(iso).toLocaleString(locale);
 }
 
 export default async function ApiKeysPage() {
@@ -21,6 +22,10 @@ export default async function ApiKeysPage() {
   } catch {
     redirect('/sign-in');
   }
+
+  const t = await getTranslations('Settings.ApiKeysPage');
+  const locale = await getLocale();
+  const neverLabel = t('Never');
 
   const sb = await createSupabaseServerClient();
   const { data: activeKey } = await sb
@@ -40,18 +45,15 @@ export default async function ApiKeysPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-10">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">API Keys</h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          Generate a personal access token to connect Claude Desktop (or any MCP client) to your
-          Hatch account. One active key per user — revoke and regenerate to rotate.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{t('Title')}</h1>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('Subtitle')}</p>
       </header>
 
       {!activeKey ? (
         <section className="rounded-lg border border-neutral-200 p-6 dark:border-neutral-800">
-          <h2 className="text-lg font-medium">No active key</h2>
+          <h2 className="text-lg font-medium">{t('NoActiveKey')}</h2>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            Click below to generate one. You&apos;ll see the token only once.
+            {t('NoActiveKeyHint')}
           </p>
           <div className="mt-4">
             <GenerateKeyFlow />
@@ -65,8 +67,10 @@ export default async function ApiKeysPage() {
                 <h2 className="text-lg font-medium">{activeKey.label}</h2>
                 <p className="font-mono text-sm text-neutral-500">{activeKey.token_prefix}…****</p>
                 <p className="text-xs text-neutral-500">
-                  Created {formatDate(activeKey.created_at)} · Last used{' '}
-                  {formatDate(activeKey.last_used_at)}
+                  {t('Created', { when: formatDate(activeKey.created_at, locale, neverLabel) })} ·{' '}
+                  {t('LastUsed', {
+                    when: formatDate(activeKey.last_used_at, locale, neverLabel),
+                  })}
                 </p>
               </div>
               <form action={handleRevoke}>
@@ -75,18 +79,18 @@ export default async function ApiKeysPage() {
                   type="submit"
                   className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
                 >
-                  Revoke
+                  {t('Revoke')}
                 </button>
               </form>
             </div>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-medium">Claude Desktop config</h2>
+            <h2 className="text-lg font-medium">{t('ConfigTitle')}</h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              Paste this into your Claude Desktop MCP settings. Replace{' '}
-              <code className="font-mono text-xs">&lt;paste-your-token&gt;</code> with the token you
-              saved when generating the key.
+              {t.rich('ConfigSubtitle', {
+                code: (chunks) => <code className="font-mono text-xs">{chunks}</code>,
+              })}
             </p>
             <McpConfigSnippet endpoint={MCP_URL} />
           </section>

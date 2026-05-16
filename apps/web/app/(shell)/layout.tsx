@@ -1,3 +1,4 @@
+import { getLocale, setRequestLocale } from 'next-intl/server';
 import { getUser } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getNotifications } from '@/lib/actions/notifications';
@@ -6,6 +7,8 @@ import { NotificationsBell } from '../_components/notifications-bell';
 import { PushPermissionPrompt } from '../_components/push-permission-prompt';
 
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  setRequestLocale(locale);
   const result = await getUser();
 
   const shellUser = result

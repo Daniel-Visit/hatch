@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { getUser } from '@/lib/auth';
 import { ThemeController, themeBootScript } from './_components/theme-controller';
 import { fontVariables } from './_components/fonts';
@@ -18,6 +20,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   const result = await getUser();
   const initialTheme = (result?.profile.theme_pref as 'light' | 'dark' | 'system') ?? 'light';
   const signedIn = !!result;
@@ -28,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html
-      lang="en"
+      lang={locale}
       data-theme={initialTheme === 'system' ? 'light' : initialTheme}
       data-density="regular"
       className={fontVariables}
@@ -39,11 +43,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={bootHtml} />
       </head>
       <body>
-        <ThemeController initialTheme={initialTheme} initialDensity="regular" signedIn={signedIn}>
-          {children}
-        </ThemeController>
-        <NotificationToaster />
-        <ServiceWorkerRegistrar />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeController initialTheme={initialTheme} initialDensity="regular" signedIn={signedIn}>
+            {children}
+          </ThemeController>
+          <NotificationToaster />
+          <ServiceWorkerRegistrar />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

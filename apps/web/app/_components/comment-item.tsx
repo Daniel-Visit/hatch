@@ -1,5 +1,7 @@
 'use client';
+import { useLocale, useTranslations } from 'next-intl';
 import { Avatar, fmtNum } from './cards';
+import TranslateButton from './translate-button';
 
 export type AuthorMini = {
   handle: string;
@@ -30,6 +32,9 @@ export function CommentItem({ comment, onToggleLike, isReply }: CommentItemProps
   const c = comment;
   const u = c.author;
   const totalLikes = c.likes_count;
+  const t = useTranslations('Detail');
+  const tCommon = useTranslations('Common');
+  const locale = useLocale() as 'en' | 'es';
 
   return (
     <div className="comment">
@@ -38,10 +43,17 @@ export function CommentItem({ comment, onToggleLike, isReply }: CommentItemProps
         <div className="comment-head">
           <span className="comment-author">{u.display_name}</span>
           <span className="comment-handle">@{u.handle}</span>
-          {c.is_creator && <span className="comment-creator-pill">Creator</span>}
+          {c.is_creator && <span className="comment-creator-pill">{t('CreatorPill')}</span>}
           <span className="comment-time">· {c.relative_time}</span>
         </div>
-        <p className="comment-text">{c.body}</p>
+        <TranslateButton text={c.body} targetLocale={locale}>
+          {(display, button) => (
+            <>
+              <p className="comment-text">{display}</p>
+              {button}
+            </>
+          )}
+        </TranslateButton>
         <div className="comment-actions">
           <button
             className="cm-btn"
@@ -51,8 +63,8 @@ export function CommentItem({ comment, onToggleLike, isReply }: CommentItemProps
             <i className="cm-i">{c.viewer_liked ? '♥' : '♡'}</i>
             <span>{fmtNum(totalLikes)}</span>
           </button>
-          {!isReply && <button className="cm-btn">Reply</button>}
-          <button className="cm-btn">Share</button>
+          {!isReply && <button className="cm-btn">{tCommon('Reply')}</button>}
+          <button className="cm-btn">{tCommon('Share')}</button>
         </div>
         {c.replies && c.replies.length > 0 && (
           <div className="comment-replies">

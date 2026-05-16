@@ -21,39 +21,49 @@ type CategoryRow = Tables<'categories'>;
 
 // ── relativeTime ─────────────────────────────────────────────────────────────
 
+// Locale-aware "just now" string — mirrors messages/{en,es}.json `Time.justNow`.
+// This file is plain TS (no React hooks), so we can't `useTranslations` here.
+const JUST_NOW: Record<'en' | 'es', string> = {
+  en: 'just now',
+  es: 'ahora mismo',
+};
+
 /**
  * Returns a human-friendly relative time string like "3 days ago",
- * "2 weeks ago", or "just now" for dates in the past.
+ * "2 weeks ago", or "just now" for dates in the past, localized to `locale`.
  */
-export function relativeTime(date: Date | string): string {
+export function relativeTime(date: Date | string, locale: 'en' | 'es' = 'en'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffSecs = Math.floor(diffMs / 1000);
 
-  if (diffSecs < 60) return 'just now';
+  if (diffSecs < 60) return JUST_NOW[locale];
+
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
   if (diffSecs < 3600) {
     const m = Math.floor(diffSecs / 60);
-    return m === 1 ? '1 minute ago' : `${m} minutes ago`;
+    return rtf.format(-m, 'minute');
   }
   if (diffSecs < 86400) {
     const h = Math.floor(diffSecs / 3600);
-    return h === 1 ? '1 hour ago' : `${h} hours ago`;
+    return rtf.format(-h, 'hour');
   }
   if (diffSecs < 604800) {
     const d2 = Math.floor(diffSecs / 86400);
-    return d2 === 1 ? '1 day ago' : `${d2} days ago`;
+    return rtf.format(-d2, 'day');
   }
   if (diffSecs < 2592000) {
     const w = Math.floor(diffSecs / 604800);
-    return w === 1 ? '1 week ago' : `${w} weeks ago`;
+    return rtf.format(-w, 'week');
   }
   if (diffSecs < 31536000) {
     const mo = Math.floor(diffSecs / 2592000);
-    return mo === 1 ? '1 month ago' : `${mo} months ago`;
+    return rtf.format(-mo, 'month');
   }
   const yr = Math.floor(diffSecs / 31536000);
-  return yr === 1 ? '1 year ago' : `${yr} years ago`;
+  return rtf.format(-yr, 'year');
 }
 
 // ── mapAppRowToCardProps ──────────────────────────────────────────────────────
@@ -73,6 +83,7 @@ export function mapAppRowToCardProps(
   app: AppRow,
   profile: ProfileRow | null,
   category: CategoryRow | null,
+  locale: 'en' | 'es' = 'en',
 ): AppDataExtended {
   const author: User = {
     handle: profile?.handle ?? 'unknown',
@@ -102,7 +113,7 @@ export function mapAppRowToCardProps(
     },
     author,
     category: cat,
-    published: relativeTime(app.published_at),
+    published: relativeTime(app.published_at, locale),
     featured: app.is_featured,
   };
 }
