@@ -518,12 +518,28 @@ a { color: inherit; }
 /* Safety net against accidental horizontal overflow on any page. */
 html, body { overflow-x: hidden; }
 
+/* Hamburger button — visible only when the sidebar disappears. */
+.nav-burger {
+  display: none;
+  appearance: none; border: 0; background: transparent;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  transition: background 120ms;
+}
+.nav-burger:hover { background: var(--surface-2); }
+
 @media (max-width: 960px) {
   .shell {
     grid-template-columns: 1fr;
     grid-template-areas: 'top' 'main';
   }
   .sidebar { display: none; }
+  .nav-burger { display: inline-flex; }
+  /* Search bar is removed entirely on tablet/mobile — replaced by /search route + sidebar drawer. */
+  .topbar-search { display: none; }
   :root { --main-pad: 20px; }
 }
 
@@ -553,7 +569,7 @@ html, body { overflow-x: hidden; }
      selector here matches it (.topbar-actions > .btn-publish). */
   .topbar-actions > .btn-publish {
     min-width: 0; width: 36px; height: 36px;
-    padding: 0; border-radius: 999px;
+    padding: 0; border-radius: 10px;
     gap: 0;
   }
   .btn-publish-label { display: none; }
@@ -566,7 +582,45 @@ html, body { overflow-x: hidden; }
 }
 
 @media (max-width: 420px) {
-  .topbar-search { display: none; }
   .topbar-actions > a.btn-publish span { display: none; }
+}
+
+/* ─── Mobile nav drawer (hamburger menu) ───────────────────────────────── */
+.mobile-nav-backdrop {
+  position: fixed; inset: var(--topbar-h) 0 0 0;
+  background: rgba(0, 0, 0, 0.35);
+  border: 0; padding: 0; cursor: pointer;
+  z-index: 19;
+  animation: mobile-nav-fade 140ms ease-out;
+}
+.mobile-nav-drawer {
+  position: fixed; top: var(--topbar-h); left: 0; right: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 18px;
+  z-index: 20;
+  display: flex; flex-direction: column; gap: 4px;
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.18);
+  animation: mobile-nav-slide 160ms ease-out;
+}
+.mobile-nav-drawer .sidebar-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 4px 8px 8px;
+}
+.mobile-nav-drawer .nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  font-size: 14px; color: var(--text);
+  text-decoration: none;
+}
+.mobile-nav-drawer .nav-item:hover { background: var(--surface-2); }
+.mobile-nav-drawer .nav-item.is-on { background: var(--ax-tint); color: var(--ax); }
+.mobile-nav-drawer .nav-i { font-size: 14px; opacity: 0.75; width: 16px; text-align: center; }
+
+@keyframes mobile-nav-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mobile-nav-slide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 

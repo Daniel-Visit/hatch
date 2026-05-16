@@ -58,10 +58,36 @@ export function Shell({ user, children, bell }: ShellProps) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const t = useTranslations('Shell');
+  const [navOpen, setNavOpen] = useState(false);
+
+  // Close mobile drawer on route change.
+  useEffect(() => {
+    setNavOpen(false);
+  }, [pathname]);
 
   return (
     <div className="shell">
       <header className="topbar">
+        <button
+          type="button"
+          className="nav-burger"
+          onClick={() => setNavOpen((v) => !v)}
+          aria-expanded={navOpen}
+          aria-controls="mobile-nav-drawer"
+          aria-label={t('Nav.Label')}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
         <Logo />
         <form className="topbar-search" action="/search" method="get">
           <i className="search-i">⌕</i>
@@ -153,6 +179,35 @@ export function Shell({ user, children, bell }: ShellProps) {
           })}
         </div>
       </aside>
+
+      {navOpen && (
+        <>
+          <button
+            type="button"
+            className="mobile-nav-backdrop"
+            aria-label="Close menu"
+            onClick={() => setNavOpen(false)}
+          />
+          <nav id="mobile-nav-drawer" className="mobile-nav-drawer" aria-label={t('Nav.Label')}>
+            <div className="sidebar-label">{t('Nav.Label')}</div>
+            {NAV.map((n) => {
+              const isActive = n.href === '/' ? pathname === '/' : pathname === n.href;
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={`nav-item${isActive ? ' is-on' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setNavOpen(false)}
+                >
+                  <i className="nav-i">{n.icon}</i>
+                  <span>{t(`Nav.${n.key}`)}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </>
+      )}
 
       <main className="main">{children}</main>
     </div>
