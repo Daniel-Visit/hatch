@@ -63,7 +63,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   // Query 2: fetch up to 48 published apps for this category, ordered same as home.
   const { data: appRows } = await supabase
     .from('apps')
-    .select('*, author:profiles(handle, hue, emoji, display_name, avatar_url)')
+    .select('*, author:profiles!apps_author_id_fkey(handle, hue, emoji, display_name, avatar_url)')
     .eq('category_id', categoryId)
     .eq('is_published', true)
     .order('hot_score', { ascending: false, nullsFirst: false })

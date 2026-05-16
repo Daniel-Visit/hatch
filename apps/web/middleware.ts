@@ -27,6 +27,21 @@ export async function middleware(request: NextRequest) {
   // CRITICAL: refresh session cookie. Do not remove this line.
   await supabase.auth.getUser();
 
+  const protectedPrefixes = ['/publish', '/messages', '/settings'];
+  const pathname = request.nextUrl.pathname;
+  const isProtected = protectedPrefixes.some((p) => pathname === p || pathname.startsWith(p + '/'));
+
+  if (isProtected) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      const url = new URL('/sign-in', request.url);
+      url.searchParams.set('next', pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }
 

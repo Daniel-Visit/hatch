@@ -1,16 +1,21 @@
 // Detail page — async RSC port of prototype/apps-gallery/detail.jsx.
 // Queries Supabase for a single published app by slug, maps the row to the
 // AppData contract, and renders the detail layout verbatim from the prototype.
-// Like / save / contact action buttons are deferred (Phase 4-6 — read-only
-// Phase 3) and rendered as disabled buttons with aria-label="coming soon".
+// Wires the social action bar (like/save/share/remix counts) and threaded
+// comments (top-level + 1-level replies) via server-side fetches; both
+// components hydrate as client islands with optimistic mutations.
 
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getUser } from '@/lib/auth';
 import { Avatar, CategoryBadge } from '@/app/_components/cards';
 import { AppArt } from '@/app/_components/app-art';
 import { Markdown } from '@/app/_components/markdown';
+import { ActionBar } from '@/app/_components/action-bar';
+import { Comments } from '@/app/_components/comments';
+import type { CommentNode } from '@/app/_components/comment-item';
 import { mapAppRowToCardProps, fmtNum } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -50,9 +55,11 @@ async function fetchApp(slug: string) {
 
   const { data } = await supabase
     .from('apps')
-    .select('*, author:profiles(handle, hue, emoji, display_name, avatar_url, bio)')
+    .select(
+      '*, author:profiles!apps_author_id_fkey(handle, hue, emoji, display_name, avatar_url, bio)',
+    )
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
 
   return data ?? null;
 }
@@ -81,6 +88,36 @@ export async function generateMetadata({
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
+type CommentAuthorJoin = {
+  handle: string;
+  display_name: string;
+  avatar_url: string | null;
+  hue: number;
+  emoji: string | null;
+};
+
+type CommentRowWithAuthor = {
+  id: string;
+  body: string;
+  created_at: string;
+  is_deleted: boolean;
+  likes_count: number;
+  parent_id: string | null;
+  author_id: string;
+  author: CommentAuthorJoin | null;
+};
+
+function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+}
+
 export default async function AppDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const row = await fetchApp(slug);
@@ -93,6 +130,87 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
 
   const app = mapAppRowToCardProps(row, profile, category);
   const u = app.author;
+
+  // ── viewer + social data ──────────────────────────────────────────────────
+  const sb = await createSupabaseServerClient();
+  const viewer = await getUser();
+  const isAuthenticated = !!viewer?.user;
+  const viewerId = viewer?.user.id ?? null;
+
+  const [likeRow, saveRow, commentsRaw] = await Promise.all([
+    isAuthenticated && viewerId
+      ? sb
+          .from('likes')
+          .select('user_id')
+          .eq('user_id', viewerId)
+          .eq('app_id', row.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    isAuthenticated && viewerId
+      ? sb
+          .from('saves')
+          .select('user_id')
+          .eq('user_id', viewerId)
+          .eq('app_id', row.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    sb
+      .from('comments')
+      .select(
+        `id, body, created_at, is_deleted, likes_count, parent_id, author_id,
+         author:profiles!comments_author_id_fkey ( handle, display_name, avatar_url, hue, emoji )`,
+      )
+      .eq('app_id', row.id)
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false }),
+  ]);
+
+  const allComments = (commentsRaw.data ?? []) as unknown as CommentRowWithAuthor[];
+
+  // Viewer's comment_likes for these comments (second query — depends on allComments).
+  let likedCommentIds = new Set<string>();
+  if (isAuthenticated && viewerId && allComments.length > 0) {
+    const { data: liked } = await sb
+      .from('comment_likes')
+      .select('comment_id')
+      .eq('user_id', viewerId)
+      .in(
+        'comment_id',
+        allComments.map((c) => c.id),
+      );
+    likedCommentIds = new Set((liked ?? []).map((r) => r.comment_id));
+  }
+
+  const toNode = (c: CommentRowWithAuthor): CommentNode => ({
+    id: c.id,
+    body: c.body,
+    relative_time: formatRelativeTime(c.created_at),
+    is_creator: c.author_id === row.author_id,
+    likes_count: c.likes_count,
+    viewer_liked: likedCommentIds.has(c.id),
+    author: {
+      handle: c.author?.handle ?? '',
+      display_name: c.author?.display_name ?? '',
+      avatar_url: c.author?.avatar_url ?? null,
+      hue: c.author?.hue ?? 0,
+      emoji: c.author?.emoji ?? '◇',
+    },
+  });
+
+  const topLevel = allComments.filter((c) => c.parent_id === null).map(toNode);
+  const repliesByParent = new Map<string, CommentNode[]>();
+  for (const c of allComments) {
+    if (c.parent_id) {
+      const arr = repliesByParent.get(c.parent_id) ?? [];
+      arr.push(toNode(c));
+      repliesByParent.set(c.parent_id, arr);
+    }
+  }
+  const commentTree: CommentNode[] = topLevel.map((t) => ({
+    ...t,
+    replies: repliesByParent.get(t.id),
+  }));
+  const totalCommentCount = allComments.length;
 
   return (
     <div className="detail" style={{ '--ax': app.accent } as React.CSSProperties}>
@@ -188,34 +306,16 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
         </div>
       </header>
 
-      {/* Action bar — like / save / share / comments deferred (Phase 4-6) */}
-      <div className="action-bar">
-        <button type="button" className="act-btn like" disabled aria-label="coming soon">
-          <span className="act-i">♡</span>
-          <span className="act-num">{fmtNum(app.stats.likes)}</span>
-        </button>
-        <button type="button" className="act-btn" disabled aria-label="coming soon">
-          <span className="act-i">◌</span>
-          <span className="act-num">{row.comments_count}</span>
-        </button>
-        <button type="button" className="act-btn" disabled aria-label="coming soon">
-          <span className="act-i">↗</span>
-          <span>Share</span>
-        </button>
-        <button type="button" className="act-btn" disabled aria-label="coming soon">
-          <span className="act-i">⌬</span>
-          <span>Remix</span>
-          <span className="act-num">{fmtNum(app.stats.remixes)}</span>
-        </button>
-        <span className="act-sep" />
-        <button type="button" className="act-btn" disabled aria-label="coming soon">
-          <span className="act-i">⋯</span>
-        </button>
-        <span className="act-grow" />
-        <button type="button" className="act-save" disabled aria-label="coming soon">
-          ＋ Save
-        </button>
-      </div>
+      <ActionBar
+        appId={row.id}
+        slug={row.slug}
+        remixesCount={row.remixes_count}
+        initialLikesCount={row.likes_count}
+        initialLiked={!!likeRow.data}
+        initialSaved={!!saveRow.data}
+        commentCount={totalCommentCount}
+        isAuthenticated={isAuthenticated}
+      />
 
       <div className="detail-grid">
         <section className="detail-col">
@@ -237,6 +337,24 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
               ))}
             </div>
           </div>
+
+          <Comments
+            appId={row.id}
+            slug={row.slug}
+            initialComments={commentTree}
+            isAuthenticated={isAuthenticated}
+            viewer={
+              isAuthenticated && viewer
+                ? {
+                    handle: viewer.profile.handle,
+                    display_name: viewer.profile.display_name,
+                    avatar_url: viewer.profile.avatar_url,
+                    hue: viewer.profile.hue,
+                    emoji: viewer.profile.emoji ?? '◇',
+                  }
+                : undefined
+            }
+          />
         </section>
 
         <aside className="detail-side">

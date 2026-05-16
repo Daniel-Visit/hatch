@@ -1,9 +1,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  __InternalSupabase: {
-    PostgrestVersion: '14.5';
-  };
+  __InternalSupabase: { PostgrestVersion: '14.5' };
   public: {
     Tables: {
       apps: {
@@ -114,6 +112,127 @@ export type Database = {
         Update: { icon?: string; id?: string; label?: string; sort_order?: number };
         Relationships: [];
       };
+      comment_likes: {
+        Row: { comment_id: string; created_at: string; user_id: string };
+        Insert: { comment_id: string; created_at?: string; user_id: string };
+        Update: { comment_id?: string; created_at?: string; user_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: 'comment_likes_comment_id_fkey';
+            columns: ['comment_id'];
+            isOneToOne: false;
+            referencedRelation: 'comments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comment_likes_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      comments: {
+        Row: {
+          app_id: string;
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          is_deleted: boolean;
+          likes_count: number;
+          parent_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          app_id: string;
+          author_id: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          is_deleted?: boolean;
+          likes_count?: number;
+          parent_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          app_id?: string;
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          is_deleted?: boolean;
+          likes_count?: number;
+          parent_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'comments_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comments_author_id_fkey';
+            columns: ['author_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'comments_parent_id_fkey';
+            columns: ['parent_id'];
+            isOneToOne: false;
+            referencedRelation: 'comments';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      follows: {
+        Row: { created_at: string; followee_id: string; follower_id: string };
+        Insert: { created_at?: string; followee_id: string; follower_id: string };
+        Update: { created_at?: string; followee_id?: string; follower_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: 'follows_followee_id_fkey';
+            columns: ['followee_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'follows_follower_id_fkey';
+            columns: ['follower_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      likes: {
+        Row: { app_id: string; created_at: string; user_id: string };
+        Insert: { app_id: string; created_at?: string; user_id: string };
+        Update: { app_id?: string; created_at?: string; user_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: 'likes_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'likes_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -158,6 +277,27 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      saves: {
+        Row: { app_id: string; created_at: string; user_id: string };
+        Insert: { app_id: string; created_at?: string; user_id: string };
+        Update: { app_id?: string; created_at?: string; user_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: 'saves_app_id_fkey';
+            columns: ['app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'saves_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: { [_ in never]: never };

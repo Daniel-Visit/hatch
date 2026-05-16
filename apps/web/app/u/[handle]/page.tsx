@@ -1,20 +1,31 @@
 // Creator profile page — async RSC port of prototype/apps-gallery/profile.jsx.
 // Query 1: fetch profile by handle (citext — case-insensitive).
 // Query 2: fetch that creator's published apps; map to card props.
+// Query 3: fetch liked apps when tab='liked'.
+// Query 4: check follow status for the viewer.
 
 import { notFound } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getUser } from '@/lib/auth';
 import { Avatar } from '../../_components/cards';
 import { GalleryGrid } from '../../_components/gallery-grid';
+import { FollowPill } from '../../_components/follow-pill';
 import { mapAppRowToCardProps } from '../../_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {
+export default async function ProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ handle: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const { handle } = await params;
+  const tab = (await searchParams).tab ?? 'apps';
 
-  const supabase = await createSupabaseServerClient();
+  const [supabase, viewer] = await Promise.all([createSupabaseServerClient(), getUser()]);
 
   // Query 1 — profile by handle (citext → case-insensitive comparison).
   const { data: profile } = await supabase
@@ -45,6 +56,57 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
     mapAppRowToCardProps(row, profile, catMap.get(row.category_id) ?? null),
   );
 
+  // Query 3 — liked apps (only when tab='liked' to avoid unnecessary work).
+  let likedApps: typeof apps = [];
+  if (tab === 'liked') {
+    const { data: likeRows } = await supabase
+      .from('likes')
+      .select(
+        'app_id, apps!inner ( id, slug, title, tagline, accent, art_kind, cover_url, likes_count, comments_count, remixes_count, tags, hue, bg, is_featured, published_at, author_id, category_id, is_published, hot_score, description, link, views_count, saves_count, search_vector, created_at, updated_at )',
+      )
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(24);
+
+    if (likeRows) {
+      // Each row has an `apps` field (the joined app row).
+      // RLS already filters unpublished; defensive is_published filter applied below.
+      const likedAppRows = likeRows
+        .map((r) => (Array.isArray(r.apps) ? r.apps[0] : r.apps))
+        .filter(
+          (a): a is Tables<'apps'> =>
+            a != null && typeof a === 'object' && 'id' in a && (a as Tables<'apps'>).is_published,
+        );
+
+      // For each liked app we need the author profile and category.
+      const authorIds = [...new Set(likedAppRows.map((a) => a.author_id))];
+      const { data: authorRows } = await supabase.from('profiles').select('*').in('id', authorIds);
+      const authorMap = new Map<string, Tables<'profiles'>>(
+        (authorRows ?? []).map((p) => [p.id, p]),
+      );
+
+      likedApps = likedAppRows.map((row) =>
+        mapAppRowToCardProps(
+          row,
+          authorMap.get(row.author_id) ?? null,
+          catMap.get(row.category_id) ?? null,
+        ),
+      );
+    }
+  }
+
+  // Query 4 — check if the current viewer follows this profile.
+  let followingInitial = false;
+  if (viewer && viewer.user.id !== profile.id) {
+    const { data: followRow } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('follower_id', viewer.user.id)
+      .eq('followee_id', profile.id)
+      .maybeSingle();
+    followingInitial = !!followRow;
+  }
+
   // profile.links is Json — cast to the known link shape.
   const links = (profile.links as { label: string; url: string }[] | null) ?? [];
 
@@ -59,6 +121,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
     emoji: profile.emoji ?? '◇',
     display_name: profile.display_name,
   };
+
+  const isOwnProfile = viewer?.user.id === profile.id;
+  const isAuthenticated = !!viewer;
+
+  // Determine which list to render for the active tab.
+  // Remixes tab: no remixes table yet → empty state.
+  const tabList = tab === 'liked' ? likedApps : tab === 'remixes' ? [] : apps;
 
   return (
     <div className="profile">
@@ -90,9 +159,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
             )}
           </div>
           <div className="profile-actions">
-            <button type="button" disabled aria-label="coming soon" className="btn btn-ghost-2">
-              + Follow
-            </button>
+            <FollowPill
+              followeeId={profile.id}
+              followeeHandle={profile.handle}
+              followerHandle={viewer?.profile.handle ?? ''}
+              initialFollowing={followingInitial}
+              isAuthenticated={isAuthenticated}
+              isOwnProfile={isOwnProfile}
+            />
           </div>
         </div>
 
@@ -120,7 +194,29 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         </div>
       </header>
 
-      <GalleryGrid apps={apps} />
+      {/* Tabs — URL-driven; no client state needed */}
+      <div className="profile-tabs">
+        <a
+          href={`/u/${profile.handle}?tab=apps`}
+          className={'tab ' + (tab === 'apps' ? 'is-on' : '')}
+        >
+          Apps · {apps.length}
+        </a>
+        <a
+          href={`/u/${profile.handle}?tab=remixes`}
+          className={'tab ' + (tab === 'remixes' ? 'is-on' : '')}
+        >
+          Remixes · 0
+        </a>
+        <a
+          href={`/u/${profile.handle}?tab=liked`}
+          className={'tab ' + (tab === 'liked' ? 'is-on' : '')}
+        >
+          Liked · {tab === 'liked' ? likedApps.length : '?'}
+        </a>
+      </div>
+
+      <GalleryGrid apps={tabList} />
     </div>
   );
 }

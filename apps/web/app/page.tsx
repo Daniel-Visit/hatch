@@ -41,7 +41,7 @@ export default async function HomePage() {
   // Join the author profile in a single query using Supabase's PostgREST syntax.
   const { data: appRows } = await supabase
     .from('apps')
-    .select('*, author:profiles(handle, hue, emoji, display_name, avatar_url)')
+    .select('*, author:profiles!apps_author_id_fkey(handle, hue, emoji, display_name, avatar_url)')
     .eq('is_published', true)
     .order('hot_score', { ascending: false, nullsFirst: false })
     .order('published_at', { ascending: false })
