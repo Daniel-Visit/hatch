@@ -489,22 +489,15 @@ a { color: inherit; }
 .topbar-actions > .btn { height: 36px; }
 .topbar-actions > a.btn-ghost:not(.btn-signin-cta) { min-width: 88px; justify-content: center; }
 .topbar-actions > .btn-publish { min-width: 134px; justify-content: center; }
-/* Solid pink CTA — mirrors `.btn-primary` (the "Open app" green button)
-   but in pink so the sign-in action reads as primary. */
+/* Ghost sign-in with a subtle hover: text darkens to full --text and
+   the button lifts 1px. No fill, no glow. */
 .btn-signin-cta {
   min-width: 116px; justify-content: center;
-  font-weight: 600;
-  background: #ec4899; color: #fff; border: 0;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset,
-              0 6px 16px -4px color-mix(in oklab, #ec4899 50%, transparent);
-  transition: filter 160ms, transform 160ms, box-shadow 160ms;
+  transition: color 140ms, transform 140ms;
 }
 .btn-signin-cta:hover {
-  filter: brightness(1.08);
+  background: transparent;
+  color: var(--text);
   transform: translateY(-1px);
-  background: #ec4899;
-  color: #fff;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset,
-              0 8px 20px -4px color-mix(in oklab, #ec4899 60%, transparent);
 }
-.btn-signin-cta:active { filter: brightness(0.95); transform: translateY(0); }
+.btn-signin-cta:active { transform: translateY(0); }
