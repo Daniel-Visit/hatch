@@ -59,9 +59,18 @@ Build out the full landing in one pass:
 
 Use these files to implement the feature:
 
-- `Hatch-landing.zip` extracted to `/tmp/hatch-landing/` — authoritative source (`src/sections-{1,2,3}.jsx`, `src/atoms.jsx`, `styles/{tokens,components,sections}.css`). Read the JSX line-by-line; rewrite as TSX preserving every className, every inline `style={{...}}`, every prop name in the JSX tree.
+- `landing_v2.zip` extracted to `/tmp/hatch-landing-v2/` — authoritative source (`src/sections-{1,2,3}.jsx`, `src/atoms.jsx`, `styles/{tokens,components,sections}.css`). This is the **v2** of the prototype (user uploaded 2026-05-16, more compact than v1). Read the JSX line-by-line; rewrite as TSX preserving every className, every inline `style={{...}}`, every prop name in the JSX tree.
+
+  **v2 deltas vs v1 to be aware of when porting**:
+  - **Bento cells**: lost their top padding (`padding:"56px 24px 0"`, `padding:"68px 16px 0"`, etc.) — bento is more compact. Use the outer wrapper style from v2 exactly.
+  - **PublishVis**: form preview width 58% → 70%; transform changed from `rotate(-2deg) translateX(8px)` to `scale(0.88)` with `transformOrigin: "bottom right"`. Lost the `"0:42 / 1:00"` + `"almost there"` row at the bottom of the form.
+  - **Agents `agents-copy`**: shrunk overall — eyebrow text fontSize:10, H3 `28px → 24px` / margin `0 0 16px → 0 0 12px`, description `15px → 13.5px` / margin `0 0 28px → 0 0 20px` / `maxWidth:"40ch" → "38ch"`.
+  - **Agents feature list**: completely restructured. v1 had vertical `<div className="feature-list">` with 3 `<div className="feature-item">` items (ico + h4 + multi-line p). v2 replaces with a **3-column inline grid** of compact tiles: `<div style={{display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:12, maxWidth:480, marginBottom:20}}>` containing 3 tiles `<div style={{display:"flex", flexDirection:"column", gap:6}}>` each with `ico` (32×32, `<Icons.X size={14}/>`) + `<h4 style={{fontSize:13, fontWeight:600, margin:0}}>` (short label: `MCP` / `REST API` / `llms.txt`) + `<p style={{fontSize:11.5, color:"var(--muted)", margin:0, lineHeight:1.4}}>` (one-line blurb: `15 typed tools, auto-discovered` / `Public OpenAPI spec` / `Semantic markup, parseable`).
+  - **Agents CTA row** lost `marginTop:32` (now flows naturally after the grid).
+  - **MCP tools `+ 3 more` filler** in v2 uses `gridColumn:"span 3"` — IRRELEVANT for us because we render 15 tools and skip the filler (per Task 3 instructions).
+
 - `apps/web/app/page.tsx` — current truncated landing. Will be **rewritten** as the orchestrator.
-- `apps/web/app/landing.css` — already contains the full ported CSS (1073+ lines from prototype components.css + sections.css + topbar/footer/logo overrides). No edits needed unless a className from the prototype is missing.
+- `apps/web/app/landing.css` — currently contains the full **v1** ported CSS (1073+ lines from v1 components.css + sections.css + topbar/footer/logo overrides). v2's `sections.css` is +390 bytes vs v1 — Task 1 includes an action to re-port v2 CSS while preserving the topbar/footer/logo overrides we already added.
 - `apps/web/app/_components/app-art.tsx` — exports `AppArt` (used in cards) and `ALL_COVER_KINDS` (20 final kinds). The 9 procedurals are: `mesh, bokeh, griddots, blocks, rings, glyph, softrings, coolstripes, coolbokeh`.
 - `apps/web/lib/supabase/admin.ts` — service-role client. Landing uses admin since all queried tables are publicly readable via RLS; no per-request auth setup needed.
 - `apps/web/lib/auth.ts` — `getUser()` returns `{user, profile} | null`. Drives the signed-in redirect.
@@ -234,7 +243,7 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
 - **Assigned To**: landing-foundation-builder
 - **Agent Type**: build-agent
 - **Parallel**: true (Wave A)
-- **Owns Files**: `.claude/rules/prototype-port-exception.md`, `.claude/hooks/validators/no_tailwind_in_prototype_port.py`, `packages/shared/src/mcp-tools.ts`, `packages/shared/src/index.ts`, `apps/web/app/_landing/icons.tsx`, `apps/web/app/_landing/logo.tsx`, `apps/web/app/_landing/avatar.tsx`, `apps/web/app/_landing/mini-app-card.tsx`, `apps/web/app/_landing/float-notif.tsx`, `apps/web/app/_landing/topbar.tsx`, `apps/web/app/_landing/footer.tsx`.
+- **Owns Files**: `.claude/rules/prototype-port-exception.md`, `.claude/hooks/validators/no_tailwind_in_prototype_port.py`, `packages/shared/src/mcp-tools.ts`, `packages/shared/src/index.ts`, `apps/web/app/landing.css` (re-port from v2), `apps/web/app/_landing/icons.tsx`, `apps/web/app/_landing/logo.tsx`, `apps/web/app/_landing/avatar.tsx`, `apps/web/app/_landing/mini-app-card.tsx`, `apps/web/app/_landing/float-notif.tsx`, `apps/web/app/_landing/topbar.tsx`, `apps/web/app/_landing/footer.tsx`.
 - **Context**:
 
   **Action 1.1 — Extend prototype-port exception**
@@ -356,9 +365,20 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
 
   Append to `packages/shared/src/index.ts`: `export * from './mcp-tools.js';`
 
+  **Action 1.2b — Re-port v2 CSS into `apps/web/app/landing.css`**
+
+  Current `apps/web/app/landing.css` was built from v1 sources. v2's `sections.css` is +390 bytes (small adjustments to bento/agents layouts that match the v2 JSX deltas).
+
+  Rebuild `apps/web/app/landing.css` from v2 sources while preserving the topbar/footer/logo overrides we already added:
+  1. Read the current `apps/web/app/landing.css` — the "Landing-only overrides added 2026-05-16" block at the bottom (≈ 150 lines covering `.landing-topbar`, `.landing-logo`, `.gallery-head`, `.appcard-link`, `.landing-footer`) is OURS, not from the prototype. Save those lines.
+  2. Replace the file contents with: a header comment + `/tmp/hatch-landing-v2/styles/components.css` verbatim + a blank line + `/tmp/hatch-landing-v2/styles/sections.css` verbatim + a blank line + the preserved "Landing-only overrides" block from step 1.
+  3. Confirm `apps/web/app/landing.css` line count grew by roughly +10 (the 390-byte sections.css delta).
+
+  No CSS classes from v1 are dropped in v2 — purely additive/adjusted, so existing components don't break.
+
   **Action 1.3 — Port atoms from prototype**
 
-  Source: `/tmp/hatch-landing/src/atoms.jsx` (for `Logo`, `Avatar`, `Icons`) and `/tmp/hatch-landing/src/sections-1.jsx` (for `FloatNotif`, `MiniAppCard`).
+  Source: `/tmp/hatch-landing-v2/src/atoms.jsx` (for `Logo`, `Avatar`, `Icons`) and `/tmp/hatch-landing-v2/src/sections-1.jsx` (for `FloatNotif`, `MiniAppCard`).
 
   For each component below, **port verbatim** — preserve every className, inline style, prop name, JSX structure. Convert JSX → TSX (add type annotations on props). Replace `window.X = X` with `export`. Replace `Icons.X` references with `<X />` direct imports.
 
@@ -407,6 +427,7 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
   - Manually verify validator runs without error
   - Write `packages/shared/src/mcp-tools.ts`
   - Append export to `packages/shared/src/index.ts`
+  - Re-port `apps/web/app/landing.css` from v2 (preserving our overrides block)
   - Port 7 atom components to `apps/web/app/_landing/`
   - Run `pnpm --filter @hatch/shared typecheck && pnpm --filter web typecheck`
 
@@ -421,7 +442,7 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
 - **Context**:
 
   Source files (port verbatim, preserve all classNames + inline styles + JSX structure):
-  - **Hero** at `/tmp/hatch-landing/src/sections-1.jsx` line 104. The prototype's hero has hardcoded mock floating cards (Lumen.fm / Threadwise / Orbital CRM). Replace those THREE cards with the three real apps passed via the `heroApps: AppRow[3]` prop. The mock "4,200+ builders shipping · 12 launched today" hero-meta block: replace with real counts from the `counts: { apps, builders, today }` prop. Render conditionally per item: if `builders > 0`, show `<b>{builders}</b> {builders === 1 ? 'builder' : 'builders'} shipping`; if `today > 0`, show `<span className="live-dot" /> <b>{today}</b> launched today`; if `apps > 0`, show `<b>{apps}</b> apps live`. Keep the `<Avatar>` cluster present in the prototype next to the builders count — render real top-4 author avatars from `heroApps[0..2].author` if available, else fall back to plain text.
+  - **Hero** at `/tmp/hatch-landing-v2/src/sections-1.jsx` line 104. The prototype's hero has hardcoded mock floating cards (Lumen.fm / Threadwise / Orbital CRM). Replace those THREE cards with the three real apps passed via the `heroApps: AppRow[3]` prop. The mock "4,200+ builders shipping · 12 launched today" hero-meta block: replace with real counts from the `counts: { apps, builders, today }` prop. Render conditionally per item: if `builders > 0`, show `<b>{builders}</b> {builders === 1 ? 'builder' : 'builders'} shipping`; if `today > 0`, show `<span className="live-dot" /> <b>{today}</b> launched today`; if `apps > 0`, show `<b>{apps}</b> apps live`. Keep the `<Avatar>` cluster present in the prototype next to the builders count — render real top-4 author avatars from `heroApps[0..2].author` if available, else fall back to plain text.
 
     Props signature:
 
@@ -758,7 +779,7 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
 
   Validate the landing matches the prototype visually and that real data is wired correctly.
 
-  **Heads-up on `ui-validator` agent default workflow**: the `ui-validator` agent definition at `.claude/agents/team/ui-validator.md` is pre-wired for comparing apps/web against the older gallery prototype at `prototype/apps-gallery/`. For THIS task we explicitly override that workflow — the reference HTML is `/tmp/hatch-landing/Hatch Landing (standalone).html` (the NEW landing prototype from `Hatch-landing.zip`), and the local URL is `http://localhost:3000/` (the landing, not `/gallery`). Ignore any default behavior the agent suggests that targets the gallery prototype; follow the actions below verbatim.
+  **Heads-up on `ui-validator` agent default workflow**: the `ui-validator` agent definition at `.claude/agents/team/ui-validator.md` is pre-wired for comparing apps/web against the older gallery prototype at `prototype/apps-gallery/`. For THIS task we explicitly override that workflow — the reference HTML is `/tmp/hatch-landing-v2/Hatch Landing (standalone).html` (the NEW landing prototype from `Hatch-landing.zip`), and the local URL is `http://localhost:3000/` (the landing, not `/gallery`). Ignore any default behavior the agent suggests that targets the gallery prototype; follow the actions below verbatim.
 
   **Action 5.1 — Boot dev + capture local screenshots**
 
@@ -774,7 +795,7 @@ None — the existing `no_tailwind_in_prototype_port.py` covers this problem aft
 
   **Action 5.2 — Capture prototype reference screenshots**
 
-  Open the prototype standalone HTML at `/tmp/hatch-landing/Hatch Landing (standalone).html` via `file://` URL in Playwright. Take full-page screenshots at the same two viewports. Save as `tests/visual-baselines/landing/prototype-desktop.png` and `prototype-mobile.png`.
+  Open the prototype standalone HTML at `/tmp/hatch-landing-v2/Hatch Landing (standalone).html` via `file://` URL in Playwright. Take full-page screenshots at the same two viewports. Save as `tests/visual-baselines/landing/prototype-desktop.png` and `prototype-mobile.png`.
 
   **Action 5.3 — Section-level captures**
 
@@ -968,7 +989,7 @@ None — the landing is presentation + data-fetch glue. Integration validation v
 - **Decoration sections (PublishVis, ContactVis, NotifsVis, RankingVis) keep their mock content** verbatim from the prototype. User confirmed they're decorative marketing visuals — replacing with real data is out of scope for this pair.
 - **Testimonials keep mock authors** (Alex K., J. Lee, M. Chen). User accepted these as copy placeholders. A future iteration will collect real testimonials and swap them in.
 - **Footer About/Privacy/Terms have `href="#"`** — pages don't exist yet. A separate pair will build them.
-- **CSS is already in place** at `apps/web/app/landing.css` (1073+ lines ported in `d74dd6f`). If any prototype className is missing from the CSS during the port, add it to that file (verbatim from `/tmp/hatch-landing/styles/sections.css`).
+- **CSS is already in place** at `apps/web/app/landing.css` (1073+ lines ported in `d74dd6f`). If any prototype className is missing from the CSS during the port, add it to that file (verbatim from `/tmp/hatch-landing-v2/styles/sections.css`).
 - **Performance**: total query count is 6 (3 SELECTs for the tabs + 3 COUNTs). All run in one `Promise.all`. Page is `dynamic = 'force-dynamic'` so it always reflects fresh data; Next.js's RSC streaming + Supabase HTTP overhead means initial paint is ~200-400ms with current row count.
 - **Future improvements** (out of scope for this pair): real testimonials collection, About/Privacy/Terms pages, replacing decorative bento mocks with live recent activity from DB, hooking the GalleryPreview tabs to a single SWR-style refresh for live updates.
 - **Sequencing constraint**: `sections-a` and `sections-b` can run in parallel (different files). `page-orchestrator` waits for both. `ui-validation` and `experts-self-improve` are serial after `page-orchestrator`. `validate-all` is the final gate.
