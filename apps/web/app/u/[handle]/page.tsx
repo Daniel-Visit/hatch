@@ -61,9 +61,7 @@ export default async function ProfilePage({
   if (tab === 'liked') {
     const { data: likeRows } = await supabase
       .from('likes')
-      .select(
-        'app_id, apps!inner ( id, slug, title, tagline, accent, art_kind, cover_url, likes_count, comments_count, remixes_count, tags, hue, bg, is_featured, published_at, author_id, category_id, is_published, hot_score, description, link, views_count, saves_count, search_vector, created_at, updated_at )',
-      )
+      .select('app_id, apps!inner ( * )')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .limit(24);
@@ -110,9 +108,8 @@ export default async function ProfilePage({
   // profile.links is Json — cast to the known link shape.
   const links = (profile.links as { label: string; url: string }[] | null) ?? [];
 
-  // Aggregate stats (matches prototype totalLikes / totalRemixes).
+  // Aggregate stats — remixes were cut from the product (SPEC.md §1).
   const totalLikes = apps.reduce((s, a) => s + a.stats.likes, 0);
-  const totalRemixes = apps.reduce((s, a) => s + a.stats.remixes, 0);
 
   // Build a User object for the Avatar component.
   const userForAvatar = {
@@ -126,8 +123,7 @@ export default async function ProfilePage({
   const isAuthenticated = !!viewer;
 
   // Determine which list to render for the active tab.
-  // Remixes tab: no remixes table yet → empty state.
-  const tabList = tab === 'liked' ? likedApps : tab === 'remixes' ? [] : apps;
+  const tabList = tab === 'liked' ? likedApps : apps;
 
   return (
     <div className="profile">
@@ -144,7 +140,7 @@ export default async function ProfilePage({
           <div className="profile-av" style={{ background: `oklch(72% 0.15 ${profile.hue})` }}>
             <Avatar user={userForAvatar} size={64} />
           </div>
-          <div className="profile-meta">
+          <div className="profile-meta" style={{ marginTop: 50, alignSelf: 'start' }}>
             <h1>{profile.display_name}</h1>
             <div className="profile-handle">@{profile.handle}</div>
             {profile.bio && <p className="profile-bio">{profile.bio}</p>}
@@ -170,7 +166,7 @@ export default async function ProfilePage({
           </div>
         </div>
 
-        <div className="profile-stats">
+        <div className="profile-stats" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
           <div className="pstat">
             <div className="pstat-n">{apps.length}</div>
             <div className="pstat-l">Apps shipped</div>
@@ -182,14 +178,6 @@ export default async function ProfilePage({
                 : totalLikes}
             </div>
             <div className="pstat-l">Total likes</div>
-          </div>
-          <div className="pstat">
-            <div className="pstat-n">
-              {totalRemixes >= 1000
-                ? `${(totalRemixes / 1000).toFixed(1).replace(/\.0$/, '')}k`
-                : totalRemixes}
-            </div>
-            <div className="pstat-l">Total remixes</div>
           </div>
           <div className="pstat">
             <div className="pstat-n">2.4k</div>
@@ -213,12 +201,6 @@ export default async function ProfilePage({
           className={'tab ' + (tab === 'apps' ? 'is-on' : '')}
         >
           Apps · {apps.length}
-        </a>
-        <a
-          href={`/u/${profile.handle}?tab=remixes`}
-          className={'tab ' + (tab === 'remixes' ? 'is-on' : '')}
-        >
-          Remixes · 0
         </a>
         <a
           href={`/u/${profile.handle}?tab=liked`}
