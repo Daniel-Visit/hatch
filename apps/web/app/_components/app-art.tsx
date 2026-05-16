@@ -99,7 +99,7 @@ const ART: Record<string, ArtEntry> = {
     ),
   },
   snail: {
-    glyph: '🐌',
+    glyph: '🐝',
     bg: 'linear-gradient(135deg,#fecdd3 0%,#f43f5e 100%)',
     deco: (
       <>

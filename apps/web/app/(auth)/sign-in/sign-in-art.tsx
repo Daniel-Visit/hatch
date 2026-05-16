@@ -4,8 +4,10 @@ import { AppArt } from '@/app/_components/app-art';
 import { ART_KINDS, ACCENT_COLORS } from '@/lib/zod/publish';
 import styles from './sign-in.module.css';
 
-// 12 cards. The prototype's `snail` glyph is replaced with a custom one
-// (sign-in screen only — does not touch the prototype-port-exception AppArt).
+// 12 cards. The `snail` kind keeps a distinct visual on the sign-in mosaic:
+// the bee glyph (the kind's glyph in AppArt was migrated from 🐌 → 🐝) is
+// rendered on an accent-color gradient instead of the AppArt's pink one,
+// to vary the mosaic palette.
 const CUSTOM_GLYPH = '🐝';
 const PAIRS = ART_KINDS.map((kind, i) => ({
   kind,
