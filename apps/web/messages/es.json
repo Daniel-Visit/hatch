@@ -61,7 +61,8 @@
       "NewAndFresh": "Nuevo y reciente",
       "Following": "Siguiendo",
       "Saved": "Guardados",
-      "Label": "Explorar"
+      "Label": "Explorar",
+      "LibraryLabel": "Tu biblioteca"
     },
     "AvatarMenu": {
       "Profile": "Perfil",

@@ -28,14 +28,18 @@ export interface ShellProps {
   bell?: React.ReactNode;
 }
 
-const NAV: {
-  href: Route;
-  key: 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved';
-  icon: string;
-}[] = [
+type NavKey = 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved';
+
+// Browse: feeds anyone can read (no auth required).
+const BROWSE_NAV: { href: Route; key: NavKey; icon: string }[] = [
   { href: '/', key: 'Discover', icon: '◇' },
   { href: '/trending', key: 'Trending', icon: '↗' },
   { href: '/new', key: 'NewAndFresh', icon: '✦' },
+];
+
+// You: per-user library — Following is about authors, Saved is about apps.
+// Different concepts → different sidebar section.
+const LIBRARY_NAV: { href: Route; key: NavKey; icon: string }[] = [
   { href: '/following', key: 'Following', icon: '◉' },
   { href: '/saved', key: 'Saved', icon: '▢' },
 ];
@@ -164,8 +168,25 @@ export function Shell({ user, children, bell }: ShellProps) {
       <aside className="sidebar">
         <div className="sidebar-sect">
           <div className="sidebar-label">{t('Nav.Label')}</div>
-          {NAV.map((n) => {
+          {BROWSE_NAV.map((n) => {
             const isActive = n.href === '/' ? pathname === '/' : pathname === n.href;
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`nav-item${isActive ? ' is-on' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <i className="nav-i">{n.icon}</i>
+                <span>{t(`Nav.${n.key}`)}</span>
+              </Link>
+            );
+          })}
+        </div>
+        <div className="sidebar-sect">
+          <div className="sidebar-label">{t('Nav.LibraryLabel')}</div>
+          {LIBRARY_NAV.map((n) => {
+            const isActive = pathname === n.href;
             return (
               <Link
                 key={n.href}
@@ -191,8 +212,26 @@ export function Shell({ user, children, bell }: ShellProps) {
           />
           <nav id="mobile-nav-drawer" className="mobile-nav-drawer" aria-label={t('Nav.Label')}>
             <div className="sidebar-label">{t('Nav.Label')}</div>
-            {NAV.map((n) => {
+            {BROWSE_NAV.map((n) => {
               const isActive = n.href === '/' ? pathname === '/' : pathname === n.href;
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={`nav-item${isActive ? ' is-on' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setNavOpen(false)}
+                >
+                  <i className="nav-i">{n.icon}</i>
+                  <span>{t(`Nav.${n.key}`)}</span>
+                </Link>
+              );
+            })}
+            <div className="sidebar-label" style={{ marginTop: 16 }}>
+              {t('Nav.LibraryLabel')}
+            </div>
+            {LIBRARY_NAV.map((n) => {
+              const isActive = pathname === n.href;
               return (
                 <Link
                   key={n.href}

@@ -61,7 +61,8 @@
       "NewAndFresh": "New & fresh",
       "Following": "Following",
       "Saved": "Saved",
-      "Label": "Browse"
+      "Label": "Browse",
+      "LibraryLabel": "Your library"
     },
     "AvatarMenu": {
       "Profile": "Profile",
