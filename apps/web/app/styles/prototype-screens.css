@@ -215,8 +215,10 @@
   box-shadow: 0 6px 14px -4px rgba(230, 0, 35, 0.4);
 }
 .act-save:hover { filter: brightness(1.08); transform: translateY(-1px); }
-.act-save[data-saved="1"] { background: var(--text); color: var(--bg); }
-.act-save[data-saved="1"]:hover { background: var(--text-2); }
+/* Saved state keeps the red identity — the ✓ checkmark in the label indicates active.
+   Original prototype flipped to black, which looked off with the red glow shadow. */
+.act-save[data-saved="1"] { background: #c8001f; }
+.act-save[data-saved="1"]:hover { background: #b00019; }
 
 /* Comments panel */
 .comments {
