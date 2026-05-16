@@ -127,7 +127,7 @@ export function Shell({ user, children, bell }: ShellProps) {
           {user ? (
             <AvatarMenu user={user} />
           ) : (
-            <Link href="/sign-in" className="btn btn-ghost">
+            <Link href="/sign-in" className="btn btn-ghost btn-signin-cta">
               {t('SignIn')}
             </Link>
           )}
