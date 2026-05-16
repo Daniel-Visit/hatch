@@ -5,11 +5,12 @@
 // onOpen → /a/<slug>    onAuthor → /u/<handle>
 // (AppData.id is the slug — see data-mappers.ts → id: app.slug)
 
+import React, { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { useTranslations } from 'next-intl';
 import { AppArt } from './app-art';
-import { BentoCard, Avatar, CategoryBadge, Stat, fmtNum } from './cards';
+import { CleanCard, Avatar, CategoryBadge, Stat, fmtNum } from './cards';
 import type { AppDataExtended } from './data-mappers';
 import type { User } from './cards';
 
@@ -22,8 +23,20 @@ interface GalleryGridProps {
 export function GalleryGrid({ apps }: GalleryGridProps) {
   const router = useRouter();
   const t = useTranslations('Home.Empty');
-  const onOpen = (id: string) => router.push(`/a/${id}` as Route);
-  const onAuthor = (author: User) => router.push(`/u/${author.handle}` as Route);
+  const [isPending, startTransition] = useTransition();
+  const [navigatingId, setNavigatingId] = useState<string | null>(null);
+
+  const onOpen = (id: string) => {
+    setNavigatingId(id);
+    startTransition(() => {
+      router.push(`/a/${id}` as Route);
+    });
+  };
+  const onAuthor = (author: User) => {
+    startTransition(() => {
+      router.push(`/u/${author.handle}` as Route);
+    });
+  };
 
   if (apps.length === 0) {
     return (
@@ -38,7 +51,12 @@ export function GalleryGrid({ apps }: GalleryGridProps) {
   return (
     <div className="grid">
       {apps.map((app) => (
-        <BentoCard key={app.id} app={app} onOpen={onOpen} onAuthor={onAuthor} />
+        <div
+          key={app.id}
+          className={isPending && navigatingId === app.id ? 'card-wrap navigating' : 'card-wrap'}
+        >
+          <CleanCard app={app} onOpen={onOpen} onAuthor={onAuthor} />
+        </div>
       ))}
     </div>
   );
