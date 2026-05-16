@@ -4,7 +4,8 @@
 
 import { notFound } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { BentoCard, Avatar } from '../../_components/cards';
+import { Avatar } from '../../_components/cards';
+import { GalleryGrid } from '../../_components/gallery-grid';
 import { mapAppRowToCardProps } from '../../_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -119,11 +120,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         </div>
       </header>
 
-      <div className="grid">
-        {apps.map((app) => (
-          <BentoCard key={app.id} app={app} onOpen={() => {}} onAuthor={() => {}} />
-        ))}
-      </div>
+      <GalleryGrid apps={apps} />
     </div>
   );
 }

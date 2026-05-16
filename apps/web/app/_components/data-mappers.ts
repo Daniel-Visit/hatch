@@ -1,8 +1,19 @@
 // data-mappers.ts — Maps Supabase DB rows → the AppData card contract.
 // Keeps all shape translation out of page.tsx and away from the DB types.
+// Also exports server-safe formatter helpers (fmtNum) so RSCs can format
+// numbers without importing from cards.tsx (which is a client module).
 
 import type { AppData, Category, User } from './cards';
 import type { Tables } from '@/lib/supabase/types';
+
+// ── fmtNum (server-safe) ─────────────────────────────────────────────────────
+
+/** Server-safe number formatter — mirrors the client `fmtNum` in cards.tsx. */
+export function fmtNum(n: number | string): string {
+  if (typeof n === 'string') return n;
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return String(n);
+}
 
 type AppRow = Tables<'apps'>;
 type ProfileRow = Tables<'profiles'>;

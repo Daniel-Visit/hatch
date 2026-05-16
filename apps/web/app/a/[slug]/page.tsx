@@ -8,10 +8,10 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Avatar, CategoryBadge, fmtNum } from '@/app/_components/cards';
+import { Avatar, CategoryBadge } from '@/app/_components/cards';
 import { AppArt } from '@/app/_components/app-art';
 import { Markdown } from '@/app/_components/markdown';
-import { mapAppRowToCardProps } from '@/app/_components/data-mappers';
+import { mapAppRowToCardProps, fmtNum } from '@/app/_components/data-mappers';
 import type { Tables } from '@/lib/supabase/types';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
