@@ -653,6 +653,7 @@ All hooks are baked into each team agent's `tools:`/`hooks:` frontmatter in `.cl
 
 ### 18. Playwright screenshot diff against prototype
 
+- **Status**: ✅ Closed — 17 screenshots captured in `agents/pair2/review_agent/review_img/`. 0 pixel delta on all critical selectors (`.action-bar`, `.comments`, `.comment-item`, `.profile`, `.profile-tabs`, `.profile-stats`, `.g-card` grid). `/publish` validated against prototype-only (live route gated by OAuth-only auth; live 307 redirect to `/sign-in?next=/publish` confirmed correct). One delta found & fixed mid-validation: 3 missing `.pstat` blocks (Followers/Following/Joined) on `/u/[handle]` profile page — ported verbatim from `prototype/apps-gallery/profile.jsx:67-79`. Post-fix re-capture confirms `.profile-stats` bbox `w=1128 h=79` byte-identical between local and prototype.
 - **Task ID**: playwright-diff
 - **Depends On**: wire-detail-page, wire-profile-page, create-publish-page
 - **Assigned To**: ui-validator
