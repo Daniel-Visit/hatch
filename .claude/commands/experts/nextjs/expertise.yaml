@@ -1,0 +1,121 @@
+# Next.js 15 Implementation Expertise
+# Hatch — Product-Hunt-for-builders
+# Created: 2026-05-15 (adapt-codebase Phase 4)
+
+overview:
+  description: 'Next.js 15 App Router with React 19, Tailwind v4, and Supabase SSR integration'
+  framework: 'Next.js 15.5.18'
+  react_version: '19.1.0'
+  css_framework: 'Tailwind v4 (PostCSS plugin @tailwindcss/postcss)'
+  typescript: '5.x'
+  package_manager: 'pnpm 10'
+
+directory_structure:
+  app_root: 'apps/web/'
+  app_router: 'apps/web/app/'
+  auth_routes: 'apps/web/app/(auth)/'
+  auth_callback: 'apps/web/app/auth/callback/route.ts'
+  auth_signout: 'apps/web/app/auth/sign-out/route.ts'
+  lib: 'apps/web/lib/'
+  supabase_helpers: 'apps/web/lib/supabase/'
+  auth_utils: 'apps/web/lib/auth.ts'
+  zod_schemas: 'apps/web/lib/zod/'
+  server_actions: 'apps/web/lib/actions/'
+  middleware: 'apps/web/middleware.ts'
+
+key_patterns:
+  server_components:
+    description: 'Default for all components — no use client directive'
+    rule: 'Only add use client when using hooks, browser APIs, or event handlers'
+
+  client_components:
+    description: 'Components with use client directive'
+    examples:
+      - 'apps/web/app/(auth)/sign-in/sign-in-buttons.tsx (OAuth buttons)'
+      - 'apps/web/app/settings/profile/profile-form.tsx (form with react-hook-form)'
+
+  supabase_ssr:
+    server_client: 'apps/web/lib/supabase/server.ts → createSupabaseServerClient()'
+    browser_client: 'apps/web/lib/supabase/client.ts → createSupabaseBrowserClient()'
+    admin_client: 'apps/web/lib/supabase/admin.ts (service role — server only)'
+    rule: 'Use server client in Server Components and Route Handlers; browser client in Client Components'
+
+  middleware:
+    file: 'apps/web/middleware.ts'
+    purpose: 'Refresh Supabase session cookie on every request — CRITICAL, do not remove'
+    matcher: 'All routes except static assets'
+
+  auth_helpers:
+    file: 'apps/web/lib/auth.ts'
+    functions:
+      getUser: 'Returns {user, profile} or null — use in Server Components'
+      requireUser: 'Throws UNAUTHORIZED if not authenticated — use in protected server actions'
+
+  server_actions:
+    directory: 'apps/web/lib/actions/'
+    example: 'apps/web/lib/actions/profile.ts'
+    pattern: 'use server directive, call requireUser(), validate with Zod, call Supabase'
+
+  zod_schemas:
+    directory: 'apps/web/lib/zod/'
+    example: 'apps/web/lib/zod/profile.ts'
+    usage: 'Import in server actions for validation; use with react-hook-form in client components'
+
+  form_handling:
+    library: 'react-hook-form + @hookform/resolvers + zod'
+    pattern: 'Client component with useForm, zodResolver, server action on submit'
+
+database_types:
+  file: 'apps/web/lib/supabase/types.ts'
+  description: 'Auto-generated Supabase TypeScript types — do NOT edit manually'
+  regenerate: 'Use Supabase MCP to pull latest types after schema changes'
+  tables:
+    profiles:
+      key_fields: 'id (uuid, FK to auth.users), handle (unique), display_name, avatar_url, bio, emoji, hue, links (jsonb), notification_prefs (jsonb), theme_pref'
+    categories:
+      key_fields: 'id (text, PK), label, icon, sort_order'
+
+routing_conventions:
+  protected_routes: 'Under app/(auth)/ — auth check via middleware + requireUser()'
+  public_routes: 'app/page.tsx, app/a/[slug], app/c/[category], app/u/[handle], app/auth/callback/, app/auth/sign-out/'
+  signed_in_routes: 'app/publish, app/notifications, app/messages, app/messages/[conversationId], app/settings/profile, app/settings/notifications — each calls requireUser() with redirect to /sign-in?next=<path> on failure'
+  api_routes: 'app/api/ pattern (none yet in Phase 0-7)'
+  settings: 'app/settings/profile/ (profile), app/settings/notifications/ (Phase 6 — push prefs + browser permission toggle)'
+  dynamic_export: "Routes with realtime data set `export const dynamic = 'force-dynamic'` to prevent stale RSC cache (e.g., /notifications, /messages)"
+
+realtime_patterns:
+  hook_location: 'apps/web/app/_components/use-realtime-*.ts (3 hooks: useUnreadTitle, useRealtimeNotifs, useRealtimeThread)'
+  subscription_pattern: |
+    'use client';
+    const sb = createSupabaseBrowserClient();
+    const channel = sb.channel(`notifs:${userId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${userId}` }, payload => onInsert(payload.new))
+      .subscribe();
+    return () => sb.removeChannel(channel);
+  visibility_backfill: 'visibilitychange listener with hiddenSinceRef tracking — if hidden >30s, refetch latest 50 on visible, resubscribe channel. Implements SPEC §8.3.'
+  toast_routing: 'sonner Toaster mounted at root layout. Per SPEC roadmap §5.3: contact_request → high-priority toast + push; message → toast + push if not in /messages/<id>; comment_reply → toast only; like/follow/comment → bell only.'
+  dedupe_strategy: 'Realtime INSERT events can race with optimistic local updates — always dedupe by id when merging into local state'
+
+web_push_patterns:
+  server_side: 'apps/web/lib/push/server.ts — pushToUser(userId, payload) using web-push npm pkg. NEVER imported from client (no_vapid_private_in_client.py validator blocks). Uses service-role admin client to read push_subscriptions (RLS bypass). On 410 Gone response, deletes stale subscription.'
+  client_side: 'apps/web/lib/push/client.ts — subscribeToBrowserPush() does Notification.requestPermission + serviceWorker.register("/sw.js") + pushManager.subscribe + posts subscription to subscribeToPush server action. unsubscribeFromBrowserPush() reverses.'
+  service_worker: 'apps/web/public/sw.js — vanilla JS (no compilation). Handles push event (showNotification), notificationclick (focus existing tab or openWindow), pushsubscriptionchange (warn-only, Phase 13 refresh). NO fetch handler to keep OAuth callbacks unintercepted.'
+  vapid_envs: 'NEXT_PUBLIC_VAPID_PUBLIC_KEY (browser-safe) + VAPID_PRIVATE_KEY (server-only, validator-enforced). Generated via npx web-push generate-vapid-keys'
+
+ui_components:
+  port_exception_scope: 'apps/web/app/_components/*.tsx — Tailwind FORBIDDEN, classNames byte-for-byte from prototype, inline styles preserved. See .claude/rules/prototype-port-exception.md.'
+  new_components_use_phase6_css: 'NotificationsBell, NotificationToaster, PushPermissionPrompt, ServiceWorkerRegistrar use plain CSS classes from apps/web/app/styles/phase6.css. Page bodies (under /notifications, /messages, /settings/notifications) follow Tailwind rules per frontend-components.md.'
+  sonner_toaster: 'NotificationToaster wraps Toaster from sonner@2.0.7. Mount at root layout. Call toast(), toast.success(), toast.error() anywhere.'
+
+dev_commands:
+  dev: 'pnpm dev:web (port 3000)'
+  build: 'pnpm build (from monorepo root)'
+  typecheck: 'pnpm typecheck'
+  lint: 'pnpm lint'
+
+known_gotchas:
+  - 'Tailwind v4 uses @tailwindcss/postcss — no tailwind.config.js needed; configure in CSS'
+  - 'cookies() from next/headers is async in Next.js 15 — must await'
+  - 'RSC-only context cannot set cookies — middleware handles cookie refresh'
+  - 'React 19 has native form actions — use with server actions'
+  - 'Never use SUPABASE_SERVICE_ROLE_KEY in client components'

@@ -1,0 +1,119 @@
+# Supabase Implementation Expertise
+# Hatch — Product-Hunt-for-builders
+# Created: 2026-05-15 (adapt-codebase Phase 4)
+
+overview:
+  description: 'Supabase Postgres with Auth, Row-Level Security, and MCP-based migration workflow'
+  project_ref: 'vcbdtjjkkwryvmqbflah'
+  project_url: 'https://vcbdtjjkkwryvmqbflah.supabase.co'
+  postgres_version: '14.5 (via Supabase)'
+  auth_provider: 'Supabase Auth (email + OAuth)'
+  migration_tool: 'Supabase MCP apply_migration — NEVER supabase CLI or docker'
+
+migration_workflow:
+  directory: 'packages/db/migrations/'
+  naming: 'NNNN_description.sql (sequential, zero-padded)'
+  apply: 'Supabase MCP apply_migration tool with the SQL content'
+  hard_constraint: 'NO supabase db push, NO supabase CLI, NO Docker'
+  postgrest_reload: "After applying migrations, run execute_sql with \"notify pgrst, 'reload schema';\" to force PostgREST cache reload (avoids 60s wait + 404s on new tables)"
+  migrations_applied:
+    - '0001_init.sql — profiles table, categories table, auth trigger, extensions'
+    - '0002_categories.sql — categories seed data'
+    - '0003_rls_phase1.sql — RLS policies for profiles and categories'
+    - '0004_phase1_hardening.sql — additional RLS hardening'
+    - '0005_revoke_handle_new_user_from_public.sql — security: revoke public execute on trigger fn'
+    - '0006_apps.sql / 0007_apps_rls.sql / 0008_apps_seed.sql — Phase 3 apps table'
+    - '0009_social.sql / 0010_social_rls.sql / 0011_social_seed.sql — Phase 4 likes/saves/comments/follows'
+    - '0012_storage_buckets.sql — Phase 5 app-covers bucket + RLS'
+    - '0013_contact_requests.sql — Phase 6 contact_role+contact_status enums + table (FK to conversations deferred to 0014)'
+    - '0014_conversations_messages.sql — conversations + messages + messages_bump_conversation trigger + find_or_create_conversation SECURITY DEFINER fn + deferred FK + Realtime publication'
+    - '0015_notifications.sql — notif_kind enum (8) + notifications + 6 fan-out triggers (notify_on_like/comment/follow/contact_request_insert/contact_request_update/message) + Realtime publication'
+    - '0016_push_subscriptions.sql — Web Push subscription endpoints'
+    - '0017_phase6_rls.sql — is_participant helper + RLS for 5 Phase 6 tables (conversations has NO client INSERT)'
+    - '0018_phase6_seed.sql — sample contact_requests/conversations/messages/notifications + 3 varied notification_prefs (uses session_replication_role=replica to bypass triggers)'
+
+database_schema:
+  extensions:
+    - 'citext (case-insensitive text for handles)'
+    - 'pgcrypto'
+
+  tables:
+    profiles:
+      description: '1-1 mirror of auth.users — created automatically by trigger on signup'
+      primary_key: 'id (uuid, FK to auth.users ON DELETE CASCADE)'
+      key_columns:
+        handle: 'citext UNIQUE, check ^[a-z0-9_]{2,24}$'
+        display_name: 'text NOT NULL'
+        bio: 'text nullable'
+        avatar_url: 'text nullable'
+        hue: 'int DEFAULT 200, check 0-360 (for UI color theming)'
+        emoji: 'text DEFAULT ◇'
+        links: 'jsonb DEFAULT []'
+        theme_pref: 'text DEFAULT system, check light|dark|system'
+        notification_prefs: 'jsonb (push_enabled, push_likes, push_follows, push_comments, push_messages, push_contact_requests)'
+        created_at: 'timestamptz'
+        updated_at: 'timestamptz'
+      indexes:
+        - 'profiles_created_at_idx (created_at DESC)'
+      trigger: 'handle_new_user() SECURITY DEFINER — generates handle from email, creates profile row'
+
+    categories:
+      description: 'Product/project categories (seeded in 0002)'
+      primary_key: 'id (text)'
+      key_columns:
+        label: 'text'
+        icon: 'text'
+        sort_order: 'int'
+
+  rls_policies:
+    profiles:
+      - 'SELECT: authenticated users can read all profiles'
+      - 'UPDATE: users can only update their own profile (auth.uid() = id)'
+    categories:
+      - 'SELECT: public read access'
+
+auth_patterns:
+  server_client: 'apps/web/lib/supabase/server.ts → createSupabaseServerClient()'
+  browser_client: 'apps/web/lib/supabase/client.ts → createSupabaseBrowserClient()'
+  admin_client: 'apps/web/lib/supabase/admin.ts (SUPABASE_SERVICE_ROLE_KEY — server only)'
+  middleware: 'apps/web/middleware.ts refreshes session cookie on every request'
+  auth_helpers: 'apps/web/lib/auth.ts → getUser() and requireUser()'
+  callback_route: 'apps/web/app/auth/callback/route.ts — handles OAuth/magic link callbacks'
+  signout_route: 'apps/web/app/auth/sign-out/route.ts'
+
+type_generation:
+  file: 'apps/web/lib/supabase/types.ts'
+  note: 'Do NOT edit manually — regenerate via Supabase MCP after schema changes'
+  database_type: 'Database (imported by createServerClient<Database>, createBrowserClient<Database>)'
+
+env_vars:
+  client_safe:
+    NEXT_PUBLIC_SUPABASE_URL: 'https://vcbdtjjkkwryvmqbflah.supabase.co'
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'Public anon key'
+  server_only:
+    SUPABASE_SERVICE_ROLE_KEY: 'Service role key — NEVER expose to client'
+
+realtime_patterns:
+  publication_membership: "After CREATE TABLE intended for Realtime: `alter publication supabase_realtime add table public.X` (wrap in idempotent `do $$ if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and ...) then ... end $$`). Without this, postgres_changes subscriptions never fire."
+  tables_in_publication: 'notifications, messages, conversations (Phase 6+7) — plus default Supabase tables'
+  channel_naming: 'Per-user notif channels: notifs:<userId>. Per-thread message channels: msgs:<conversationId>'
+  rls_auto_filter: 'postgres_changes auto-filters by RLS — recipient_id=eq.<userId> filter is redundant when notifications RLS uses recipient_id=auth.uid() but kept for clarity'
+  visibility_backfill: 'SPEC §8.3 — on visibilitychange to "visible" after >30s hidden, refetch latest 50 rows and resubscribe (handles missed events while tab was backgrounded)'
+
+trigger_patterns:
+  fan_out: 'Notifications written via AFTER INSERT/UPDATE triggers on source tables (likes, comments, follows, contact_requests, messages). All trigger fns: SECURITY DEFINER + set search_path = public. Self-notification suppression: compare actor_id vs target.author_id before INSERT.'
+  explicit_when_clause: "UPDATE triggers MUST use SQL `when (...)` clause to avoid firing on irrelevant updates: `create trigger T after update on X for each row when (old.status = 'pending' and new.status in ('accepted','declined')) execute function ...`"
+  drop_then_create: 'Postgres lacks `create trigger if not exists` reliably; use `drop trigger if exists T on X; create trigger T ...` for re-runnability'
+
+known_gotchas:
+  - 'handle_new_user trigger uses SECURITY DEFINER with search_path=public — execute revoked from public (0005)'
+  - 'citext extension needed for case-insensitive handle uniqueness'
+  - 'notification_prefs has NO email keys (Phase 8 email cut) — push-only keys'
+  - 'Always use RLS — NEVER bypass with service role unless in a server action'
+  - 'cookies() from next/headers is async — must await createSupabaseServerClient()'
+  - 'RSC cannot set cookies — middleware refreshes them; suppress error in setAll()'
+  - 'PostgREST FK disambiguation: use the FK CONSTRAINT name not the column. E.g. `profiles!notifications_actor_id_fkey(*)` NOT `profiles!actor_id(*)`. Postgres auto-names FKs as `<table>_<column>_fkey`.'
+  - 'find_or_create_conversation(user_a, user_b, app) is the ONLY way to create a conversation — RLS has no client INSERT policy on conversations. Call via sb.rpc() from server actions only, after consent (e.g., after acceptContactRequest).'
+  - 'is_participant(c uuid) is a SECURITY DEFINER helper used inside messages RLS policies to gate access by conversation membership.'
+  - "Phase 6 SECURITY DEFINER trigger fns show up in get_advisors as WARN (anon_security_definer_function_executable). They're trigger-only fns that can't be called meaningfully by anon; defense-in-depth REVOKE EXECUTE is a future polish."
+  - 'session_replication_role pattern: SET session_replication_role = replica BEFORE seed INSERTs that would otherwise fire triggers, then SET to origin. Used in 0018_phase6_seed to avoid write amplification when seeding notifications.'
