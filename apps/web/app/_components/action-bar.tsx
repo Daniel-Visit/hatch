@@ -65,6 +65,25 @@ export function ActionBar({
     document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const onShare = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    if (!url) return;
+    const title = typeof document !== 'undefined' ? document.title : '';
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // user cancelled or share unsupported — fall back to copy
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard blocked — silently no-op
+    }
+  };
+
   return (
     <div className="action-bar">
       <button
@@ -80,13 +99,9 @@ export function ActionBar({
         <span className="act-i">◌</span>
         <span className="act-num">{commentCount}</span>
       </button>
-      <button className="act-btn" title={t('Share')}>
+      <button className="act-btn" onClick={onShare} title={t('Share')}>
         <span className="act-i">↗</span>
         <span>{t('Share')}</span>
-      </button>
-      <span className="act-sep" />
-      <button className="act-btn" title={t('More')}>
-        <span className="act-i">⋯</span>
       </button>
       <span className="act-grow" />
       <button className="act-save" data-saved={saved ? '1' : '0'} onClick={onSave}>
