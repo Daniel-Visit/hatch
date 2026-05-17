@@ -8,6 +8,11 @@ import { NotificationToaster } from './_components/notification-toast';
 import { ServiceWorkerRegistrar } from './_components/service-worker-registrar';
 
 import './globals.css';
+import './styles/prototype-base.css';
+import './styles/prototype-cards.css';
+import './styles/prototype-screens.css';
+import './styles/prototype-contact.css';
+import './styles/phase6.css';
 
 export const metadata: Metadata = {
   title: 'Hatch',

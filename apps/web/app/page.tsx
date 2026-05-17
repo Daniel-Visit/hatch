@@ -33,7 +33,7 @@ export default async function LandingPage() {
   const { counts, tabs } = await fetchLandingData();
 
   return (
-    <>
+    <div className="landing-root">
       <Topbar />
       <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
       <SocialProof
@@ -47,6 +47,6 @@ export default async function LandingPage() {
       <Testimonials />
       <FinalCta />
       <Footer />
-    </>
+    </div>
   );
 }

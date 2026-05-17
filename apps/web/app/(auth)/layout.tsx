@@ -1,12 +1,7 @@
 import { getLocale, setRequestLocale } from 'next-intl/server';
 
-// Auth pages (/sign-in, /publish, etc.) depend on the same prototype CSS as the
-// gallery shell for their logo, app-art mosaic, contact modal, etc. Re-import
-// the same set the (shell) layout uses so styling isn't lost on auth routes.
-import '../styles/prototype-base.css';
-import '../styles/prototype-cards.css';
-import '../styles/prototype-screens.css';
-import '../styles/prototype-contact.css';
+// Prototype CSS is loaded once in the root `app/layout.tsx` so every auth page
+// (sign-in, publish, etc.) already has access to the shared styling.
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();

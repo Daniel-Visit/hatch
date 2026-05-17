@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl';
 import { Icon } from './icons';
 import { useTheme } from './theme-controller';
 import { LocaleToggle } from './locale-toggle';
+import { BrandLogo } from './brand-logo';
 
 export interface ShellUser {
   handle: string;
@@ -45,18 +46,7 @@ const LIBRARY_NAV: { href: Route; key: NavKey; icon: string }[] = [
 ];
 
 function Logo() {
-  const t = useTranslations('Shell');
-  return (
-    <Link href="/" className="logo">
-      <span className="logo-mark">
-        <i className="logo-mark-inner" />
-      </span>
-      <span className="logo-text">
-        {t('Logo')}
-        <i className="logo-dot" />
-      </span>
-    </Link>
-  );
+  return <BrandLogo />;
 }
 
 export function Shell({ user, children, bell }: ShellProps) {

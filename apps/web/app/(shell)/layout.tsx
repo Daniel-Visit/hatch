@@ -6,11 +6,9 @@ import { Shell } from '../_components/shell';
 import { NotificationsBell } from '../_components/notifications-bell';
 import { PushPermissionPrompt } from '../_components/push-permission-prompt';
 
-import '../styles/prototype-base.css';
-import '../styles/prototype-cards.css';
-import '../styles/prototype-screens.css';
-import '../styles/prototype-contact.css';
-import '../styles/phase6.css';
+// Prototype CSS now lives in the root `app/layout.tsx` so it is available on
+// every route (gallery, sign-in, AND landing — landing.css is scoped under
+// `.landing-root` to avoid collisions).
 
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();

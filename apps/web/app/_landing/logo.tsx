@@ -1,10 +1,4 @@
-// Hatch logo — verbatim port of /tmp/hatch-landing-v2/src/atoms.jsx Logo (line 43).
-// All styling (gradient mark, inner diamond via ::after, trailing accent dot via .logo-text::after)
-// comes from the prototype's components.css rules already in landing.css.
-
-export const Logo = () => (
-  <span className="logo" aria-label="Hatch">
-    <span className="logo-mark" />
-    <span className="logo-text">hatch</span>
-  </span>
-);
+// Re-export of the canonical BrandLogo. The landing Topbar + Footer import
+// `Logo` from this path; keeping a thin re-export means we don't have to touch
+// their call sites while still routing through a single brand-mark component.
+export { BrandLogo as Logo } from '@/app/_components/brand-logo';
