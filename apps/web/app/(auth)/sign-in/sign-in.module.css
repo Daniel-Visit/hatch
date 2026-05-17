@@ -78,6 +78,122 @@
   height: 100%;
 }
 
+/* AppArt support — scoped inside the mosaic tiles only.
+   Mirrors the .shell .app-art / .shell .art-* rules from
+   apps/web/app/styles/prototype-cards.css so each tile's
+   glyph is centered and its decoration layers render correctly,
+   without the sign-in page having to wrap content in a .shell div. */
+.gridCard :global(.app-art) {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+.gridCard :global(.art-glyph) {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  z-index: 2;
+}
+.gridCard :global(.art-noise) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.gridCard :global(.art-grid) {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.gridCard :global(.art-grid5) {
+  position: absolute;
+  inset: 12%;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.18) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 2px, transparent 2px);
+  background-size: 20% 20%;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+}
+.gridCard :global(.art-grid8) {
+  position: absolute;
+  inset: 14%;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 12.5% 12.5%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+.gridCard :global(.art-dot) {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.gridCard :global(.art-blob) {
+  position: absolute;
+  width: 50%;
+  height: 60%;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+.gridCard :global(.art-stripe) {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  width: 8%;
+  border-radius: 4px;
+  opacity: 0.9;
+}
+.gridCard :global(.art-ring) {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140px;
+  height: 140px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.gridCard :global(.art-card) {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50%;
+  aspect-ratio: 1.5;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.gridCard :global(.art-trail) {
+  position: absolute;
+  left: 10%;
+  top: 30%;
+  width: 70%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
+  border-radius: 999px;
+  transform: rotate(-12deg);
+  filter: blur(1px);
+}
+.gridCard :global(.art-bar) {
+  position: absolute;
+  bottom: 10%;
+  width: 6%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px 4px 0 0;
+}
+
 .customCard {
   display: grid;
   place-items: center;

@@ -4,10 +4,9 @@
 //                    These are the originals from the prototype.
 //   Group B (procedural): seeded SVG patterns, no glyph. Imported from the
 //                         landing design (Hatch-landing.zip / atoms.jsx).
-// Final set (20 cover kinds — picked 2026-05-16):
-//   A: pixel, roast, palette, dj, letter, bingo, snail, karaoke, tinydraw, fog, pasta  (11)
-//   B: mesh, bokeh, griddots, blocks, rings, glyph, softrings, coolstripes, coolbokeh   (9)
-// Legacy `cursor` (dropped A6) silently falls back to `pixel`.
+// Final set (21 cover kinds):
+//   A: pixel, palette, cursor, dj, letter, roast, fog, bingo, snail, karaoke, tinydraw, pasta  (12)
+//   B: mesh, bokeh, griddots, blocks, rings, glyph, softrings, coolstripes, coolbokeh         (9)
 
 import React from 'react';
 
@@ -113,6 +112,19 @@ const A: Record<string, ArtEntry> = {
       </>
     ),
   },
+  cursor: {
+    glyph: '✦',
+    bg: 'linear-gradient(135deg,#581c87 0%,#a855f7 50%,#fde047 100%)',
+    deco: (
+      <>
+        <i className="art-trail" />
+        <i
+          className="art-dot"
+          style={{ left: '74%', top: '32%', width: 22, height: 22, background: '#fef3c7' }}
+        />
+      </>
+    ),
+  },
   bingo: {
     glyph: '◧',
     bg: 'linear-gradient(180deg,#fef9c3 0%,#facc15 100%)',
@@ -188,9 +200,7 @@ const A: Record<string, ArtEntry> = {
 };
 
 // Map legacy / dropped kinds onto an active one. Keeps old DB rows working.
-const A_FALLBACKS: Record<string, string> = {
-  cursor: 'pixel', // A6 dropped 2026-05-16
-};
+const A_FALLBACKS: Record<string, string> = {};
 
 const B_KINDS = new Set([
   'mesh',
@@ -525,6 +535,7 @@ export const ALL_COVER_KINDS: ReadonlyArray<string> = [
   'pixel',
   'roast',
   'palette',
+  'cursor',
   'dj',
   'letter',
   'bingo',

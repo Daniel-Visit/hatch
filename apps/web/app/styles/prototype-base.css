@@ -91,6 +91,16 @@ a { color: inherit; }
     radial-gradient(circle at 90% 10%,  rgba(236, 72, 153, 0.04), transparent 45%);
 }
 
+/* BrandLogo theme swap — light/dark variants share the gradient mark and
+   orange dot; only the "hatch" wordmark fill differs (black vs. white).
+   We render both <img>s inside the <Link> and toggle visibility via
+   [data-theme] on <html>, so there is no JS, no hydration flash, and the
+   inactive variant collapses to zero box without affecting layout. */
+.brand-logo-light { display: inline-block; }
+.brand-logo-dark  { display: none; }
+[data-theme="dark"] .brand-logo-light { display: none; }
+[data-theme="dark"] .brand-logo-dark  { display: inline-block; }
+
 /* ─── Shell layout ─────────────────────────────────────────────────────── */
 .shell {
   display: grid;
