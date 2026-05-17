@@ -1,10 +1,15 @@
 // Hatch landing footer — verbatim port of /tmp/hatch-landing-v2/src/sections-3.jsx Footer (lines 279-321).
-// All hrefs are `"#"` per prototype. Keeps `.landing-footer` class on outer <footer> so
-// the override CSS in landing.css applies. Year is dynamic. Server Component.
+// Hrefs wired to real routes (gallery, trending, llms.txt, openapi.json, GitHub, Railway MCP).
+// `About / Privacy / Terms` still `#` until those pages exist. Year is dynamic. Server Component.
 
 import { getTranslations } from 'next-intl/server';
 import { Logo } from '@/app/_landing/logo';
 import { GitHub } from '@/app/_landing/icons';
+
+const MCP_URL = 'https://hatch-mcp-production.up.railway.app';
+const REPO_URL = 'https://github.com/Daniel-Visit/hatch';
+const OPENAPI_URL = '/api/v1/openapi.json';
+const LLMS_TXT_URL = '/llms.txt';
 
 export const Footer = async () => {
   const t = await getTranslations('Landing.Footer');
@@ -20,16 +25,16 @@ export const Footer = async () => {
             <h5>{t('Columns.Product.Title')}</h5>
             <ul>
               <li>
-                <a href="#">{t('Columns.Product.Gallery')}</a>
+                <a href="/gallery">{t('Columns.Product.Gallery')}</a>
               </li>
               <li>
-                <a href="#">{t('Columns.Product.Publish')}</a>
+                <a href="/sign-in?next=/publish">{t('Columns.Product.Publish')}</a>
               </li>
               <li>
-                <a href="#">{t('Columns.Product.Categories')}</a>
+                <a href="/gallery">{t('Columns.Product.Categories')}</a>
               </li>
               <li>
-                <a href="#">{t('Columns.Product.HotToday')}</a>
+                <a href="/trending">{t('Columns.Product.HotToday')}</a>
               </li>
             </ul>
           </div>
@@ -37,16 +42,24 @@ export const Footer = async () => {
             <h5>{t('Columns.Agents.Title')}</h5>
             <ul>
               <li>
-                <a href="#">{t('Columns.Agents.McpServer')}</a>
+                <a href={MCP_URL} target="_blank" rel="noopener noreferrer">
+                  {t('Columns.Agents.McpServer')}
+                </a>
               </li>
               <li>
-                <a href="#">{t('Columns.Agents.ApiDocs')}</a>
+                <a href={OPENAPI_URL} target="_blank" rel="noopener noreferrer">
+                  {t('Columns.Agents.ApiDocs')}
+                </a>
               </li>
               <li>
-                <a href="#">{t('Columns.Agents.OpenApi')}</a>
+                <a href={OPENAPI_URL} target="_blank" rel="noopener noreferrer">
+                  {t('Columns.Agents.OpenApi')}
+                </a>
               </li>
               <li>
-                <a href="#">{t('Columns.Agents.LlmsTxt')}</a>
+                <a href={LLMS_TXT_URL} target="_blank" rel="noopener noreferrer">
+                  {t('Columns.Agents.LlmsTxt')}
+                </a>
               </li>
             </ul>
           </div>
@@ -57,7 +70,7 @@ export const Footer = async () => {
                 <a href="#">{t('Columns.Company.About')}</a>
               </li>
               <li>
-                <a href="#">
+                <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
                   <GitHub size={12} /> {t('Columns.Company.GitHub')}
                 </a>
               </li>

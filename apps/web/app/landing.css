@@ -230,6 +230,15 @@
   justify-content: center;
 }
 
+/* Smooth scroll for in-page anchors (#features / #how / #agents / #gallery
+   in the topbar + footer links). Apply at <html> level (where scroll lives)
+   only when the page contains the landing root. scroll-padding-top offsets
+   the 60px sticky topbar so anchored sections don't land hidden behind it. */
+html:has(.landing-root) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 76px;
+}
+
 /* ---------- Topbar ---------- */
 .landing-root .topbar {
   position: sticky;
