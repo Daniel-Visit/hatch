@@ -273,7 +273,7 @@
     },
     "ApiKeysPage": {
       "Title": "API Keys",
-      "Subtitle": "Generate a personal access token to connect Claude Desktop (or any MCP client) to your Hatch account. One active key per user — revoke and regenerate to rotate.",
+      "Subtitle": "Generate a personal access token to connect any MCP client (ChatGPT, Cursor, Continue, custom agents, etc.) to your Hatch account. One active key per user — revoke and regenerate to rotate.",
       "NoActiveKey": "No active key",
       "NoActiveKeyHint": "Click below to generate one. You'll see the token only once.",
       "GenerateApiKey": "Generate API Key",
@@ -284,15 +284,15 @@
       "Created": "Created {when}",
       "LastUsed": "Last used {when}",
       "Never": "never",
-      "ConfigTitle": "Claude Desktop config",
-      "ConfigSubtitle": "Paste this into your Claude Desktop MCP settings. Replace <code>&lt;paste-your-token&gt;</code> with the token you saved when generating the key.",
+      "ConfigTitle": "MCP client config",
+      "ConfigSubtitle": "Paste this into your MCP client config. Replace <code>&lt;paste-your-token&gt;</code> with the token you saved when generating the key.",
       "SaveTokenNotice": "Save this now — you won't see it again.",
       "TokenLossWarning": "After closing, the token is gone for good. Revoke and regenerate if you lose it.",
       "CopyToken": "Copy token",
       "Copied": "Copied!",
       "Copy": "Copy",
       "Done": "Done",
-      "DefaultLabel": "Claude Desktop",
+      "DefaultLabel": "MCP client",
       "ErrorPrefix": "Error: {error}"
     },
     "gradient": {
