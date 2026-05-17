@@ -1,7 +1,85 @@
-/* Landing-only styles ported from Hatch-landing prototype (atoms + sections).
-   Loaded ONLY by apps/web/app/page.tsx — does not leak to the rest of the app.
-   Existing prototype CSS in styles/prototype-*.css uses '.btn-primary' (single
-   dash); the landing uses '.btn--primary' (double dash) — no class collision. */
+/* Hatch landing page styles.
+ * Scope: the public landing page only (apps/web/app/page.tsx + apps/web/app/_landing/**).
+ * Token block below mirrors the design-system tokens the landing components expect
+ * (--ax, --orange, --pink, --bg, --surface, --text, --muted, --sh-1/2/3, --r-md/lg,
+ *  --ax-soft, --ax-tint, --font-sans, --font-mono).
+ * Without these, the hero color blur, button shadows, rounded corners and translucent
+ * topbar background don't render.
+ */
+
+/* ============================================================
+   Box-sizing reset — landing components assume border-box (the
+   prototype's tokens.css declared `* { box-sizing: border-box }`).
+   Without this, height + padding + border don't add up
+   predictably and elements like .btn end up taller than their
+   sibling .gallery-tabs even with identical height values.
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   Design tokens (landing-scoped)
+   ============================================================ */
+:root {
+  --ax: #a855f7;
+  --orange: #f97316;
+  --pink: #ec4899;
+  --red: #ef4444;
+  --green: #22c55e;
+  --amber: #f59e0b;
+
+  --bg: #f7f6f3;
+  --bg-2: #efece6;
+  --surface: #ffffff;
+  --surface-2: #f4f3ef;
+  --surface-3: #eae7df;
+  --border: rgba(15, 12, 8, 0.08);
+  --border-2: rgba(15, 12, 8, 0.14);
+  --text: #0d0c0a;
+  --text-2: #3a382f;
+  --muted: #74716a;
+  --muted-2: #9c9990;
+
+  --ax-soft: color-mix(in oklab, var(--ax) 14%, transparent);
+  --ax-tint: color-mix(in oklab, var(--ax) 8%, var(--surface));
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+
+  --sh-1:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 1px 2px rgba(15, 12, 8, 0.04),
+    0 0 0 0.5px var(--border);
+  --sh-2:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 8px 24px -8px rgba(15, 12, 8, 0.12),
+    0 0 0 0.5px var(--border);
+  --sh-3: 0 24px 60px -20px rgba(15, 12, 8, 0.22), 0 0 0 0.5px var(--border);
+
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+[data-theme='dark'] {
+  --bg: #0a0a0c;
+  --bg-2: #111114;
+  --surface: #141416;
+  --surface-2: #1b1b1f;
+  --surface-3: #25252a;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-2: rgba(255, 255, 255, 0.14);
+  --text: #f5f5f3;
+  --text-2: #d8d6d0;
+  --muted: #8e8b83;
+  --muted-2: #6a6760;
+
+  --sh-1: 0 0 0 0.5px var(--border), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-2: 0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 0 0 0.5px var(--border);
+  --sh-3: 0 24px 60px -20px rgba(0, 0, 0, 0.7), 0 0 0 0.5px var(--border);
+}
 
 /* ============================================================
    HATCH — Components & Layout
@@ -241,7 +319,7 @@ section {
 /* ---------- Section header ---------- */
 .section-head {
   max-width: 720px;
-  margin: 0 auto 56px;
+  margin: 0 auto 36px;
   text-align: center;
 }
 .section-eyebrow {
@@ -405,7 +483,7 @@ section {
 /* ============ HERO ============ */
 .hero {
   position: relative;
-  padding: 80px 0 100px;
+  padding: 36px 0 40px;
   overflow: hidden;
 }
 .hero-bg {
@@ -486,7 +564,7 @@ section {
   box-shadow: var(--sh-1);
   font-size: 12.5px;
   color: var(--text-2);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 .hero-badge .pill {
   background: var(--ax-tint);
@@ -501,11 +579,11 @@ section {
 }
 
 .hero-title {
-  font-size: clamp(40px, 6vw, 68px);
+  font-size: clamp(32px, 4.2vw, 50px);
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.02;
-  margin: 0 0 22px;
+  margin: 0 0 16px;
   text-wrap: balance;
 }
 .hero-title .grad {
@@ -516,11 +594,11 @@ section {
   color: transparent;
 }
 .hero-sub {
-  font-size: 18px;
+  font-size: 15px;
   color: var(--muted);
-  max-width: 520px;
-  line-height: 1.55;
-  margin: 0 0 32px;
+  max-width: 460px;
+  line-height: 1.5;
+  margin: 0 0 18px;
   text-wrap: pretty;
 }
 .hero-cta-row {
@@ -533,7 +611,7 @@ section {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-top: 28px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 .hero-meta-item {
@@ -557,11 +635,16 @@ section {
 /* Hero right side: floating cards */
 .hero-stage {
   position: relative;
-  height: 520px;
+  height: 300px;
 }
 @media (max-width: 980px) {
   .hero-stage {
-    height: 460px;
+    height: 240px;
+  }
+}
+@media (max-width: 720px) {
+  .hero-stage {
+    display: none;
   }
 }
 
@@ -575,30 +658,30 @@ section {
 }
 
 .float-card--main {
-  top: 40px;
-  left: 50%;
+  top: 20px;
+  left: 28%;
   transform: translateX(-50%);
-  width: 320px;
+  width: 240px;
   z-index: 3;
 }
 .float-card--left {
-  top: 220px;
+  top: 170px;
   left: -10px;
-  width: 240px;
+  width: 170px;
   z-index: 2;
   animation-delay: -1.6s;
 }
 .float-card--right {
-  top: 280px;
+  top: 120px;
   right: -10px;
-  width: 230px;
+  width: 170px;
   z-index: 2;
   animation-delay: -3.2s;
 }
 .float-card--notif {
   top: -10px;
-  right: 10px;
-  width: 240px;
+  right: 50px;
+  width: 200px;
   z-index: 4;
   animation:
     notifs-in 0.6s ease-out both,
@@ -742,8 +825,7 @@ section {
 .bento {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-auto-rows: 200px;
-  gap: 16px;
+  gap: 14px;
 }
 @media (max-width: 980px) {
   .bento {
@@ -754,62 +836,79 @@ section {
 .bento-cell {
   position: relative;
   overflow: hidden;
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 .bento-cell h3 {
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   line-height: 1.15;
 }
 .bento-cell p {
-  font-size: 13.5px;
+  font-size: 12.5px;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.45;
   margin: 0;
   max-width: 32ch;
 }
 .bento-cell .bento-vis {
-  position: absolute;
-  inset: 0;
+  position: relative;
   pointer-events: none;
+  margin: 8px -20px -20px;
+  height: 160px;
+  overflow: hidden;
 }
 .bento-cell .bento-copy {
   position: relative;
   z-index: 2;
 }
 .bento-tag {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 3;
+  display: inline-flex;
+  align-self: flex-end;
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 /* Cell positions */
 .b-publish {
   grid-column: span 3;
-  grid-row: span 2;
 }
 .b-art {
   grid-column: span 3;
-  grid-row: span 2;
 }
 .b-contact {
   grid-column: span 2;
-  grid-row: span 2;
 }
 .b-notifs {
   grid-column: span 2;
-  grid-row: span 2;
 }
 .b-ranking {
   grid-column: span 2;
-  grid-row: span 2;
 }
+
+.b-publish,
+.b-art {
+  max-height: none;
+}
+.b-contact,
+.b-notifs,
+.b-ranking {
+  max-height: none;
+}
+
 @media (max-width: 980px) {
   .b-publish,
   .b-art,
@@ -817,8 +916,7 @@ section {
   .b-notifs,
   .b-ranking {
     grid-column: span 2;
-    grid-row: auto;
-    min-height: 280px;
+    max-height: 280px;
   }
 }
 
@@ -888,11 +986,11 @@ section {
 .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 .feature-item {
   display: flex;
-  gap: 14px;
+  gap: 12px;
 }
 .feature-item .ico {
   width: 36px;
@@ -906,16 +1004,16 @@ section {
   color: var(--text);
 }
 .feature-item h4 {
-  margin: 4px 0 4px;
-  font-size: 15px;
+  margin: 2px 0 2px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 .feature-item p {
   margin: 0;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 /* ============ AGENTS SECTION ============ */
@@ -936,14 +1034,14 @@ section {
   }
 }
 .agents-copy {
-  padding: 48px;
+  padding: 32px;
   border-right: 1px solid var(--border);
 }
 @media (max-width: 980px) {
   .agents-copy {
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding: 32px;
+    padding: 24px;
   }
 }
 .agents-vis {
@@ -960,18 +1058,18 @@ section {
       transparent 60%
     ),
     var(--surface-2);
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .terminal {
   background: #0a0a0c;
   color: #e6e3dc;
   border-radius: var(--r-md);
   font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 14px 16px;
+  font-size: 11.5px;
+  padding: 12px 14px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.5);
   line-height: 1.6;
@@ -1013,13 +1111,13 @@ section {
 
 .mcp-tools {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
 }
 .mcp-tool {
   font-family: var(--font-mono);
-  font-size: 11.5px;
-  padding: 6px 10px;
+  font-size: 10.5px;
+  padding: 5px 8px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1154,7 +1252,7 @@ section {
 /* ============ FINAL CTA ============ */
 .final-cta {
   position: relative;
-  padding: 100px 0 110px;
+  padding: 72px 0 80px;
   text-align: center;
   overflow: hidden;
 }
@@ -1272,17 +1370,17 @@ footer {
 
 /* ============ SECTION SPACING ============ */
 .sect {
-  padding: 88px 0;
+  padding: 64px 0;
 }
 .sect-sm {
-  padding: 56px 0;
+  padding: 40px 0;
 }
 @media (max-width: 720px) {
   .sect {
-    padding: 64px 0;
+    padding: 40px 0;
   }
   .hero {
-    padding: 56px 0 64px;
+    padding: 28px 0 32px;
   }
 }
 
@@ -1628,4 +1726,126 @@ footer {
   .landing-footer .footer-grid {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* ============================================================
+   AppArt support — scoped under .app-art so the .art-grid /
+   .art-card etc. helpers don't collide with landing-owned
+   classes that share names (e.g. ArtVis bento .art-grid).
+   Mirrors the rules in styles/prototype-cards.css needed by
+   apps/web/app/_components/app-art.tsx.
+   ============================================================ */
+.app-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  isolation: isolate;
+}
+.app-art .art-glyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  z-index: 2;
+}
+.app-art .art-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.app-art .art-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
+  display: block;
+  grid-template-columns: none;
+  padding: 0;
+  gap: 0;
+}
+.app-art .art-grid5 {
+  position: absolute;
+  inset: 12%;
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.18) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 2px, transparent 2px);
+  background-size: 20% 20%;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+}
+.app-art .art-grid8 {
+  position: absolute;
+  inset: 14%;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 12.5% 12.5%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+.app-art .art-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.app-art .art-blob {
+  position: absolute;
+  width: 50%;
+  height: 60%;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+.app-art .art-stripe {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  width: 8%;
+  border-radius: 4px;
+  opacity: 0.9;
+}
+.app-art .art-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140px;
+  height: 140px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.app-art .art-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50%;
+  aspect-ratio: 1.5;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.app-art .art-trail {
+  position: absolute;
+  left: 10%;
+  top: 30%;
+  width: 70%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
+  border-radius: 999px;
+  transform: rotate(-12deg);
+  filter: blur(1px);
+}
+.app-art .art-bar {
+  position: absolute;
+  bottom: 10%;
+  width: 6%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 4px 4px 0 0;
 }

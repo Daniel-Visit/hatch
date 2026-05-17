@@ -22,6 +22,8 @@ directory_structure:
   zod_schemas: 'apps/web/lib/zod/'
   server_actions: 'apps/web/lib/actions/'
   middleware: 'apps/web/middleware.ts'
+  components_dir: 'apps/web/app/_components/ — shared shell/gallery components (cards, sidebar, topbar, notifications). Prototype-port; classNames byte-for-byte from prototype/apps-gallery/.'
+  landing_dir: 'apps/web/app/_landing/ — sibling of _components/, reserved for the public landing page at /. Prototype-port too (sourced from /tmp/hatch-landing-v2/). See landing_convention below for the full layout.'
 
 key_patterns:
   server_components:
@@ -92,11 +94,85 @@ database_types:
 
 routing_conventions:
   protected_routes: 'Under app/(auth)/ — auth check via middleware + requireUser()'
-  public_routes: 'app/page.tsx, app/a/[slug], app/c/[category], app/u/[handle], app/auth/callback/, app/auth/sign-out/'
+  public_routes: |
+    app/page.tsx is now the LANDING ORCHESTRATOR (public marketing page, NOT the gallery).
+    Auth-aware: signed-in users are redirected from / to /gallery via getUser() + redirect('/gallery').
+    Other public routes: app/(shell)/gallery/page.tsx (gallery — viewable by anyone, no auth required),
+    app/a/[slug], app/c/[category], app/u/[handle], app/auth/callback/, app/auth/sign-out/.
+  public_route_list:
+    - '/                        — public landing (Server Component orchestrator; redirects signed-in users to /gallery)'
+    - '/gallery                 — gallery home (was at / before commit d74dd6f; viewable by anyone)'
+    - '/a/[slug]                — app detail'
+    - '/c/[category]            — category-filtered gallery'
+    - '/u/[handle]              — public profile'
+    - '/auth/callback           — OAuth callback'
+    - '/auth/sign-out           — sign-out route'
   signed_in_routes: 'app/publish, app/notifications, app/messages, app/messages/[conversationId], app/settings/profile, app/settings/notifications — each calls requireUser() with redirect to /sign-in?next=<path> on failure'
   api_routes: 'app/api/ pattern (none yet in Phase 0-7)'
   settings: 'app/settings/profile/ (profile), app/settings/notifications/ (Phase 6 — push prefs + browser permission toggle)'
-  dynamic_export: "Routes with realtime data set `export const dynamic = 'force-dynamic'` to prevent stale RSC cache (e.g., /notifications, /messages)"
+  dynamic_export: "Routes with realtime data set `export const dynamic = 'force-dynamic'` to prevent stale RSC cache (e.g., /notifications, /messages). Do NOT combine with `export const revalidate = N` — mutually exclusive."
+
+landing_convention:
+  description: |
+    The public landing page at / is a Server Component orchestrator at apps/web/app/page.tsx (~58 lines)
+    that composes 11 sections from apps/web/app/_landing/. Designed as a 1:1 prototype port from
+    /tmp/hatch-landing-v2/. The full prototype-port exception applies — Tailwind FORBIDDEN, classNames
+    byte-for-byte from source, inline style={{...}} REQUIRED where the prototype uses it. See
+    .claude/rules/prototype-port-exception.md (now covers apps/web/app/_landing/** in addition to
+    apps/web/app/_components/**).
+  orchestrator:
+    file: 'apps/web/app/page.tsx'
+    pattern: |
+      Server Component: const { user } = await getUser(); if (user) redirect('/gallery');
+      const data = await fetchLandingData();
+      return (<>...11 sections in prototype order...</>)
+    isr: "export const revalidate = 60 — 60-second ISR. Marketing page; small lag acceptable. Do NOT combine with dynamic = 'force-dynamic'."
+    imports_css: "import './landing.css' at the top of page.tsx"
+  atoms:
+    - 'apps/web/app/_landing/icons.tsx — 24 named icon exports'
+    - 'apps/web/app/_landing/logo.tsx'
+    - "apps/web/app/_landing/avatar.tsx — exports LandingAvatar (renamed to avoid colliding with _components/cards.tsx Avatar)"
+    - "apps/web/app/_landing/mini-app-card.tsx — 'use client' for like-button state"
+    - 'apps/web/app/_landing/float-notif.tsx'
+    - 'apps/web/app/_landing/topbar.tsx'
+    - 'apps/web/app/_landing/footer.tsx'
+  sections_server:
+    - 'apps/web/app/_landing/hero.tsx'
+    - 'apps/web/app/_landing/social-proof.tsx'
+    - 'apps/web/app/_landing/bento.tsx (+ bento/{publish,art,contact,notifs,ranking}-vis.tsx — 5 visualization cells)'
+    - 'apps/web/app/_landing/how-it-works.tsx'
+    - 'apps/web/app/_landing/for-investors.tsx'
+    - 'apps/web/app/_landing/agents.tsx (consumes MCP_TOOLS from @hatch/shared)'
+    - 'apps/web/app/_landing/testimonials.tsx'
+    - 'apps/web/app/_landing/final-cta.tsx'
+  sections_client:
+    - "apps/web/app/_landing/gallery-preview.tsx — 'use client' for Hot/New/Loved tab state. Imports AppRow as TYPE-ONLY from ./data."
+
+landing_data_pattern:
+  helper_file: 'apps/web/app/_landing/data.ts (server-only)'
+  exports:
+    AppRow: 'The single shape consumed by every landing section (id, slug, title, tagline, hero_url, author, category_label, like/save counts, etc.). Resolves category UUID → human label server-side via a Map<string,string> lookup so the client only ever sees the label.'
+    fetchLandingData: 'async () => { heroApps, tabs: { hot, new, loved }, counts } — runs 7 queries in Promise.all against the service-role admin client. All queried tables are publicly readable; no per-request auth needed.'
+    LandingData: 'Return type of fetchLandingData()'
+  fk_disambiguation: "Uses FK constraint name disambiguation in the embedded select: author:profiles!apps_author_id_fkey(...). Required because apps has multiple FKs to profiles."
+  client_import_rule: |
+    When importing AppRow into a Client Component (e.g. gallery-preview.tsx), you MUST use
+    `import type { AppRow } from './data'` — NEVER a value import. A value import would drag
+    createSupabaseAdminClient (server-only) into the client bundle and break the build.
+
+mcp_tools_shared_source:
+  file: 'packages/shared/src/mcp-tools.ts'
+  exports:
+    MCP_TOOLS: 'readonly string[] — 15 entries; the canonical surface of MCP tool names'
+    MCP_TOOL_GROUPS: 'grouped by capability (read / publish / social)'
+  re_export: 'Re-exported via packages/shared/src/index.ts → import { MCP_TOOLS } from "@hatch/shared"'
+  consumers:
+    - 'apps/web/app/_landing/agents.tsx — landing page agents section (marketing surface stays in sync with real MCP server registrations)'
+    - 'apps/mcp/* — MCP server registrations (single source of truth)'
+  shared_index_note: |
+    packages/shared/src/index.ts re-exports now use `export * from './types';` (NO .js extension).
+    Safe because MCP consumers use `import type { Database } from '@hatch/shared'` (type-only,
+    erased at compile). Next.js webpack also resolves no-ext imports correctly.
 
 phase_5_routes:
   public_pages:
@@ -143,7 +219,12 @@ web_push_patterns:
   vapid_envs: 'NEXT_PUBLIC_VAPID_PUBLIC_KEY (browser-safe) + VAPID_PRIVATE_KEY (server-only, validator-enforced). Generated via npx web-push generate-vapid-keys'
 
 ui_components:
-  port_exception_scope: 'apps/web/app/_components/*.tsx — Tailwind FORBIDDEN, classNames byte-for-byte from prototype, inline styles preserved. See .claude/rules/prototype-port-exception.md.'
+  port_exception_scope: |
+    Tailwind FORBIDDEN, classNames byte-for-byte from prototype, inline styles preserved. Applies to:
+      - apps/web/app/_components/*.tsx (gallery shell + cards + notifications panels)
+      - apps/web/app/_landing/**       (covers nested bento/*.tsx — public landing page sections + atoms)
+    Enforced by .claude/hooks/validators/no_tailwind_in_prototype_port.py (ALLOWED_DIRS = ("_components", "_landing")).
+    See .claude/rules/prototype-port-exception.md.
   new_components_use_phase6_css: 'NotificationsBell, NotificationToaster, PushPermissionPrompt, ServiceWorkerRegistrar use plain CSS classes from apps/web/app/styles/phase6.css. Page bodies (under /notifications, /messages, /settings/notifications) follow Tailwind rules per frontend-components.md.'
   sonner_toaster: 'NotificationToaster wraps Toaster from sonner@2.0.7. Mount at root layout. Call toast(), toast.success(), toast.error() anywhere.'
 
@@ -152,6 +233,7 @@ dev_commands:
   build: 'pnpm build (from monorepo root)'
   typecheck: 'pnpm typecheck'
   lint: 'pnpm lint'
+  landing_visual_baselines: 'apps/web/tests/visual-baselines/landing/ — Playwright screenshots + report.md (from Task 5 of the landing port iteration). Use as the visual baseline when modifying anything under apps/web/app/_landing/ or apps/web/app/page.tsx.'
 
 known_gotchas:
   - 'Tailwind v4 uses @tailwindcss/postcss — no tailwind.config.js needed; configure in CSS'
@@ -163,6 +245,10 @@ known_gotchas:
   - 'Phase 10 hot_score refresh is fire-and-forget from like/save/comment actions — do NOT await sb.rpc("refresh_hot_scores"); use .then(() => {}, () => {}) to avoid blocking the user response on a full-table rescore'
   - 'Topbar search in apps/web/app/_components/shell.tsx is wrapped in <form action="/search" method="get"> with name="q" — preserves all prototype-port className strings'
   - 'FeaturedHero on app/page.tsx reads from featured_apps for current Monday-anchored week and falls back to top-3 by hot_score'
+  - "Public landing at / (apps/web/app/page.tsx) is now a Server Component orchestrator that fetches via fetchLandingData() and composes 11 sections from apps/web/app/_landing/. Signed-in users are redirected to /gallery. The page sets `export const revalidate = 60` — do NOT also add `export const dynamic = 'force-dynamic'` (mutually exclusive)."
+  - "When importing AppRow from apps/web/app/_landing/data.ts into a Client Component (e.g. gallery-preview.tsx), MUST use `import type { AppRow }` — NEVER a value import. The file's other exports (fetchLandingData, LandingData) drag the server-only createSupabaseAdminClient into the client bundle if value-imported, which breaks the build."
+  - 'packages/shared/src/index.ts re-exports no longer use `.js` extensions (e.g. `export * from "./types";`). Safe because MCP consumers import as type-only (`import type { Database } from "@hatch/shared"`) and Next.js webpack resolves no-ext imports correctly. Do not re-add `.js` suffixes.'
+  - 'apps/web/app/_landing/avatar.tsx exports `LandingAvatar` (not `Avatar`) to avoid colliding with the existing `Avatar` export in apps/web/app/_components/cards.tsx. Both names are needed because shared infrastructure imports cards.tsx via path; keep them disjoint.'
 
 new_deps:
   - '@asteasolutions/zod-to-openapi (^7) — used by /api/v1/openapi.json route to generate OpenAPI 3 from Zod schemas in apps/web/lib/zod/api.ts'

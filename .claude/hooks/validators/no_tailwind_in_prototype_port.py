@@ -87,22 +87,25 @@ def main():
 
         path = Path(file_path)
 
-        # Only apply to .tsx files under apps/web/app/_components/
+        ALLOWED_DIRS = ("_components", "_landing")  # any .tsx under these dirs (when nested under apps/web/app/) gets the prototype-port treatment
+
+        # Only apply to .tsx files
         if path.suffix != ".tsx":
             logger.info(f"Not a .tsx file, skipping: {file_path}")
             print(json.dumps({}))
             sys.exit(0)
 
         parts = path.parts
-        if "_components" not in parts:
-            logger.info(f"Not under _components/, skipping: {file_path}")
-            print(json.dumps({}))
-            sys.exit(0)
-
-        # Verify the _components dir is under apps/web/app/
-        comp_idx = parts.index("_components")
-        if comp_idx < 3 or parts[comp_idx - 1] != "app":
-            logger.info(f"_components not under app/, skipping: {file_path}")
+        # Find which (if any) allowed dir this file is under, AND that the parent is `app`
+        matched_dir = None
+        for d in ALLOWED_DIRS:
+            if d in parts:
+                idx = parts.index(d)
+                if idx >= 3 and parts[idx - 1] == "app":
+                    matched_dir = d
+                    break
+        if matched_dir is None:
+            logger.info(f"Not under apps/web/app/(_components|_landing)/, skipping: {file_path}")
             print(json.dumps({}))
             sys.exit(0)
 

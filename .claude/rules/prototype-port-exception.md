@@ -15,6 +15,8 @@ The following paths are byte-for-byte ports of `prototype/apps-gallery/`. They M
 - `apps/web/app/_components/notifications-panel.tsx`
 - `apps/web/app/_components/notification-item.tsx`
 - `apps/web/app/_components/contact-modal.tsx`
+- `apps/web/app/_landing/*.tsx` (all landing sections — atoms, hero, bento, agents, footer, etc.)
+- `apps/web/app/_landing/bento/*.tsx` (5 bento vis cells)
 
 For these files:
 - Tailwind utility classes are FORBIDDEN.

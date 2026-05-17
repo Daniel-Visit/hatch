@@ -6,6 +6,12 @@ import { Shell } from '../_components/shell';
 import { NotificationsBell } from '../_components/notifications-bell';
 import { PushPermissionPrompt } from '../_components/push-permission-prompt';
 
+import '../styles/prototype-base.css';
+import '../styles/prototype-cards.css';
+import '../styles/prototype-screens.css';
+import '../styles/prototype-contact.css';
+import '../styles/phase6.css';
+
 export default async function ShellLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   setRequestLocale(locale);
