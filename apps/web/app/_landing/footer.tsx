@@ -2,81 +2,82 @@
 // All hrefs are `"#"` per prototype. Keeps `.landing-footer` class on outer <footer> so
 // the override CSS in landing.css applies. Year is dynamic. Server Component.
 
+import { getTranslations } from 'next-intl/server';
 import { Logo } from '@/app/_landing/logo';
 import { GitHub } from '@/app/_landing/icons';
 
-export const Footer = () => (
-  <footer className="landing-footer">
-    <div className="container">
-      <div className="footer-grid">
-        <div className="footer-col">
-          <Logo />
-          <p className="footer-tag">
-            Where builders ship, get discovered, and connect. Builder-centric, agent-native, made
-            for shipping.
-          </p>
+export const Footer = async () => {
+  const t = await getTranslations('Landing.Footer');
+  return (
+    <footer className="landing-footer">
+      <div className="container">
+        <div className="footer-grid">
+          <div className="footer-col">
+            <Logo />
+            <p className="footer-tag">{t('Tagline')}</p>
+          </div>
+          <div className="footer-col">
+            <h5>{t('Columns.Product.Title')}</h5>
+            <ul>
+              <li>
+                <a href="#">{t('Columns.Product.Gallery')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Product.Publish')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Product.Categories')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Product.HotToday')}</a>
+              </li>
+            </ul>
+          </div>
+          <div className="footer-col">
+            <h5>{t('Columns.Agents.Title')}</h5>
+            <ul>
+              <li>
+                <a href="#">{t('Columns.Agents.McpServer')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Agents.ApiDocs')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Agents.OpenApi')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Agents.LlmsTxt')}</a>
+              </li>
+            </ul>
+          </div>
+          <div className="footer-col">
+            <h5>{t('Columns.Company.Title')}</h5>
+            <ul>
+              <li>
+                <a href="#">{t('Columns.Company.About')}</a>
+              </li>
+              <li>
+                <a href="#">
+                  <GitHub size={12} /> {t('Columns.Company.GitHub')}
+                </a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Company.Privacy')}</a>
+              </li>
+              <li>
+                <a href="#">{t('Columns.Company.Terms')}</a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div className="footer-col">
-          <h5>Product</h5>
-          <ul>
-            <li>
-              <a href="#">Gallery</a>
-            </li>
-            <li>
-              <a href="#">Publish</a>
-            </li>
-            <li>
-              <a href="#">Categories</a>
-            </li>
-            <li>
-              <a href="#">Hot today</a>
-            </li>
-          </ul>
-        </div>
-        <div className="footer-col">
-          <h5>For agents</h5>
-          <ul>
-            <li>
-              <a href="#">MCP server</a>
-            </li>
-            <li>
-              <a href="#">API docs</a>
-            </li>
-            <li>
-              <a href="#">OpenAPI</a>
-            </li>
-            <li>
-              <a href="#">llms.txt</a>
-            </li>
-          </ul>
-        </div>
-        <div className="footer-col">
-          <h5>Company</h5>
-          <ul>
-            <li>
-              <a href="#">About</a>
-            </li>
-            <li>
-              <a href="#">
-                <GitHub size={12} /> GitHub
-              </a>
-            </li>
-            <li>
-              <a href="#">Privacy</a>
-            </li>
-            <li>
-              <a href="#">Terms</a>
-            </li>
-          </ul>
+        <div className="footer-bottom">
+          <span>{t('Copyright', { year: new Date().getFullYear() })}</span>
+          <span className="mono">
+            {t('Version')}{' '}
+            <span className="live-dot" style={{ verticalAlign: 'middle', marginLeft: 4 }} />
+          </span>
         </div>
       </div>
-      <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} Hatch. Built by builders, for builders.</span>
-        <span className="mono">
-          v1.0.0 · all systems nominal{' '}
-          <span className="live-dot" style={{ verticalAlign: 'middle', marginLeft: 4 }} />
-        </span>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};

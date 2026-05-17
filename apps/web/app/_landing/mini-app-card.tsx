@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
 import { AppArt } from '@/app/_components/app-art';
 import { LandingAvatar } from '@/app/_landing/avatar';
 import { Heart, HeartFill, Comment, Arrow } from '@/app/_landing/icons';
@@ -37,6 +38,7 @@ export const MiniAppCard = ({
   slug,
   hue,
 }: MiniAppCardProps) => {
+  const t = useTranslations('Landing.MiniAppCard');
   const [liked, setLiked] = useState(false);
   const [pop, setPop] = useState(false);
   const popTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,7 +73,7 @@ export const MiniAppCard = ({
             >
               {title}
             </div>
-            <div className="appcard-byline">by {by.toLowerCase()}</div>
+            <div className="appcard-byline">{t('By', { handle: by.toLowerCase() })}</div>
           </div>
           <span className="appcard-cat">{cat}</span>
         </div>
@@ -82,7 +84,7 @@ export const MiniAppCard = ({
               type="button"
               className={'like-btn ' + (liked ? 'liked' : '')}
               onClick={onLike}
-              aria-label={liked ? 'Unlike' : 'Like'}
+              aria-label={liked ? t('Unlike') : t('Like')}
               aria-pressed={liked}
               style={{ position: 'relative', zIndex: 1 }}
             >
@@ -102,7 +104,7 @@ export const MiniAppCard = ({
       {slug && (
         <Link
           href={`/a/${slug}` as Route}
-          aria-label={`Open ${title}`}
+          aria-label={t('Open', { title })}
           style={{ position: 'absolute', inset: 0, zIndex: 0 }}
         >
           <span
@@ -114,7 +116,7 @@ export const MiniAppCard = ({
               clip: 'rect(0,0,0,0)',
             }}
           >
-            Open {title}
+            {t('Open', { title })}
           </span>
         </Link>
       )}

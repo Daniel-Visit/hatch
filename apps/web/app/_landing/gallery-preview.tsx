@@ -9,17 +9,12 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
 import { MiniAppCard } from '@/app/_landing/mini-app-card';
 import { Flame, Sparkles, HeartFill, Arrow } from '@/app/_landing/icons';
 import type { AppRow } from '@/app/_landing/data';
 
 type TabId = 'hot' | 'new' | 'loved';
-
-const GALLERY_TABS: Array<{ id: TabId; label: string; icon: ReactNode }> = [
-  { id: 'hot', label: 'Hot', icon: <Flame size={12} /> },
-  { id: 'new', label: 'New', icon: <Sparkles size={12} /> },
-  { id: 'loved', label: 'Most loved', icon: <HeartFill size={11} stroke={0} /> },
-];
 
 type GalleryPreviewProps = {
   tabs: {
@@ -30,8 +25,15 @@ type GalleryPreviewProps = {
 };
 
 export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
+  const t = useTranslations('Landing.GalleryPreview');
   const [tab, setTab] = useState<TabId>('hot');
   const rows = tabs[tab];
+
+  const GALLERY_TABS: Array<{ id: TabId; label: string; icon: ReactNode }> = [
+    { id: 'hot', label: t('Tabs.Hot'), icon: <Flame size={12} /> },
+    { id: 'new', label: t('Tabs.New'), icon: <Sparkles size={12} /> },
+    { id: 'loved', label: t('Tabs.Loved'), icon: <HeartFill size={11} stroke={0} /> },
+  ];
 
   return (
     <section id="gallery" className="sect" style={{ background: 'var(--surface-2)' }}>
@@ -49,13 +51,13 @@ export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
           <div style={{ maxWidth: 560 }}>
             <span className="section-eyebrow">
               <span className="dot" />
-              live gallery
+              {t('Eyebrow')}
             </span>
             <h2 className="section-title" style={{ textAlign: 'left', margin: '14px 0 12px' }}>
-              What builders are shipping today
+              {t('Title')}
             </h2>
             <p className="section-sub" style={{ textAlign: 'left', margin: 0 }}>
-              A peek at the live feed. Browse by hot, new, or all-time.
+              {t('Subtitle')}
             </p>
           </div>
           <div
@@ -117,16 +119,14 @@ export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
                 gap: 7,
               }}
             >
-              See all <Arrow size={13} />
+              {t('ViewAll')} <Arrow size={13} />
             </Link>
           </div>
         </div>
 
         <div className="gallery-row">
           {rows.length === 0 ? (
-            <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-              No apps yet — be the first to publish.
-            </p>
+            <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('Empty')}</p>
           ) : (
             rows.map((a) => (
               <MiniAppCard

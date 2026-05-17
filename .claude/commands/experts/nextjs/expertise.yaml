@@ -120,6 +120,22 @@ landing_convention:
     byte-for-byte from source, inline style={{...}} REQUIRED where the prototype uses it. See
     .claude/rules/prototype-port-exception.md (now covers apps/web/app/_landing/** in addition to
     apps/web/app/_components/**).
+  shared_primitives_in_topbar: |
+    apps/web/app/_landing/topbar.tsx is a 'use client' component that composes the SAME shared
+    primitives as apps/web/app/_components/shell.tsx (right cluster, lines 97-156):
+      - useTheme from @/app/_components/theme-controller
+      - LocaleToggle from @/app/_components/locale-toggle
+      - Icon from @/app/_components/icons (name="plus" for Publish button)
+    This keeps the landing topbar and the shell topbar pixel-identical without code duplication.
+  cross_tree_imports: |
+    Cross-tree imports _landing → _components are INTENTIONAL and allowed. The landing pulls shared
+    primitives (theme controller, locale toggle, icon registry) from _components/ to avoid duplicating
+    implementations. Do not refactor these imports back to local copies.
+  theme_single_source_of_truth: |
+    theme-controller (_components/theme-controller.tsx) is the single source of truth for theme
+    state across BOTH the landing page and the shell. The prior pattern (landing owned its own
+    useState-based theme block; shell used useTheme) has been removed. Theme selection now persists
+    across landing ↔ shell route boundaries via the shared controller + localStorage.
   orchestrator:
     file: 'apps/web/app/page.tsx'
     pattern: |
@@ -159,6 +175,28 @@ landing_data_pattern:
     When importing AppRow into a Client Component (e.g. gallery-preview.tsx), you MUST use
     `import type { AppRow } from './data'` — NEVER a value import. A value import would drag
     createSupabaseAdminClient (server-only) into the client bundle and break the build.
+
+i18n_patterns:
+  library: 'next-intl'
+  landing_namespace: |
+    All landing page strings live under the `Landing.*` namespace in
+    apps/web/messages/{en,es}.json (~162 keys total). Top-level segments (PascalCase):
+      Landing.Topbar, Landing.Hero, Landing.SocialProof, Landing.Bento (+ 5 vis sub-keys),
+      Landing.HowItWorks, Landing.ForInvestors, Landing.Agents, Landing.GalleryPreview,
+      Landing.Testimonials, Landing.FinalCta, Landing.Footer, Landing.MiniAppCard
+  key_convention: 'PascalCase segments, dotted paths (e.g. Landing.Topbar.Nav.Features)'
+  server_components: "Server Components use `getTranslations('Landing.SectionName')` (async import from next-intl/server)"
+  client_components: "Client Components use `useTranslations('Landing.SectionName')` (hook, requires 'use client')"
+  rich_text: |
+    Rich text values use t.rich('Key', { tagRenderers }) pattern:
+      - <grad>...</grad> — gradient text span (CSS class "grad")
+      - <b>...</b> — bold inline span
+      - <br></br> — line break element
+      - <code>...</code> — inline code span
+    Example: t.rich('Title', { grad: (c) => <span className="grad">{c}</span>, br: () => <br /> })
+  topbar_client_note: |
+    apps/web/app/_landing/topbar.tsx is 'use client' and uses useTranslations('Landing.Topbar').
+    It is the only landing atom that is a client component purely for useTheme + useTranslations.
 
 mcp_tools_shared_source:
   file: 'packages/shared/src/mcp-tools.ts'
@@ -249,6 +287,7 @@ known_gotchas:
   - "When importing AppRow from apps/web/app/_landing/data.ts into a Client Component (e.g. gallery-preview.tsx), MUST use `import type { AppRow }` — NEVER a value import. The file's other exports (fetchLandingData, LandingData) drag the server-only createSupabaseAdminClient into the client bundle if value-imported, which breaks the build."
   - 'packages/shared/src/index.ts re-exports no longer use `.js` extensions (e.g. `export * from "./types";`). Safe because MCP consumers import as type-only (`import type { Database } from "@hatch/shared"`) and Next.js webpack resolves no-ext imports correctly. Do not re-add `.js` suffixes.'
   - 'apps/web/app/_landing/avatar.tsx exports `LandingAvatar` (not `Avatar`) to avoid colliding with the existing `Avatar` export in apps/web/app/_components/cards.tsx. Both names are needed because shared infrastructure imports cards.tsx via path; keep them disjoint.'
+  - 'Landing nav anchors use CSS class `.landing-nav` (NOT `.topbar-nav`) in apps/web/app/landing.css. The class was renamed from `.topbar-nav` to avoid future collision with any global .topbar-nav rule. The nav anchors (#features, #how, #agents, #gallery) are landing-specific concerns and the class name reflects that.'
 
 new_deps:
   - '@asteasolutions/zod-to-openapi (^7) — used by /api/v1/openapi.json route to generate OpenAPI 3 from Zod schemas in apps/web/lib/zod/api.ts'

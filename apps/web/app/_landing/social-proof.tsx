@@ -4,6 +4,7 @@
 // "12.4M agent calls / mo" stays mock — no MCP call metric exists yet.
 // Builder marquee stays mock (decorative).
 
+import { getTranslations } from 'next-intl/server';
 import { LandingAvatar } from '@/app/_landing/avatar';
 
 type StatProps = { num: string; label: string };
@@ -34,26 +35,29 @@ type SocialProofProps = {
   counts: { builders: number; apps: number; connections: number };
 };
 
-export const SocialProof = ({ counts }: SocialProofProps) => (
-  <section className="marquee-section">
-    <div className="container">
-      <div className="stats-row">
-        <Stat num={counts.builders.toLocaleString()} label="builders shipping" />
-        <Stat num={counts.apps.toLocaleString()} label="apps published" />
-        <Stat num={counts.connections.toLocaleString()} label="connections made" />
-        <Stat num="12.4M" label="agent calls / mo" />
+export const SocialProof = async ({ counts }: SocialProofProps) => {
+  const t = await getTranslations('Landing.SocialProof');
+  return (
+    <section className="marquee-section">
+      <div className="container">
+        <div className="stats-row">
+          <Stat num={counts.builders.toLocaleString()} label={t('BuildersShipping')} />
+          <Stat num={counts.apps.toLocaleString()} label={t('AppsPublished')} />
+          <Stat num={counts.connections.toLocaleString()} label={t('ConnectionsMade')} />
+          <Stat num={t('AgentCallsValue')} label={t('AgentCalls')} />
+        </div>
       </div>
-    </div>
-    <div className="marquee">
-      <div className="marquee-track">
-        {[...builders, ...builders].map((b, i) => (
-          <div className="marquee-item" key={i}>
-            <LandingAvatar name={b.n} hue={(i * 47) % 360} />
-            <span>{b.name}</span>
-            <span className="role">{b.role}</span>
-          </div>
-        ))}
+      <div className="marquee">
+        <div className="marquee-track">
+          {[...builders, ...builders].map((b, i) => (
+            <div className="marquee-item" key={i}>
+              <LandingAvatar name={b.n} hue={(i * 47) % 360} />
+              <span>{b.name}</span>
+              <span className="role">{b.role}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};

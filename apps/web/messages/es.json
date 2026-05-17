@@ -84,7 +84,8 @@
     "Empty": {
       "NoAppsMatch": "Ninguna app coincide con tus filtros",
       "TryClearing": "Intenta borrar la búsqueda o elegir otra categoría."
-    }
+    },
+    "LoadMore": "Ver más"
   },
   "Trending": {
     "TrendingThisWeek": "Tendencias de la semana",
@@ -450,5 +451,263 @@
     "EnabledToast": "Notificaciones activadas",
     "CouldNotEnable": "No se pudo activar: {reason}",
     "AriaLabel": "Activar notificaciones"
+  },
+  "Landing": {
+    "Topbar": {
+      "Nav": {
+        "Features": "Funciones",
+        "HowItWorks": "Cómo funciona",
+        "ForAgents": "Para agentes",
+        "Gallery": "Galería"
+      },
+      "SignIn": "Entrar",
+      "PublishApp": "Publicar",
+      "ToggleTheme": "Cambiar tema",
+      "SwitchToLight": "Cambiar a modo claro",
+      "SwitchToDark": "Cambiar a modo oscuro",
+      "Language": "Idioma"
+    },
+    "Hero": {
+      "BadgePill": "v1",
+      "BadgeText": "Descubrimiento de productos AI-native para builders",
+      "Headline": "Donde los builders <grad>lanzan</grad>, son <grad>descubiertos</grad> y <grad>conectan</grad>.",
+      "Subhead": "Publica tu proyecto paralelo en 60 segundos. Deja que inversores, colaboradores y agentes de IA te encuentren — sin decks pulidos, sin DMs en frío.",
+      "CtaStart": "Empieza a construir",
+      "CtaExplore": "Explora la galería",
+      "MetaBuilders": "<b>{count}</b> builders lanzando",
+      "MetaToday": "<b>{count}</b> lanzados hoy",
+      "FloatNotif": {
+        "Liked": "le dio me gusta",
+        "YourProject": "a tu proyecto {app}"
+      }
+    },
+    "SocialProof": {
+      "BuildersShipping": "builders lanzando",
+      "AppsPublished": "apps publicadas",
+      "ConnectionsMade": "conexiones hechas",
+      "AgentCalls": "llamadas de agentes / mes",
+      "AgentCallsValue": "12.4M"
+    },
+    "Bento": {
+      "Eyebrow": "funciones",
+      "Title": "Todo lo que un proyecto paralelo necesita para ser visto",
+      "Subtitle": "Un toolkit completo para lanzar, destacar y conectar — hecho para la forma en que los builders realmente trabajan.",
+      "Publish": {
+        "Tag": "01 / publicar",
+        "Title": "Lánzalo en 60 segundos",
+        "Body": "Nómbralo, descríbelo, elige una vibra — estás en vivo. Sin decks pulidos, sin pelearte con assets, sin presión de diseño.",
+        "Mini": {
+          "Heading": "Nuevo proyecto",
+          "NameLabel": "nombre",
+          "NameValue": "Lumen.fm",
+          "OneLinerLabel": "una línea",
+          "OneLinerValue": "Sonidos ambiente para trabajo profundo…",
+          "VibeLabel": "vibra"
+        }
+      },
+      "Art": {
+        "Tag": "02 / arte",
+        "Title": "3 portadas generativas, subidas personalizadas",
+        "Body": "Cada proyecto recibe una portada generativa única. Regenera hasta que suene perfecta."
+      },
+      "Contact": {
+        "Tag": "03 / contacto",
+        "Title": "Contacto con consentimiento",
+        "Body": "Inversores y colaboradores te escriben con intención clara — nunca un DM en frío.",
+        "Card": {
+          "Eyebrow": "solicitud de contacto",
+          "Title": "Contactar a alex.k",
+          "RoleInvest": "invertir",
+          "RoleCollab": "colaborar",
+          "RoleHire": "contratar",
+          "InputText": "Me encantó el demo. Cheque pre-seed, sin presión por responder…",
+          "Cancel": "Cancelar",
+          "Send": "Enviar"
+        }
+      },
+      "Notifs": {
+        "Tag": "04 / señal",
+        "Title": "Señal en tiempo real",
+        "Body": "Entérate al instante cuando alguien da me gusta, comenta o quiere hablar.",
+        "Card": {
+          "Title": "Notificaciones",
+          "Count": "3",
+          "LikedYourProject": "<b>{name}</b> le dio me gusta a tu proyecto",
+          "LikedMeta": "Lumen.fm · 2m",
+          "WantsToInvest": "<b>{name}</b> quiere invertir",
+          "WantsToInvestMeta": "hace 3 minutos",
+          "Commented": "<b>{name}</b> comentó",
+          "CommentSnippet": "\"Esto está increíble. ¿Cómo lo…\"",
+          "NewBadge": "NUEVO"
+        }
+      },
+      "Ranking": {
+        "Tag": "05 / ranking",
+        "Title": "El mejor trabajo emerge",
+        "Body": "Ranking caliente impulsado por la comunidad — sin hunters, sin gatekeepers.",
+        "Card": {
+          "HotToday": "Popular hoy"
+        }
+      }
+    },
+    "HowItWorks": {
+      "Eyebrow": "cómo funciona",
+      "Title": "Cuatro pasos de la idea a la bandeja",
+      "Subhead": "Un camino tan corto que pasarás más tiempo construyendo que lanzando.",
+      "StepLabel": "PASO {n}",
+      "Steps": {
+        "SignIn": {
+          "Title": "Entrar",
+          "Description": "GitHub o Google — sin waitlist, sin idas y vueltas de verificación por correo."
+        },
+        "Publish": {
+          "Title": "Publicar",
+          "Description": "Llena tres campos, elige una vibra. Nosotros generamos la portada por ti."
+        },
+        "GetDiscovered": {
+          "Title": "Ser descubierto",
+          "Description": "Ranking caliente, búsqueda y categorías ponen tu proyecto frente a las personas correctas."
+        },
+        "Connect": {
+          "Title": "Conectar",
+          "Description": "Solicitudes de contacto y luego mensajería real — hilos estilo Slack integrados."
+        }
+      }
+    },
+    "ForInvestors": {
+      "Eyebrow": "para inversores y colaboradores",
+      "Title": "Deal-flow orgánico,<br></br>sin el cringe del DM en frío.",
+      "Subhead": "Mira lo que la gente realmente está construyendo hoy. Escribe con rol e intención al frente. Los builders ven exactamente por qué tocas la puerta.",
+      "Features": {
+        "Signal": {
+          "Title": "La señal más temprana posible",
+          "Description": "El ranking caliente saca a la superficie proyectos con tracción en horas, no en semanas."
+        },
+        "Contact": {
+          "Title": "Contacto respetuoso",
+          "Description": "Los builders aceptan o rechazan. Sin spam, sin bandejas fantasma."
+        },
+        "Intent": {
+          "Title": "Etiquetas de intención claras",
+          "Description": "Invertir · Colaborar · Contratar — tu rol es visible antes del primer mensaje."
+        }
+      },
+      "Preview": {
+        "Handle": "alex.k",
+        "App": "Lumen.fm",
+        "RoleInvest": "INVERTIR",
+        "OutboundMessage": "Me encantó el demo. Cheque pre-seed, sin presión por responder. ¿30 min la próxima semana?",
+        "DeliveredAt": "entregado · 11:42",
+        "ReplyMessage": "Sí — ¿jueves 3pm? Te paso un link de Cal 🚀",
+        "Typing": "escribiendo…"
+      }
+    },
+    "Agents": {
+      "Eyebrow": "para agentes",
+      "Title": "AI-native desde el día uno",
+      "Subhead": "Tu proyecto es descubrible por agentes. Tu LLM favorito y agentes personalizados pueden explorar, buscar e incluso publicar — todo a través de los mismos primitivos que tú usas.",
+      "StackComment": "// el stack del agente",
+      "StackTitle": "15 herramientas MCP.<br></br>Una API REST.<br></br>Cero código pegamento.",
+      "StackDescription": "Conecta Hatch a tu cliente MCP favorito en 30 segundos. Construye agentes personalizados contra una superficie REST limpia. Lee <code>llms.txt</code> para contexto y lanza.",
+      "Cards": {
+        "Mcp": {
+          "Title": "MCP",
+          "Description": "15 herramientas tipadas, auto-descubiertas"
+        },
+        "Rest": {
+          "Title": "API REST",
+          "Description": "Spec OpenAPI público"
+        },
+        "Llms": {
+          "Title": "llms.txt",
+          "Description": "Marcado semántico, parseable"
+        }
+      },
+      "ReadDocs": "Leer la documentación",
+      "ConnectMcp": "Conectar vía MCP",
+      "Terminal": {
+        "Header": "$ mcp/hatch",
+        "CommentDiscover": "# Descubre qué está caliente en herramientas de audio hoy",
+        "ResultSummary": "  ← 12 resultados · top: Lumen.fm (284 ❤)",
+        "CommentReachOut": "# Contacta al creador",
+        "OkSent": "  ← enviado · esperando consentimiento"
+      },
+      "ToolsAvailable": "15 herramientas mcp disponibles"
+    },
+    "GalleryPreview": {
+      "Eyebrow": "galería en vivo",
+      "Title": "Qué están lanzando los builders hoy",
+      "Subtitle": "Un vistazo al feed en vivo. Explora por popular, nuevo o histórico.",
+      "Tabs": {
+        "Hot": "Popular",
+        "New": "Nuevo",
+        "Loved": "Más queridos"
+      },
+      "ViewAll": "Ver todo",
+      "Empty": "Aún no hay apps — sé el primero en publicar."
+    },
+    "Testimonials": {
+      "Eyebrow": "señal",
+      "Title": "De builders y backers",
+      "Subhead": "Usuarios pioneros de ambos lados de la mesa.",
+      "Quotes": {
+        "One": {
+          "Quote": "Llevaba 8 meses sentado sobre un proyecto paralelo esperando a que estuviera 'listo'. Lo publiqué en Hatch en 40 minutos. Tres ángeles me escribieron esa misma semana.",
+          "Name": "Alex K.",
+          "Role": "fundador, Lumen.fm"
+        },
+        "Two": {
+          "Quote": "Es la primera comunidad de builders donde puedo encontrar deal-flow pre-seed sin spammear DMs en Twitter. Las etiquetas de intención de Hatch salvaron todo mi flujo.",
+          "Name": "J. Lee",
+          "Role": "partner, signal capital"
+        },
+        "Three": {
+          "Quote": "Conectar mi agente a Hatch tomó 30 segundos. Ahora publica mis entradas de changelog, responde comentarios y enruta solicitudes de contacto. Magia real.",
+          "Name": "M. Chen",
+          "Role": "maker, Orbital CRM"
+        }
+      }
+    },
+    "FinalCta": {
+      "Eyebrow": "lanza algo",
+      "Title": "Tu proyecto<br></br>merece ser <grad>visto</grad>.",
+      "Subtitle": "Sesenta segundos de la idea a una página en vivo. Gratis para siempre para builders.",
+      "CtaStart": "Empieza a construir",
+      "CtaExplore": "Explora la galería primero"
+    },
+    "Footer": {
+      "Tagline": "Donde los builders lanzan, son descubiertos y conectan. Builder-centric, agent-native, hecho para lanzar.",
+      "Copyright": "© {year} Hatch. Hecho por builders, para builders.",
+      "Version": "v1.0.0 · todos los sistemas funcionando",
+      "Columns": {
+        "Product": {
+          "Title": "Producto",
+          "Gallery": "Galería",
+          "Publish": "Publicar",
+          "Categories": "Categorías",
+          "HotToday": "Popular hoy"
+        },
+        "Agents": {
+          "Title": "Para agentes",
+          "McpServer": "Servidor MCP",
+          "ApiDocs": "Documentación de la API",
+          "OpenApi": "OpenAPI",
+          "LlmsTxt": "llms.txt"
+        },
+        "Company": {
+          "Title": "Empresa",
+          "About": "Acerca de",
+          "GitHub": "GitHub",
+          "Privacy": "Privacidad",
+          "Terms": "Términos"
+        }
+      }
+    },
+    "MiniAppCard": {
+      "By": "por {handle}",
+      "Like": "Me gusta",
+      "Unlike": "Quitar me gusta",
+      "Open": "Abrir {title}"
+    }
   }
 }

@@ -1584,27 +1584,6 @@
    Landing-only overrides added 2026-05-16
    ============================================================ */
 
-.landing-root .landing-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: saturate(140%) blur(12px);
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
-  border-bottom: 1px solid var(--border);
-}
-.landing-root .landing-topbar-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  gap: 16px;
-}
-.landing-root .landing-topnav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .landing-root .landing-logo {
   display: inline-flex;
   align-items: center;

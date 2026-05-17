@@ -84,7 +84,8 @@
     "Empty": {
       "NoAppsMatch": "No apps match your filters",
       "TryClearing": "Try clearing the search or picking a different category."
-    }
+    },
+    "LoadMore": "Load more"
   },
   "Trending": {
     "TrendingThisWeek": "Trending this week",
@@ -450,5 +451,263 @@
     "EnabledToast": "Notifications enabled",
     "CouldNotEnable": "Could not enable: {reason}",
     "AriaLabel": "Enable notifications"
+  },
+  "Landing": {
+    "Topbar": {
+      "Nav": {
+        "Features": "Features",
+        "HowItWorks": "How it works",
+        "ForAgents": "For agents",
+        "Gallery": "Gallery"
+      },
+      "SignIn": "Sign in",
+      "PublishApp": "Publish",
+      "ToggleTheme": "Toggle theme",
+      "SwitchToLight": "Switch to light mode",
+      "SwitchToDark": "Switch to dark mode",
+      "Language": "Language"
+    },
+    "Hero": {
+      "BadgePill": "v1",
+      "BadgeText": "AI-native product discovery for builders",
+      "Headline": "Where builders <grad>ship</grad>, get <grad>discovered</grad>, and <grad>connect</grad>.",
+      "Subhead": "Publish your side-project in 60 seconds. Let investors, collaborators, and AI agents find you — no polished decks, no cold DMs.",
+      "CtaStart": "Start building",
+      "CtaExplore": "Explore the gallery",
+      "MetaBuilders": "<b>{count}</b> builders shipping",
+      "MetaToday": "<b>{count}</b> launched today",
+      "FloatNotif": {
+        "Liked": "liked",
+        "YourProject": "your project {app}"
+      }
+    },
+    "SocialProof": {
+      "BuildersShipping": "builders shipping",
+      "AppsPublished": "apps published",
+      "ConnectionsMade": "connections made",
+      "AgentCalls": "agent calls / mo",
+      "AgentCallsValue": "12.4M"
+    },
+    "Bento": {
+      "Eyebrow": "features",
+      "Title": "Everything a side-project needs to be seen",
+      "Subtitle": "A complete toolkit for shipping, surfacing, and connecting — built for the way builders actually work.",
+      "Publish": {
+        "Tag": "01 / publish",
+        "Title": "Ship it in 60 seconds",
+        "Body": "Name it, describe it, pick a vibe — you're live. No polished decks, no asset wrangling, no design pressure.",
+        "Mini": {
+          "Heading": "New project",
+          "NameLabel": "name",
+          "NameValue": "Lumen.fm",
+          "OneLinerLabel": "one-liner",
+          "OneLinerValue": "Ambient sounds for deep work…",
+          "VibeLabel": "vibe"
+        }
+      },
+      "Art": {
+        "Tag": "02 / art",
+        "Title": "3 generative covers, custom uploads",
+        "Body": "Every project gets a unique generative cover. Re-roll until it sings."
+      },
+      "Contact": {
+        "Tag": "03 / contact",
+        "Title": "Consent-based outreach",
+        "Body": "Investors and collaborators reach out with clear intent — never a cold DM.",
+        "Card": {
+          "Eyebrow": "contact request",
+          "Title": "Reach out to alex.k",
+          "RoleInvest": "invest",
+          "RoleCollab": "collab",
+          "RoleHire": "hire",
+          "InputText": "Loved the demo. Pre-seed check, no pressure to reply…",
+          "Cancel": "Cancel",
+          "Send": "Send"
+        }
+      },
+      "Notifs": {
+        "Tag": "04 / signal",
+        "Title": "Real-time signal",
+        "Body": "Know instantly when someone likes, comments, or wants to talk.",
+        "Card": {
+          "Title": "Notifications",
+          "Count": "3",
+          "LikedYourProject": "<b>{name}</b> liked your project",
+          "LikedMeta": "Lumen.fm · 2m",
+          "WantsToInvest": "<b>{name}</b> wants to invest",
+          "WantsToInvestMeta": "3 minutes ago",
+          "Commented": "<b>{name}</b> commented",
+          "CommentSnippet": "\"This is sick. How did you…\"",
+          "NewBadge": "NEW"
+        }
+      },
+      "Ranking": {
+        "Tag": "05 / ranking",
+        "Title": "The best work surfaces",
+        "Body": "Community-driven hot ranking — no hunters, no gatekeepers.",
+        "Card": {
+          "HotToday": "Hot today"
+        }
+      }
+    },
+    "HowItWorks": {
+      "Eyebrow": "how it works",
+      "Title": "Four steps from idea to inbox",
+      "Subhead": "A path so short you'll spend more time building than launching.",
+      "StepLabel": "STEP {n}",
+      "Steps": {
+        "SignIn": {
+          "Title": "Sign in",
+          "Description": "GitHub or Google — no waitlist, no email verification roundtrips."
+        },
+        "Publish": {
+          "Title": "Publish",
+          "Description": "Fill three fields, pick a vibe. We generate the cover art for you."
+        },
+        "GetDiscovered": {
+          "Title": "Get discovered",
+          "Description": "Hot ranking, search, and categories surface your project to the right people."
+        },
+        "Connect": {
+          "Title": "Connect",
+          "Description": "Contact requests, then real messaging — Slack-style threads built in."
+        }
+      }
+    },
+    "ForInvestors": {
+      "Eyebrow": "for investors & collaborators",
+      "Title": "Organic deal-flow,<br></br>without the cold-DM cringe.",
+      "Subhead": "See what people are actually building today. Reach out with role and intent attached. Builders see exactly why you're knocking.",
+      "Features": {
+        "Signal": {
+          "Title": "Earliest possible signal",
+          "Description": "Hot ranking surfaces projects with traction in hours, not weeks."
+        },
+        "Contact": {
+          "Title": "Respectful contact",
+          "Description": "Builders accept or decline. No spam, no ghost-inboxes."
+        },
+        "Intent": {
+          "Title": "Clear intent labels",
+          "Description": "Invest · Collab · Hire — your role is visible before the first message."
+        }
+      },
+      "Preview": {
+        "Handle": "alex.k",
+        "App": "Lumen.fm",
+        "RoleInvest": "INVEST",
+        "OutboundMessage": "Loved the demo. Pre-seed check, no pressure to reply. 30 min next week?",
+        "DeliveredAt": "delivered · 11:42",
+        "ReplyMessage": "Yes — Thursday 3pm? I'll send a Cal link 🚀",
+        "Typing": "typing…"
+      }
+    },
+    "Agents": {
+      "Eyebrow": "for agents",
+      "Title": "AI-native from day one",
+      "Subhead": "Your project is agent-discoverable. Your favorite LLM and custom agents can browse, search, and even publish — all through the same primitives you use.",
+      "StackComment": "// the agent stack",
+      "StackTitle": "15 MCP tools.<br></br>One REST API.<br></br>Zero glue code.",
+      "StackDescription": "Drop Hatch into your favorite MCP client in 30 seconds. Build custom agents against a clean REST surface. Read <code>llms.txt</code> for context, ship.",
+      "Cards": {
+        "Mcp": {
+          "Title": "MCP",
+          "Description": "15 typed tools, auto-discovered"
+        },
+        "Rest": {
+          "Title": "REST API",
+          "Description": "Public OpenAPI spec"
+        },
+        "Llms": {
+          "Title": "llms.txt",
+          "Description": "Semantic markup, parseable"
+        }
+      },
+      "ReadDocs": "Read the docs",
+      "ConnectMcp": "Connect via MCP",
+      "Terminal": {
+        "Header": "$ mcp/hatch",
+        "CommentDiscover": "# Discover what's hot in audio tools today",
+        "ResultSummary": "  ← 12 results · top: Lumen.fm (284 ❤)",
+        "CommentReachOut": "# Reach out to the maker",
+        "OkSent": "  ← sent · awaiting consent"
+      },
+      "ToolsAvailable": "15 mcp tools available"
+    },
+    "GalleryPreview": {
+      "Eyebrow": "live gallery",
+      "Title": "What builders are shipping today",
+      "Subtitle": "A peek at the live feed. Browse by hot, new, or all-time.",
+      "Tabs": {
+        "Hot": "Hot",
+        "New": "New",
+        "Loved": "Most loved"
+      },
+      "ViewAll": "See all",
+      "Empty": "No apps yet — be the first to publish."
+    },
+    "Testimonials": {
+      "Eyebrow": "signal",
+      "Title": "From builders & backers",
+      "Subhead": "Early users from both sides of the table.",
+      "Quotes": {
+        "One": {
+          "Quote": "I'd been sitting on a side-project for 8 months waiting for it to be 'ready.' Published it on Hatch in 40 minutes. Three angels reached out the same week.",
+          "Name": "Alex K.",
+          "Role": "founder, Lumen.fm"
+        },
+        "Two": {
+          "Quote": "It's the first builder community where I can actually find pre-seed deal-flow without spamming Twitter DMs. Hatch's intent labels saved my entire workflow.",
+          "Name": "J. Lee",
+          "Role": "partner, signal capital"
+        },
+        "Three": {
+          "Quote": "Wiring my agent into Hatch took 30 seconds. It now publishes my changelog entries, replies to comments, and routes contact requests. Real magic.",
+          "Name": "M. Chen",
+          "Role": "maker, Orbital CRM"
+        }
+      }
+    },
+    "FinalCta": {
+      "Eyebrow": "ship something",
+      "Title": "Your project<br></br>deserves to be <grad>seen</grad>.",
+      "Subtitle": "Sixty seconds from idea to live page. Free forever for builders.",
+      "CtaStart": "Start building",
+      "CtaExplore": "Explore the gallery first"
+    },
+    "Footer": {
+      "Tagline": "Where builders ship, get discovered, and connect. Builder-centric, agent-native, made for shipping.",
+      "Copyright": "© {year} Hatch. Built by builders, for builders.",
+      "Version": "v1.0.0 · all systems nominal",
+      "Columns": {
+        "Product": {
+          "Title": "Product",
+          "Gallery": "Gallery",
+          "Publish": "Publish",
+          "Categories": "Categories",
+          "HotToday": "Hot today"
+        },
+        "Agents": {
+          "Title": "For agents",
+          "McpServer": "MCP server",
+          "ApiDocs": "API docs",
+          "OpenApi": "OpenAPI",
+          "LlmsTxt": "llms.txt"
+        },
+        "Company": {
+          "Title": "Company",
+          "About": "About",
+          "GitHub": "GitHub",
+          "Privacy": "Privacy",
+          "Terms": "Terms"
+        }
+      }
+    },
+    "MiniAppCard": {
+      "By": "by {handle}",
+      "Like": "Like",
+      "Unlike": "Unlike",
+      "Open": "Open {title}"
+    }
   }
 }
