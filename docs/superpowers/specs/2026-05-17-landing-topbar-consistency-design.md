@@ -163,6 +163,9 @@ Each step captures `browser_snapshot` (a11y tree) + `browser_take_screenshot` (v
 | A6  | Click "+ Publish app" (unauthed)                                    | Redirects to `/sign-in?next=/publish`.                                                                                                                                           |
 | A7  | Viewport 375x812                                                    | `LocaleToggle` and `ThemeToggle` hidden, `.btn-publish` collapses to `+` only, nav anchors hide per existing mobile rules. Screenshot.                                           |
 | A8  | Click each nav anchor (Features, How it works, For agents, Gallery) | Smooth scroll lands on each section. Visual confirm.                                                                                                                             |
+| A9  | Cold visit `/` with `Accept-Language: es-ES,es;q=0.9` and no cookie | Landing renders in **Spanish** on first paint (no flash of English, no client-side swap). LocaleToggle shows ES active. Verifies cascade step 3 (`accept-language` → `es`).      |
+| A10 | Cold visit `/` with `Accept-Language: en-US,en;q=0.9` and no cookie | Landing renders in **English** on first paint. LocaleToggle shows EN active. Verifies cascade fallback (step 4).                                                                 |
+| A11 | Cold visit `/` with `Accept-Language: fr-FR,fr;q=0.9` and no cookie | Landing renders in **English** (only `es` is special-cased; everything else falls back to `en`). Verifies cascade fallback for unsupported languages.                            |
 
 ### Pass B — Shell ↔ Landing parity (visual regression)
 
@@ -196,7 +199,7 @@ Diff new screenshots against existing `apps/web/tests/visual-baselines/landing/l
 `tests/visual-baselines/landing-topbar-parity/`:
 
 ```
-report.md            # Table of A1-A8 + B + C + D + E status + screenshot paths
+report.md            # Table of A1-A11 + B + C + D + E status + screenshot paths
 screens/
   a1-cold-en.png
   a2-after-es.png
@@ -224,14 +227,39 @@ PR description links to `report.md`.
 | `Icon name="plus"` import from `_components/icons` breaks landing-root CSS scope        | Low        | Icon is a span/svg, no global side effects; verified in shell already                            |
 | Bento client cells lose their hardcoded English markup when t() returns dynamic strings | Low        | next-intl returns synchronous strings in client components after the provider is set up          |
 
-## 9. Done checklist
+## 9. Initial locale detection (consistency with the app)
+
+**Decision: reuse the existing cascade verbatim. No new detection logic.**
+
+The single source of truth is `apps/web/i18n/request.ts` (`getRequestConfig`), wired globally via `createNextIntlPlugin` in `apps/web/next.config.ts:4`. Every route — including `/` — already passes through it. The landing has never been a special case; it just wasn't calling `t()` yet.
+
+Cascade applied on every request (verbatim from `i18n/request.ts:6-31`):
+
+1. **Cookie `NEXT_LOCALE`** — set by the `setLocale` server action (`lib/actions/locale.ts:21`) with `maxAge` of 1 year. If present and valid (`en` | `es`), use it.
+2. **`profiles.locale_pref`** — only when there's a signed-in user (`getUser()` resolves). For anonymous landing traffic this step is skipped automatically because there's no session.
+3. **`Accept-Language` header** — if the first language tag lowercased starts with `es`, use `es`.
+4. **Fallback** — `en` (`DEFAULT_LOCALE` in `lib/i18n/locales.ts:3`).
+
+For first-time anonymous landing visitors (the most common case) the effective behavior is therefore:
+
+- Browser language starts with `es` → landing renders in Spanish
+- Anything else → landing renders in English
+
+The user can override at any time via the new `LocaleToggle` in the topbar; `setLocale` writes the cookie and `revalidatePath('/', 'layout')` re-renders the page in the chosen language. The cookie persists across visits.
+
+Complementary detail (already implemented, no change): after OAuth sign-in, `apps/web/app/auth/callback/route.ts:27-46` seeds `NEXT_LOCALE` from `profiles.locale_pref` so the next request has the cookie immediately, without needing to wait for the `getUser()` step in the cascade.
+
+**Anti-goal**: do NOT add IP/geo detection, do NOT change the cascade order, do NOT introduce a separate locale provider for the landing. Keeping a single detection path everywhere is what makes the EN/ES experience predictable across landing, shell, sign-in, and authenticated surfaces.
+
+## 10. Done checklist
 
 - [ ] `_landing/topbar.tsx` rewritten with shared primitives + `useTheme` + `LocaleToggle` + `useTranslations('Landing.Topbar')`
 - [ ] 16 confirmed `_landing/**/*.tsx` files translated (topbar, hero, social-proof, bento + 5 bento subs, how-it-works, for-investors, agents, gallery-preview, testimonials, final-cta, footer)
 - [ ] 7 auxiliary `_landing/*` files audited (art, avatar, data, float-notif, logo, mini-app-card, icons) — any literals found translated
 - [ ] `messages/en.json` and `messages/es.json` updated with `Landing.*` namespace (parity verified by hook)
 - [ ] `landing.css` cleaned (5 blocks deleted, 1 block renamed) + `topbar-nav` → `landing-nav` in TSX
-- [ ] Pass A: 8/8 functional scenarios pass with MCP screenshots committed
+- [ ] Pass A: 11/11 functional scenarios pass with MCP screenshots committed (incl. A9-A11 Accept-Language cascade)
+- [ ] `i18n/request.ts` cascade unchanged (single source of truth verified)
 - [ ] Pass B: shell ↔ landing topbar visually identical at 1440x900
 - [ ] Pass C: 0 missing keys, 0 literal strings remaining in `_landing/`
 - [ ] Pass D: typecheck + lint + build green; 3 hooks green
