@@ -14,7 +14,7 @@
  * Transparent icon button that sits in .topbar-actions.
  * Mirrors the visual weight of .btn-ghost but sized to match topbar height.
  */
-.bell-btn {
+.shell .bell-btn {
   position: relative;
   display: grid;
   place-items: center;
@@ -30,11 +30,11 @@
     background 0.15s,
     color 0.15s;
 }
-.bell-btn:hover {
+.shell .bell-btn:hover {
   background: var(--surface-2);
   color: var(--text);
 }
-.bell-btn:focus-visible {
+.shell .bell-btn:focus-visible {
   outline: 2px solid var(--ax);
   outline-offset: 2px;
 }
@@ -44,7 +44,7 @@
  * Absolute-positioned red count pill at the top-right corner of .bell-btn.
  * Parent must be position: relative (bell-btn already is).
  */
-.bell-badge {
+.shell .bell-badge {
   position: absolute;
   top: -4px;
   right: -4px;
@@ -70,11 +70,11 @@
  * (from prototype-contact.css) can use position: absolute; top: 100%; right: 0.
  * The 8px margin-top aligns with the existing .notifs top: calc(100% + 8px).
  */
-.notifs-anchor {
+.shell .notifs-anchor {
   position: relative;
 }
 /* Spacer so the absolutely-positioned dropdown clears the button */
-.notifs-anchor > .notifs {
+.shell .notifs-anchor > .notifs {
   top: 100%;
   right: 0;
   margin-top: 8px;
@@ -85,7 +85,7 @@
  * Small, non-modal nudge card inviting the user to enable push notifications.
  * Uses the same border/shadow language as .cmodal at a smaller scale.
  */
-.push-prompt {
+.shell .push-prompt {
   position: fixed;
   bottom: 16px;
   right: 16px;
@@ -115,13 +115,13 @@
     transform: none;
   }
 }
-.push-prompt p {
+.shell .push-prompt p {
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
   color: var(--text-2);
 }
-.push-prompt strong {
+.shell .push-prompt strong {
   font-weight: 600;
   color: var(--text);
 }
@@ -130,7 +130,7 @@
 /*
  * Flex row holding the "Enable" and "Dismiss" buttons inside .push-prompt.
  */
-.push-prompt-actions {
+.shell .push-prompt-actions {
   display: flex;
   align-items: center;
   gap: 8px;
