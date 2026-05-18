@@ -67,8 +67,8 @@ implementation:
       - 'get_profile'
       - 'list_notifications'
     publish:
-      - 'publish_app'
-      - 'update_app (ownership check: author_id == userId)'
+      - 'publish_app (accepts optional built_with: string[] max 3 from the 8-vendor AI_MODEL_SLUGS enum — added in Phase 13 / issue-8)'
+      - 'update_app (ownership check: author_id == userId; accepts optional built_with: string[] max 3 — partial-update semantics: present means replace, absent means leave untouched)'
     social:
       - 'like_app / unlike_app'
       - 'save_app / unsave_app'
@@ -152,4 +152,6 @@ known_gotchas:
   - 'send_message tool requires an accepted contact_request between sender and recipient; uses find_or_create_conversation RPC (only way to create a conversation since conversations RLS has no client INSERT policy)'
   - 'Streamable HTTP transport (spec 2025-03-26) — do NOT use the legacy SSE/stdio transports; single POST /mcp endpoint with per-request StreamableHTTPServerTransport instance'
   - 'One active api_key per user — generateApiKey must revoke existing active key first or rely on unique partial index to reject'
+  - 'built_with on publish_app / update_app: import AI_MODEL_SLUGS from @hatch/shared and use `z.array(z.enum(AI_MODEL_SLUGS)).max(3).optional()` — DO NOT cast as `readonly [string, ...string[]]` (the MCP tsconfig is stricter than web and rejects the cast). AI_MODEL_SLUGS is declared as a tuple `as const` precisely so z.enum infers the literal union without a cast.'
+  - 'Symmetric read surface: list_apps + search_apps SELECT strings include built_with so an agent that wrote built_with via publish_app can read it back. get_app uses SELECT * so it auto-includes the column.'
   - 'Railway uses Nixpacks not Docker (hard project constraint) — apps/mcp/nixpacks.toml uses corepack to pin pnpm 10'

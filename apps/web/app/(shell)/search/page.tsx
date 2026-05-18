@@ -25,6 +25,7 @@ function toAppDataExtended(app: SearchResultApp, locale: 'en' | 'es' = 'en'): Ap
     hue: app.hue,
     bg: app.cover_url,
     tags: [],
+    built_with: [],
     stats: {
       likes: app.likes_count,
       views: 0,

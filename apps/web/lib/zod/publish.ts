@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AI_MODEL_SLUGS } from '@hatch/shared';
 
 // Source of truth: prototype/apps-gallery/publish.jsx line 5
 export const ART_KINDS = [
@@ -32,6 +33,7 @@ export type AccentColor = (typeof ACCENT_COLORS)[number];
 
 export const ArtKindEnum = z.enum(ART_KINDS);
 export const AccentColorEnum = z.enum(ACCENT_COLORS);
+export const AiModelSlugEnum = z.enum(AI_MODEL_SLUGS);
 
 // Constraints match prototype/apps-gallery/publish.jsx:
 // - title: maxLength={32} (line 75)
@@ -52,6 +54,7 @@ export const PublishAppInput = z.object({
   artKind: ArtKindEnum,
   accent: AccentColorEnum,
   coverUrl: z.string().nullable().optional(),
+  builtWith: z.array(AiModelSlugEnum).max(3).default([]),
 });
 export type PublishAppInputT = z.infer<typeof PublishAppInput>;
 

@@ -127,6 +127,7 @@
     "InCategory": "In {category}",
     "AboutThisApp": "About this app",
     "BuiltWith": "Built with",
+    "BuiltWithAi": "Built with AI",
     "ShareSection": "Share",
     "CopyLink": "⌘C Copy link",
     "Stats": "Stats",
@@ -179,7 +180,9 @@
       "DiscoverabilityTitle": "Discoverability",
       "DiscoverabilitySubtitle": "Help the right people stumble onto your app.",
       "CoverArtTitle": "Cover art",
-      "CoverArtSubtitle": "Pick a vibe & accent. Or upload your own screenshot."
+      "CoverArtSubtitle": "Pick a vibe & accent. Or upload your own screenshot.",
+      "BuiltWithAiTitle": "Built with AI",
+      "BuiltWithAiSubtitle": "Optionally tag the AI models you used. Up to 3."
     },
     "AppName": "App name",
     "AppNameHint": "{count}/32 · short, memorable",
@@ -213,7 +216,15 @@
     "Placeholders": {
       "Title": "Your app title",
       "Tagline": "Your one-line pitch goes here."
+    },
+    "BuiltWithAi": {
+      "HelperText": "Pick the models that helped you build this. Skip if you'd rather not say.",
+      "OptionalLabel": "Optional",
+      "MaxLabel": "Max 3"
     }
+  },
+  "Card": {
+    "BuiltWithAi": "AI:"
   },
   "SignIn": {
     "WelcomeBack": "Welcome back",

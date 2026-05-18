@@ -78,7 +78,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ handle: string 
   const { data: appsData, error: appsError } = await sb
     .from('apps')
     .select(
-      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, published_at, likes_count, comments_count, saves_count, views_count, hot_score',
+      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, built_with, published_at, likes_count, comments_count, saves_count, views_count, hot_score',
     )
     .eq('author_id', profile.id)
     .eq('is_published', true)
@@ -91,7 +91,12 @@ export async function GET(req: Request, ctx: { params: Promise<{ handle: string 
     });
   }
 
-  return jsonResponse({ profile, apps: appsData ?? [] }, 200, {
+  const apps = (appsData ?? []).map((app) => ({
+    ...app,
+    built_with: app.built_with ?? [],
+  }));
+
+  return jsonResponse({ profile, apps }, 200, {
     'X-RateLimit-Remaining': String(rl.remaining),
     'X-RateLimit-Reset': String(rl.resetAt),
   });

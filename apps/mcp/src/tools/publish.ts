@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Database } from '@hatch/shared';
+import { AI_MODEL_SLUGS } from '@hatch/shared';
 import { jsonResult, type McpContext, type ToolResult } from '../types.js';
 
 type AppUpdate = Database['public']['Tables']['apps']['Update'];
@@ -32,6 +33,7 @@ const PublishAppSchema = z.object({
     .regex(/^#[0-9a-fA-F]{6}$/)
     .optional(),
   cover_url: z.string().url().optional(),
+  built_with: z.array(z.enum(AI_MODEL_SLUGS)).max(3).optional(),
 });
 
 export const publishApp: ToolDescriptor = {
@@ -66,6 +68,13 @@ export const publishApp: ToolDescriptor = {
         pattern: '^#[0-9a-fA-F]{6}$',
       },
       cover_url: { type: 'string', description: 'URL of a cover image.' },
+      built_with: {
+        type: 'array',
+        items: { type: 'string', enum: AI_MODEL_SLUGS },
+        maxItems: 3,
+        description:
+          'Optional AI models used to build this app. Up to 3 from: claude, deepseek, gemini, github-copilot, gpt, kimi, mistral, qwen.',
+      },
     },
     required: ['title', 'tagline', 'link', 'category_id'],
   },
@@ -87,6 +96,7 @@ export const publishApp: ToolDescriptor = {
         art_kind: parsed.art_kind ?? 'gradient',
         accent: parsed.accent ?? '#6366f1',
         cover_url: parsed.cover_url ?? null,
+        built_with: parsed.built_with ?? [],
         slug: '', // trigger overwrites with title-derived slug
         is_published: true,
       })
@@ -124,6 +134,7 @@ const UpdateAppSchema = z.object({
     .optional(),
   cover_url: z.string().url().optional(),
   is_published: z.boolean().optional(),
+  built_with: z.array(z.enum(AI_MODEL_SLUGS)).max(3).optional(),
 });
 
 export const updateApp: ToolDescriptor = {
@@ -144,6 +155,13 @@ export const updateApp: ToolDescriptor = {
       accent: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
       cover_url: { type: 'string' },
       is_published: { type: 'boolean' },
+      built_with: {
+        type: 'array',
+        items: { type: 'string', enum: AI_MODEL_SLUGS },
+        maxItems: 3,
+        description:
+          'Optional AI models used to build this app. Up to 3 from: claude, deepseek, gemini, github-copilot, gpt, kimi, mistral, qwen.',
+      },
     },
     required: ['slug'],
   },
@@ -181,6 +199,7 @@ export const updateApp: ToolDescriptor = {
     if (fields.accent !== undefined) updatePayload.accent = fields.accent;
     if (fields.cover_url !== undefined) updatePayload.cover_url = fields.cover_url;
     if (fields.is_published !== undefined) updatePayload.is_published = fields.is_published;
+    if (fields.built_with !== undefined) updatePayload.built_with = fields.built_with;
 
     // HATCH-007 fix: close the TOCTOU window between the SELECT-for-ownership
     // and the UPDATE by binding the UPDATE to `author_id = ctx.userId` as well.

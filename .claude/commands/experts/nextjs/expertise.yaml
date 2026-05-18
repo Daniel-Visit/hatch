@@ -198,6 +198,32 @@ i18n_patterns:
     apps/web/app/_landing/topbar.tsx is 'use client' and uses useTranslations('Landing.Topbar').
     It is the only landing atom that is a client component purely for useTheme + useTranslations.
 
+built_with_ai_pattern:
+  description: |
+    Phase 13 (issue-8) — apps optionally declare which AI models built them. Multi-select up to 3
+    from a closed list of 8 vendor slugs. TEXT ONLY (no logos) for trademark conservatism.
+  source_of_truth: 'packages/shared/src/ai-models.ts — AI_MODELS, AI_MODEL_SLUGS (tuple as const), AiModelSlug, isAiModelSlug, aiModelName'
+  db_column: 'apps.built_with text[] DEFAULT {} with CHECK against the 8-slug allowlist and length ≤ 3 (migration 0029)'
+  zod_field: "apps/web/lib/zod/publish.ts: AiModelSlugEnum = z.enum(AI_MODEL_SLUGS); builtWith: z.array(AiModelSlugEnum).max(3).default([])"
+  publish_form: "apps/web/app/_components/publish-screen.tsx — Controller-bound chip multi-toggle with `data-selected` attr; useTranslations('Publish') called at top of component, NEVER inside Controller render"
+  card_chip: "apps/web/app/_components/cards.tsx — AiChipCard helper, rendered inside ClassicCard AND CleanCard (the variant used on /gallery). New variants MUST include it."
+  detail_panel: "apps/web/app/(shell)/a/[slug]/page.tsx — new panel below the existing BuiltWith (tags) panel, conditionally rendered when row.built_with.length > 0"
+  css_scope: ".shell .ai-chip-* rules in apps/web/app/globals.css. The .shell prefix is required so the rules inherit CSS variables (--border, --surface, --text-2, --muted) defined under .shell in prototype-base.css."
+  i18n_keys:
+    - 'Publish.Sections.BuiltWithAiTitle / BuiltWithAiSubtitle'
+    - 'Publish.BuiltWithAi.{HelperText, OptionalLabel, MaxLabel}'
+    - 'Detail.BuiltWithAi'
+    - 'Card.BuiltWithAi (top-level namespace introduced with this feature)'
+  no_i18n_for_vendor_names: 'Vendor display names live in @hatch/shared/ai-models.ts AI_MODELS[i].name. NOT translated (product nouns). Adding to i18n would duplicate the single source of truth and risk drift.'
+  add_new_vendor_contract: |
+    To add a new vendor (e.g. "perplexity"):
+      1. Append { slug, name } to AI_MODELS in packages/shared/src/ai-models.ts AND the slug to AI_MODEL_SLUGS.
+      2. Create a new migration appending the slug to the apps_built_with_check CHECK constraint allowlist.
+      3. NO i18n key change needed.
+    This 3-step contract is mandatory — skipping step 2 means Zod accepts the slug client-side
+    but the DB CHECK rejects it server-side.
+  api_routes_built_with: 'All 3 public read endpoints (/api/v1/apps, /api/v1/apps/[slug], /api/v1/profiles/[handle]) include built_with in their SELECT and normalize null → [] in the response shape'
+
 mcp_tools_shared_source:
   file: 'packages/shared/src/mcp-tools.ts'
   exports:

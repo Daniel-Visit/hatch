@@ -62,7 +62,7 @@ export async function GET(req: Request) {
   let query = sb
     .from('apps')
     .select(
-      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, published_at, likes_count, comments_count, saves_count, views_count, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
+      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, built_with, published_at, likes_count, comments_count, saves_count, views_count, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
     )
     .eq('is_published', true)
     .order('published_at', { ascending: false })
@@ -100,6 +100,7 @@ export async function GET(req: Request) {
     art_kind: row.art_kind,
     accent: row.accent,
     tags: row.tags,
+    built_with: row.built_with ?? [],
     published_at: row.published_at,
     likes_count: row.likes_count,
     comments_count: row.comments_count,

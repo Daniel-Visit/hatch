@@ -23,6 +23,7 @@ import { ShareRow } from './_components/share-row';
 import { FollowPill } from '@/app/_components/follow-pill';
 import { recordView } from '@/lib/actions/views';
 import type { Tables } from '@/lib/supabase/types';
+import { aiModelName, isAiModelSlug } from '@hatch/shared';
 
 // Force per-request rendering so recordView fires on every page hit
 // (the DB primary key still dedups per viewer per UTC day).
@@ -345,8 +346,18 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
               <div className="stat-l">{t('Views')}</div>
             </div>
             <div className="stat-block">
-              <div className="stat-n" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                {app.category && <i style={{ fontStyle: 'normal', fontSize: '20px' }}>{app.category.icon}</i>}
+              <div
+                className="stat-n"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                }}
+              >
+                {app.category && (
+                  <i style={{ fontStyle: 'normal', fontSize: '20px' }}>{app.category.icon}</i>
+                )}
                 <span style={{ fontSize: '15px' }}>
                   {translatedCategoryLabel
                     ? t('InCategory', { category: translatedCategoryLabel.toLowerCase() })
@@ -389,6 +400,20 @@ export default async function AppDetailPage({ params }: { params: Promise<{ slug
               ))}
             </div>
           </div>
+
+          {row.built_with && row.built_with.length > 0 && (
+            <div className="panel">
+              <h3 className="panel-h">{t('BuiltWithAi')}</h3>
+              <div className="ai-stack-row">
+                {row.built_with.filter(isAiModelSlug).map((slug) => (
+                  <span key={slug} className="stack-chip">
+                    <i className="stack-dot" style={{ background: app.accent }} />
+                    {aiModelName(slug)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Comments
             appId={row.id}

@@ -23,6 +23,7 @@ import {
   ACCENT_COLORS,
 } from '@/lib/zod/publish';
 import { publishApp, getCoverUploadUrl } from '@/lib/actions/publish';
+import { AI_MODELS, type AiModelSlug } from '@hatch/shared';
 import { AppArt } from './app-art';
 import {
   ClassicCard,
@@ -79,6 +80,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
         artKind: 'cursor',
         accent: '#a855f7',
         coverUrl: null,
+        builtWith: [],
       },
     },
   );
@@ -91,6 +93,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
   const tags = watch('tags');
   const artKind = watch('artKind');
   const accent = watch('accent');
+  const builtWith = watch('builtWith');
 
   const completion = [
     title,
@@ -128,6 +131,7 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
     tags,
     art: artKind,
     accent,
+    built_with: builtWith ?? [],
   };
 
   const onSubmit = handleSubmit(async (data) => {
@@ -309,6 +313,52 @@ export function PublishScreen({ categories, viewer, cardStyle = 'classic' }: Pub
               />
             </div>
           </section>
+
+          <Controller
+            name="builtWith"
+            control={control}
+            render={({ field }) => {
+              const selected: AiModelSlug[] = (field.value ?? []) as AiModelSlug[];
+              const atMax = selected.length >= 3;
+              const toggle = (slug: AiModelSlug) => {
+                if (selected.includes(slug)) {
+                  field.onChange(selected.filter((s) => s !== slug));
+                } else if (!atMax) {
+                  field.onChange([...selected, slug]);
+                }
+              };
+              return (
+                <section className="form-section">
+                  <h3>{t('Sections.BuiltWithAiTitle')}</h3>
+                  <p>{t('Sections.BuiltWithAiSubtitle')}</p>
+                  <p style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    {t('BuiltWithAi.HelperText')}
+                  </p>
+                  <div className="ai-chip-group">
+                    {AI_MODELS.map((m) => {
+                      const isSelected = selected.includes(m.slug);
+                      const isDisabled = atMax && !isSelected;
+                      return (
+                        <button
+                          key={m.slug}
+                          type="button"
+                          className="ai-chip-toggle"
+                          data-selected={isSelected ? 'true' : 'false'}
+                          disabled={isDisabled}
+                          onClick={() => toggle(m.slug)}
+                        >
+                          {m.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+                    {selected.length}/3 — {t('BuiltWithAi.OptionalLabel')}
+                  </p>
+                </section>
+              );
+            }}
+          />
 
           <section className="psec">
             <header className="psec-head">

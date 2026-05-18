@@ -46,7 +46,7 @@ export const listApps: ToolDescriptor = {
     let query = sb
       .from('apps')
       .select(
-        'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, is_published, published_at, likes_count, saves_count, comments_count, views_count, hue, bg, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
+        'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, built_with, is_published, published_at, likes_count, saves_count, comments_count, views_count, hue, bg, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
       )
       .eq('is_published', true)
       .order('published_at', { ascending: false })
@@ -107,7 +107,7 @@ export const searchApps: ToolDescriptor = {
     const { data, error } = await sb
       .from('apps')
       .select(
-        'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, is_published, published_at, likes_count, saves_count, comments_count, views_count, hue, bg, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
+        'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, built_with, is_published, published_at, likes_count, saves_count, comments_count, views_count, hue, bg, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
       )
       .eq('is_published', true)
       .textSearch('search_vector', query, { type: 'plain', config: 'english' })

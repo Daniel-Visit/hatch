@@ -127,6 +127,7 @@
     "InCategory": "En {category}",
     "AboutThisApp": "Sobre esta app",
     "BuiltWith": "Construida con",
+    "BuiltWithAi": "Construida con IA",
     "ShareSection": "Compartir",
     "CopyLink": "⌘C Copiar enlace",
     "Stats": "Estadísticas",
@@ -179,7 +180,9 @@
       "DiscoverabilityTitle": "Descubribilidad",
       "DiscoverabilitySubtitle": "Ayuda a que las personas correctas encuentren tu app.",
       "CoverArtTitle": "Portada",
-      "CoverArtSubtitle": "Elige una vibra y un acento. O sube tu propia captura."
+      "CoverArtSubtitle": "Elige una vibra y un acento. O sube tu propia captura.",
+      "BuiltWithAiTitle": "Construido con IA",
+      "BuiltWithAiSubtitle": "Etiqueta opcionalmente los modelos de IA que usaste. Hasta 3."
     },
     "AppName": "Nombre de la app",
     "AppNameHint": "{count}/32 · corto, memorable",
@@ -213,7 +216,15 @@
     "Placeholders": {
       "Title": "Título de tu app",
       "Tagline": "Tu pitch de una línea va aquí."
+    },
+    "BuiltWithAi": {
+      "HelperText": "Elige los modelos que te ayudaron a construirla. Sáltalo si prefieres no decirlo.",
+      "OptionalLabel": "Opcional",
+      "MaxLabel": "Máximo 3"
     }
+  },
+  "Card": {
+    "BuiltWithAi": "IA:"
   },
   "SignIn": {
     "WelcomeBack": "Bienvenido de vuelta",

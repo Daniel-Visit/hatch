@@ -35,6 +35,7 @@ migration_workflow:
     - '0020_ranking.sql — Phase 10 ranking: compute_hot_score (immutable), refresh_hot_scores (SECURITY DEFINER, to authenticated+service_role), featured_apps table + RLS, pick_featured_app (SECURITY DEFINER, to service_role only)'
     - '0021_api_rate_limits.sql — Phase 12 rate-limit: api_rate_limits table (no client policies), increment_rate_limit RPC (SECURITY DEFINER)'
     - '0022_rate_limit_anon_grant.sql — Phase 12 follow-up: grant increment_rate_limit execute to anon + authenticated so public API routes can rate-limit via SSR client'
+    - '0029_apps_built_with.sql — Phase 13 (issue-8): apps.built_with text[] DEFAULT {} with CHECK (slugs in 8-vendor allowlist AND length ≤ 3) + GIN index apps_built_with_idx. Backfills existing rows to empty arrays.'
 
 database_schema:
   extensions:
@@ -92,6 +93,18 @@ database_schema:
         app_id: 'uuid not null FK to apps(id) ON DELETE CASCADE'
         reason: "text default 'hot_score'"
         created_at: 'timestamptz default now()'
+
+    apps:
+      description: 'Phase 3 — published apps (slug-routed). Built-with-AI added in 0029.'
+      primary_key: 'id (uuid)'
+      key_columns:
+        slug: 'text, BEFORE INSERT trigger apps_set_slug derives from title with collision-suffix loop'
+        author_id: 'uuid FK to profiles(id)'
+        tags: 'text[] DEFAULT {} (free-form tech stack, max 6)'
+        built_with: "text[] DEFAULT '{}' with CHECK constraint pinning to 8 fixed slugs (claude, deepseek, gemini, github-copilot, gpt, kimi, mistral, qwen) AND max length 3. Source of truth lives in packages/shared/src/ai-models.ts — DO NOT add a vendor without ALSO migrating the CHECK constraint."
+        hot_score: 'double precision, recomputed by refresh_hot_scores()'
+      indexes:
+        - 'apps_built_with_idx (GIN on built_with) — for future "filter by AI model" surface'
 
     api_rate_limits:
       description: 'Phase 12: per-IP rate-limit counter for /api/v1/* (60-sec buckets).'

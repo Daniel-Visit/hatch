@@ -102,6 +102,7 @@ export type Database = {
           art_kind: string;
           author_id: string;
           bg: string | null;
+          built_with: string[];
           category_id: string;
           comments_count: number;
           cover_url: string | null;
@@ -129,6 +130,7 @@ export type Database = {
           art_kind?: string;
           author_id: string;
           bg?: string | null;
+          built_with?: string[];
           category_id: string;
           comments_count?: number;
           cover_url?: string | null;
@@ -156,6 +158,7 @@ export type Database = {
           art_kind?: string;
           author_id?: string;
           bg?: string | null;
+          built_with?: string[];
           category_id?: string;
           comments_count?: number;
           cover_url?: string | null;

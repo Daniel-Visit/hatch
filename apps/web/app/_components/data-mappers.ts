@@ -107,6 +107,7 @@ export function mapAppRowToCardProps(
     hue: app.hue,
     bg: app.bg,
     tags: app.tags ?? [],
+    built_with: app.built_with ?? [],
     stats: {
       likes: app.likes_count,
       views: app.views_count,

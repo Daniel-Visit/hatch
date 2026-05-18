@@ -54,8 +54,18 @@ export async function publishApp(input: PublishAppInputT): Promise<Result<{ slug
     return { ok: false, error: 'unauthorized' };
   }
 
-  const { title, tagline, description, link, categoryId, tags, artKind, accent, coverUrl } =
-    parsed.data;
+  const {
+    title,
+    tagline,
+    description,
+    link,
+    categoryId,
+    tags,
+    artKind,
+    accent,
+    coverUrl,
+    builtWith,
+  } = parsed.data;
 
   const sb = await createSupabaseServerClient();
 
@@ -76,6 +86,7 @@ export async function publishApp(input: PublishAppInputT): Promise<Result<{ slug
       art_kind: artKind,
       accent,
       cover_url: coverUrl ?? null,
+      built_with: builtWith,
       slug: '', // trigger overwrites with title-derived slug
       is_published: true,
     })

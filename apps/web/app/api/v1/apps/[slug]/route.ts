@@ -56,7 +56,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
   const { data, error } = await sb
     .from('apps')
     .select(
-      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, published_at, likes_count, comments_count, saves_count, views_count, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
+      'id, slug, title, tagline, description, link, category_id, cover_url, art_kind, accent, tags, built_with, published_at, likes_count, comments_count, saves_count, views_count, hot_score, author:profiles!apps_author_id_fkey(handle, display_name, avatar_url, hue, emoji)',
     )
     .eq('slug', parsed.data.slug)
     .eq('is_published', true)
@@ -90,6 +90,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ slug: string }>
     art_kind: data.art_kind,
     accent: data.accent,
     tags: data.tags,
+    built_with: data.built_with ?? [],
     published_at: data.published_at,
     likes_count: data.likes_count,
     comments_count: data.comments_count,

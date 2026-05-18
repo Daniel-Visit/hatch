@@ -13,6 +13,7 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { aiModelName, isAiModelSlug } from '@hatch/shared';
 import { Icon, SVG_ICONS } from './icons';
 import { AppArt } from './app-art';
 
@@ -45,6 +46,7 @@ export interface AppData {
   art: string;
   accent: string;
   tags: string[];
+  built_with: string[];
   stats: AppStats;
   author: User;
   category: Category;
@@ -76,6 +78,21 @@ export function Avatar({ user, size = 22 }: { user: User; size?: number }) {
       }}
     >
       {user.emoji}
+    </span>
+  );
+}
+
+export function AiChipCard({ slugs }: { slugs: string[] }) {
+  const t = useTranslations('Card');
+  if (!slugs || slugs.length === 0) return null;
+  const names = slugs
+    .filter(isAiModelSlug)
+    .map((s) => aiModelName(s))
+    .join(' · ');
+  return (
+    <span className="ai-chip-card">
+      <span className="ai-chip-card-prefix">{t('BuiltWithAi')}</span>
+      <span>{names}</span>
     </span>
   );
 }
@@ -155,6 +172,7 @@ export function ClassicCard({ app, onOpen, onAuthor }: CardProps) {
             <Stat iconName="eye" value={app.stats.views} />
           </div>
         </div>
+        <AiChipCard slugs={app.built_with} />
       </div>
     </article>
   );
@@ -390,6 +408,7 @@ export function CleanCard({ app, onOpen, onAuthor }: CardProps) {
         <div className="cat-badge-wrap">
           <CategoryBadge cat={app.category} />
         </div>
+        <AiChipCard slugs={app.built_with} />
       </div>
     </article>
   );
@@ -417,4 +436,3 @@ export function AppCard({ style, app, onOpen, onAuthor }: AppCardProps) {
       return <ClassicCard {...props} />;
   }
 }
-
