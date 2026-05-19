@@ -2,6 +2,7 @@
 // (Testimonials, lines 211-253). The 3 mock quotes are intentional copy placeholders.
 
 import { getTranslations } from 'next-intl/server';
+import { ScrollReveal } from './scroll-reveal';
 import { LandingAvatar } from '@/app/_landing/avatar';
 import { Diamond } from '@/app/_landing/icons';
 
@@ -33,8 +34,9 @@ export const Testimonials = async () => {
   ];
 
   return (
-    <section className="sect">
-      <div className="container">
+    <section className="sect snap-section">
+      <ScrollReveal>
+        <div className="container">
         <div className="section-head">
           <span className="section-eyebrow">
             <span className="dot" />
@@ -58,7 +60,8 @@ export const Testimonials = async () => {
             </div>
           ))}
         </div>
-      </div>
+        </div>
+      </ScrollReveal>
     </section>
   );
 };

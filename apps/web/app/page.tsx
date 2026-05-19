@@ -24,7 +24,6 @@ import './landing.css';
 // ISR: cache the rendered landing for 60 seconds. Anonymous traffic dominates
 // here, and a 60-second lag on counters / gallery rows is acceptable for a marketing page.
 // DO NOT also set `dynamic = 'force-dynamic'` — they are mutually exclusive.
-import { ScrollReveal } from './_landing/scroll-reveal';
 
 export const revalidate = 60;
 
@@ -37,51 +36,22 @@ export default async function LandingPage() {
   return (
     <div className="landing-root">
       <Topbar />
-      <section className="snap-section">
-        <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
+      <section className="snap-section" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
+        </div>
         <SocialProof
           counts={{ builders: counts.builders, apps: counts.apps, connections: counts.connections }}
         />
       </section>
       
       <Bento />
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <HowItWorks />
-        </ScrollReveal>
-      </section>
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <ForInvestors />
-        </ScrollReveal>
-      </section>
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <Agents />
-        </ScrollReveal>
-      </section>
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <GalleryPreview tabs={tabs} />
-        </ScrollReveal>
-      </section>
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <Testimonials />
-        </ScrollReveal>
-      </section>
-      
-      <section className="snap-section auto-height">
-        <ScrollReveal>
-          <FinalCta />
-        </ScrollReveal>
-      </section>
-      
+      <HowItWorks />
+      <ForInvestors />
+      <Agents />
+      <GalleryPreview tabs={tabs} />
+      <Testimonials />
+      <FinalCta />
       <Footer />
     </div>
   );
