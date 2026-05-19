@@ -37,7 +37,7 @@ Three deployments, one database:
 | —    | 8          | ❌ CUT | Email (Resend) — Web Push covers the surfacing role                                   |
 | 4    | 9          | ✅     | MCP server on Railway + `/settings/api-keys`                                          |
 | 5    | 10, 11, 12 | ✅     | Hot-score ranking (pg_cron) + full-text search + public REST API + llms.txt + OpenAPI |
-| —    | 13         | ⏳     | Polish: skeletons, error boundaries, OG images, sitemap, Sentry, analytics            |
+| —    | 13         | ⏳     | Polish: Legal pages (Terms, Privacy, Commercial), 100vh scroll-snapping, skeletons, error boundaries, OG images, sitemap, Sentry, analytics |
 
 Pair specs and plans live in `docs/superpowers/specs/` and `specs/`; per-feature docs in `app_docs/` (see [Documentation](#documentation)).
 
