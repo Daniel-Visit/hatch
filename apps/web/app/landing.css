@@ -103,6 +103,23 @@
   position: relative;
 }
 
+.landing-root .snap-section {
+  position: relative;
+  min-height: calc(100dvh - 60px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.landing-root .snap-section.auto-height {
+  min-height: auto;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+  display: block;
+}
+
 /* ---------- Scroll Reveal Animations ---------- */
 .landing-root .reveal-up {
   opacity: 0;
@@ -250,7 +267,8 @@
    the 60px sticky topbar so anchored sections don't land hidden behind it. */
 html:has(.landing-root) {
   scroll-behavior: smooth;
-  scroll-padding-top: 76px;
+  scroll-padding-top: 60px;
+  scroll-snap-type: y mandatory;
 }
 
 /* ---------- Topbar ---------- */
@@ -507,7 +525,8 @@ html:has(.landing-root) {
 /* ============ HERO ============ */
 .landing-root .hero {
   position: relative;
-  padding: 36px 0 40px;
+  margin-top: -60px;
+  padding: 64px 0 0px;
   overflow: hidden;
 }
 .landing-root .hero-bg {

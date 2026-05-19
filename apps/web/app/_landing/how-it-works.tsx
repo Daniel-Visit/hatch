@@ -39,7 +39,7 @@ export const HowItWorks = async () => {
   ];
 
   return (
-    <section id="how" className="sect">
+    <section id="how" className="sect snap-section">
       <ScrollReveal>
         <div className="container">
           <div className="section-head">
