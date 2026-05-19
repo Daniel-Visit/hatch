@@ -10,7 +10,6 @@ import { Art } from '@/app/_landing/art';
 import { LandingAvatar } from '@/app/_landing/avatar';
 import { FloatNotif } from '@/app/_landing/float-notif';
 import { Arrow, HeartFill, Comment, Flame } from '@/app/_landing/icons';
-import { builders } from './social-proof';
 
 type HeroProps = {
   counts: { apps: number; builders: number; today: number };

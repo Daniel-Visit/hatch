@@ -124,7 +124,9 @@
 .landing-root .reveal-up {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 .landing-root .reveal-up.in-view {
@@ -799,7 +801,7 @@ html:has(.landing-root) {
 
 /* ============ MARQUEE / SOCIAL ============ */
 .landing-root .marquee-section {
-  padding: 2px ;
+  padding: 32px 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
