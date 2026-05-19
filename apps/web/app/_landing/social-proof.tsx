@@ -16,7 +16,7 @@ const Stat = ({ num, label }: StatProps) => (
   </div>
 );
 
-const builders = [
+export const builders = [
   { n: 'AK', name: 'alex.k', role: 'audio · indie' },
   { n: 'MR', name: 'maria.r', role: 'design · solo' },
   { n: 'JL', name: 'j.lee', role: 'ai · pre-seed' },

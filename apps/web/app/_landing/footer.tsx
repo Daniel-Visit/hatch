@@ -75,10 +75,13 @@ export const Footer = async () => {
                 </a>
               </li>
               <li>
-                <a href="#">{t('Columns.Company.Privacy')}</a>
+                <a href="/privacy">{t('Columns.Company.Privacy')}</a>
               </li>
               <li>
-                <a href="#">{t('Columns.Company.Terms')}</a>
+                <a href="/terms">{t('Columns.Company.Terms')}</a>
+              </li>
+              <li>
+                <a href="/commercial">{t('Columns.Company.Commercial')}</a>
               </li>
             </ul>
           </div>
