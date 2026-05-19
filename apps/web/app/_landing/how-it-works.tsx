@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
-
+import { ScrollReveal } from './scroll-reveal';
 import { Flame, GitHub, Plus, Send } from '@/app/_landing/icons';
 
 type Step = { ico: ReactNode; n: string; t: string; d: string };
@@ -39,27 +39,29 @@ export const HowItWorks = async () => {
   ];
 
   return (
-    <section id="how" className="sect">
-      <div className="container">
-        <div className="section-head">
-          <span className="section-eyebrow">
-            <span className="dot" />
-            {t('Eyebrow')}
-          </span>
-          <h2 className="section-title">{t('Title')}</h2>
-          <p className="section-sub">{t('Subhead')}</p>
+    <section id="how" className="sect snap-section">
+      <ScrollReveal>
+        <div className="container">
+          <div className="section-head">
+            <span className="section-eyebrow">
+              <span className="dot" />
+              {t('Eyebrow')}
+            </span>
+            <h2 className="section-title">{t('Title')}</h2>
+            <p className="section-sub">{t('Subhead')}</p>
+          </div>
+          <div className="steps">
+            {steps.map((s) => (
+              <div className="card step" key={s.n}>
+                <div className="step-icon">{s.ico}</div>
+                <div className="step-num">{t('StepLabel', { n: s.n })}</div>
+                <h4>{s.t}</h4>
+                <p>{s.d}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="steps">
-          {steps.map((s) => (
-            <div className="card step" key={s.n}>
-              <div className="step-icon">{s.ico}</div>
-              <div className="step-num">{t('StepLabel', { n: s.n })}</div>
-              <h4>{s.t}</h4>
-              <p>{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      </ScrollReveal>
     </section>
   );
 };

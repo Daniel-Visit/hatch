@@ -14,6 +14,8 @@ import { MiniAppCard } from '@/app/_landing/mini-app-card';
 import { Flame, Sparkles, HeartFill, Arrow } from '@/app/_landing/icons';
 import type { AppRow } from '@/app/_landing/data';
 
+import { ScrollReveal } from './scroll-reveal';
+
 type TabId = 'hot' | 'new' | 'loved';
 
 type GalleryPreviewProps = {
@@ -36,9 +38,10 @@ export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
   ];
 
   return (
-    <section id="gallery" className="sect" style={{ background: 'var(--surface-2)' }}>
-      <div className="container">
-        <div
+    <section id="gallery" className="sect snap-section" style={{ background: 'var(--surface-2)' }}>
+      <ScrollReveal>
+        <div className="container">
+          <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -145,7 +148,8 @@ export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
             ))
           )}
         </div>
-      </div>
+        </div>
+      </ScrollReveal>
     </section>
   );
 };

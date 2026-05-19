@@ -24,6 +24,7 @@ import './landing.css';
 // ISR: cache the rendered landing for 60 seconds. Anonymous traffic dominates
 // here, and a 60-second lag on counters / gallery rows is acceptable for a marketing page.
 // DO NOT also set `dynamic = 'force-dynamic'` — they are mutually exclusive.
+
 export const revalidate = 60;
 
 export default async function LandingPage() {
@@ -35,10 +36,15 @@ export default async function LandingPage() {
   return (
     <div className="landing-root">
       <Topbar />
-      <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
-      <SocialProof
-        counts={{ builders: counts.builders, apps: counts.apps, connections: counts.connections }}
-      />
+      <section className="snap-section" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: 30}}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
+        </div>
+        <SocialProof
+          counts={{ builders: counts.builders, apps: counts.apps, connections: counts.connections }}
+        />
+      </section>
+      
       <Bento />
       <HowItWorks />
       <ForInvestors />

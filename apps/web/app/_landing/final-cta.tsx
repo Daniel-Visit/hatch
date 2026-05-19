@@ -4,14 +4,16 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { ScrollReveal } from './scroll-reveal';
 import { Arrow } from '@/app/_landing/icons';
 
 export const FinalCta = async () => {
   const t = await getTranslations('Landing.FinalCta');
   return (
-    <section className="final-cta">
+    <section className="final-cta snap-section">
       <div className="final-cta-bg" />
-      <div className="container">
+      <ScrollReveal>
+        <div className="container">
         <span className="section-eyebrow">
           <span className="dot" />
           {t('Eyebrow')}
@@ -31,7 +33,8 @@ export const FinalCta = async () => {
             {t('CtaExplore')}
           </Link>
         </div>
-      </div>
+        </div>
+      </ScrollReveal>
     </section>
   );
 };

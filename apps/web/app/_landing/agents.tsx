@@ -5,15 +5,17 @@
 // we render all 15 directly.
 
 import { getTranslations } from 'next-intl/server';
+import { ScrollReveal } from './scroll-reveal';
 import { MCP_TOOLS } from '@hatch/shared';
 import { Code, Globe, Mcp } from '@/app/_landing/icons';
 
 export const Agents = async () => {
   const tA = await getTranslations('Landing.Agents');
   return (
-    <section id="agents" className="sect">
-      <div className="container">
-        <div className="section-head">
+    <section id="agents" className="sect snap-section">
+      <ScrollReveal>
+        <div className="container">
+          <div className="section-head">
           <span className="section-eyebrow">
             <span className="dot" />
             {tA('Eyebrow')}
@@ -222,7 +224,8 @@ export const Agents = async () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </ScrollReveal>
     </section>
   );
 };
