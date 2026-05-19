@@ -34,32 +34,32 @@ export const Testimonials = async () => {
   ];
 
   return (
-    <section className="sect snap-section">
+    <section className="sect">
       <ScrollReveal>
         <div className="container">
-        <div className="section-head">
-          <span className="section-eyebrow">
-            <span className="dot" />
-            {t('Eyebrow')}
-          </span>
-          <h2 className="section-title">{t('Title')}</h2>
-          <p className="section-sub">{t('Subhead')}</p>
-        </div>
-        <div className="tests">
-          {quotes.map((q, i) => (
-            <div className="card test" key={i}>
-              <Diamond size={20} />
-              <p className="test-quote">&quot;{q.q}&quot;</p>
-              <div className="test-author">
-                <LandingAvatar name={q.av} hue={q.hue} />
-                <div className="meta">
-                  <div className="n">{q.n}</div>
-                  <div className="r">{q.r}</div>
+          <div className="section-head">
+            <span className="section-eyebrow">
+              <span className="dot" />
+              {t('Eyebrow')}
+            </span>
+            <h2 className="section-title">{t('Title')}</h2>
+            <p className="section-sub">{t('Subhead')}</p>
+          </div>
+          <div className="tests">
+            {quotes.map((q, i) => (
+              <div className="card test" key={i}>
+                <Diamond size={20} />
+                <p className="test-quote">&quot;{q.q}&quot;</p>
+                <div className="test-author">
+                  <LandingAvatar name={q.av} hue={q.hue} />
+                  <div className="meta">
+                    <div className="n">{q.n}</div>
+                    <div className="r">{q.r}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       </ScrollReveal>
     </section>

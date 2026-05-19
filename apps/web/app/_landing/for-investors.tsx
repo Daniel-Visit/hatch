@@ -10,7 +10,7 @@ import { Bolt, Layers, Lock } from '@/app/_landing/icons';
 export const ForInvestors = async () => {
   const t = await getTranslations('Landing.ForInvestors');
   return (
-    <section className="sect snap-section" style={{ background: 'var(--surface-2)' }}>
+    <section className="sect" style={{ background: 'var(--surface-2)' }}>
       <ScrollReveal>
         <div className="container two-col">
           <div>

@@ -36,15 +36,10 @@ export default async function LandingPage() {
   return (
     <div className="landing-root">
       <Topbar />
-      <section className="snap-section" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingTop: 30}}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
-        </div>
-        <SocialProof
-          counts={{ builders: counts.builders, apps: counts.apps, connections: counts.connections }}
-        />
-      </section>
-      
+      <Hero counts={{ apps: counts.apps, builders: counts.builders, today: counts.today }} />
+      <SocialProof
+        counts={{ builders: counts.builders, apps: counts.apps, connections: counts.connections }}
+      />
       <Bento />
       <HowItWorks />
       <ForInvestors />

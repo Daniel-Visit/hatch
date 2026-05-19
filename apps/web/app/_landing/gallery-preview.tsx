@@ -38,116 +38,116 @@ export const GalleryPreview = ({ tabs }: GalleryPreviewProps) => {
   ];
 
   return (
-    <section id="gallery" className="sect snap-section" style={{ background: 'var(--surface-2)' }}>
+    <section id="gallery" className="sect" style={{ background: 'var(--surface-2)' }}>
       <ScrollReveal>
         <div className="container">
           <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: 32,
-            flexWrap: 'wrap',
-            gap: 24,
-          }}
-        >
-          <div style={{ maxWidth: 560 }}>
-            <span className="section-eyebrow">
-              <span className="dot" />
-              {t('Eyebrow')}
-            </span>
-            <h2 className="section-title" style={{ textAlign: 'left', margin: '14px 0 12px' }}>
-              {t('Title')}
-            </h2>
-            <p className="section-sub" style={{ textAlign: 'left', margin: 0 }}>
-              {t('Subtitle')}
-            </p>
-          </div>
-          <div
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: 40,
-              flexWrap: 'nowrap',
-              height: 40,
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              marginBottom: 32,
+              flexWrap: 'wrap',
+              gap: 24,
             }}
           >
-            <div
-              className="gallery-tabs"
-              role="tablist"
-              style={{
-                height: 40,
-                minHeight: 40,
-                maxHeight: 40,
-                boxSizing: 'border-box',
-                padding: '3px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                marginBottom: 0,
-              }}
-            >
-              {GALLERY_TABS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={'gallery-tab ' + (tab === t.id ? 'active' : '')}
-                  onClick={() => setTab(t.id)}
-                  role="tab"
-                  aria-selected={tab === t.id}
-                  style={{
-                    height: 32,
-                    minHeight: 32,
-                    boxSizing: 'border-box',
-                    padding: '0 12px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  {t.icon}
-                  {t.label}
-                </button>
-              ))}
+            <div style={{ maxWidth: 560 }}>
+              <span className="section-eyebrow">
+                <span className="dot" />
+                {t('Eyebrow')}
+              </span>
+              <h2 className="section-title" style={{ textAlign: 'left', margin: '14px 0 12px' }}>
+                {t('Title')}
+              </h2>
+              <p className="section-sub" style={{ textAlign: 'left', margin: 0 }}>
+                {t('Subtitle')}
+              </p>
             </div>
-            <Link
-              href={'/gallery' as Route}
-              className="btn"
+            <div
               style={{
-                height: 40,
-                minHeight: 40,
-                maxHeight: 40,
-                boxSizing: 'border-box',
-                display: 'inline-flex',
+                display: 'flex',
                 alignItems: 'center',
-                gap: 7,
+                gap: 40,
+                flexWrap: 'nowrap',
+                height: 40,
               }}
             >
-              {t('ViewAll')} <Arrow size={13} />
-            </Link>
+              <div
+                className="gallery-tabs"
+                role="tablist"
+                style={{
+                  height: 40,
+                  minHeight: 40,
+                  maxHeight: 40,
+                  boxSizing: 'border-box',
+                  padding: '3px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  marginBottom: 0,
+                }}
+              >
+                {GALLERY_TABS.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={'gallery-tab ' + (tab === t.id ? 'active' : '')}
+                    onClick={() => setTab(t.id)}
+                    role="tab"
+                    aria-selected={tab === t.id}
+                    style={{
+                      height: 32,
+                      minHeight: 32,
+                      boxSizing: 'border-box',
+                      padding: '0 12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    {t.icon}
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <Link
+                href={'/gallery' as Route}
+                className="btn"
+                style={{
+                  height: 40,
+                  minHeight: 40,
+                  maxHeight: 40,
+                  boxSizing: 'border-box',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                }}
+              >
+                {t('ViewAll')} <Arrow size={13} />
+              </Link>
+            </div>
           </div>
-        </div>
 
-        <div className="gallery-row">
-          {rows.length === 0 ? (
-            <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('Empty')}</p>
-          ) : (
-            rows.map((a) => (
-              <MiniAppCard
-                key={a.id}
-                title={a.title}
-                by={a.author?.handle ?? 'unknown'}
-                desc={a.tagline}
-                cat={a.category_label}
-                hearts={a.likes_count}
-                comments={a.comments_count}
-                kind={a.art_kind}
-                accent={a.accent}
-                slug={a.slug}
-                hue={a.author?.hue}
-              />
-            ))
-          )}
-        </div>
+          <div className="gallery-row">
+            {rows.length === 0 ? (
+              <p style={{ color: 'var(--muted)', fontSize: 14 }}>{t('Empty')}</p>
+            ) : (
+              rows.map((a) => (
+                <MiniAppCard
+                  key={a.id}
+                  title={a.title}
+                  by={a.author?.handle ?? 'unknown'}
+                  desc={a.tagline}
+                  cat={a.category_label}
+                  hearts={a.likes_count}
+                  comments={a.comments_count}
+                  kind={a.art_kind}
+                  accent={a.accent}
+                  slug={a.slug}
+                  hue={a.author?.hue}
+                />
+              ))
+            )}
+          </div>
         </div>
       </ScrollReveal>
     </section>
