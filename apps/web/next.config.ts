@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const config: NextConfig = {
   transpilePackages: ['@hatch/shared'],
   typedRoutes: true,
+  outputFileTracingIncludes: {
+    '/privacy': ['./content/legal/**'],
+    '/terms': ['./content/legal/**'],
+    '/commercial': ['./content/legal/**'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },

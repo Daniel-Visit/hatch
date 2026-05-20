@@ -1718,6 +1718,72 @@ html:has(.landing-root) {
 }
 
 /* ============================================================
+   Legal Pages Typography (.legal-prose)
+   ============================================================ */
+.landing-root .legal-prose {
+  font-family: var(--font-sans);
+  color: var(--text);
+  line-height: 1.7;
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 48px 56px;
+  box-shadow: var(--sh-1);
+}
+@media (max-width: 720px) {
+  .landing-root .legal-prose {
+    padding: 32px 24px;
+    border-radius: var(--r-lg);
+  }
+}
+.landing-root .legal-prose h1 {
+  font-size: clamp(32px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 16px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.landing-root .legal-prose h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 16px;
+  color: var(--text);
+}
+.landing-root .legal-prose h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 32px 0 12px;
+  color: var(--text);
+}
+.landing-root .legal-prose p {
+  margin: 0 0 20px;
+  color: var(--text-2);
+  font-size: 15px;
+}
+.landing-root .legal-prose ul {
+  margin: 0 0 20px;
+  padding-left: 24px;
+  color: var(--text-2);
+}
+.landing-root .legal-prose li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.landing-root .legal-prose strong {
+  font-weight: 600;
+  color: var(--text);
+}
+.landing-root .legal-prose a {
+  color: var(--ax);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ============================================================
    AppArt support — scoped under .app-art so the .art-grid /
    .art-card etc. helpers don't collide with landing-owned
    classes that share names (e.g. ArtVis bento .art-grid).
