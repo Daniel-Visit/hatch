@@ -5,7 +5,7 @@
 
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { MCP_TOOL_GROUPS } from '@hatch/shared';
+import { MCP_TOOL_GROUPS, MCP_ENDPOINT_URL } from '@hatch/shared';
 import { Topbar } from '@/app/_landing/topbar';
 import { Footer } from '@/app/_landing/footer';
 import { CopyBlock } from './_components/copy-block';
@@ -13,17 +13,16 @@ import { CopyBlock } from './_components/copy-block';
 import '../landing.css';
 import './developers.css';
 
-const MCP_ENDPOINT = 'https://hatch-mcp-production.up.railway.app/mcp';
 const API_BASE = 'https://hatch.dev';
 
-const MCP_ADD_CMD = `claude mcp add --transport http hatch ${MCP_ENDPOINT} \\
+const MCP_ADD_CMD = `claude mcp add --transport http hatch ${MCP_ENDPOINT_URL} \\
   --header "Authorization: Bearer YOUR_KEY"`;
 
 const MCP_JSON_CONFIG = JSON.stringify(
   {
     mcpServers: {
       hatch: {
-        url: MCP_ENDPOINT,
+        url: MCP_ENDPOINT_URL,
         headers: { Authorization: 'Bearer YOUR_KEY' },
       },
     },

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
+import { MCP_ENDPOINT_URL } from '@hatch/shared';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { requireUser } from '@/lib/auth';
 import { GenerateKeyFlow } from './_components/generate-key-flow';
@@ -7,8 +8,6 @@ import { McpConfigSnippet } from './_components/mcp-config-snippet';
 import { revokeApiKey } from '@/lib/actions/api-keys';
 
 export const dynamic = 'force-dynamic';
-
-const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL ?? 'http://localhost:8080/mcp';
 
 function formatDate(iso: string | null, locale: string, neverLabel: string): string {
   if (!iso) return neverLabel;
@@ -92,7 +91,7 @@ export default async function ApiKeysPage() {
                 code: (chunks) => <code className="font-mono text-xs">{chunks}</code>,
               })}
             </p>
-            <McpConfigSnippet endpoint={MCP_URL} />
+            <McpConfigSnippet endpoint={MCP_ENDPOINT_URL} />
           </section>
         </>
       )}

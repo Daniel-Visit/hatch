@@ -5,6 +5,11 @@
 // The actual MCP server implementations live in apps/mcp/src/tools/{read,publish,social}.ts.
 // When you add/remove a tool there, update this list to match.
 
+// Public endpoint of the deployed Hatch MCP server (Streamable HTTP transport,
+// POST /mcp). Single source of truth so the /developers connect guide and the
+// /settings/api-keys config snippet never drift apart.
+export const MCP_ENDPOINT_URL = 'https://hatch-mcp-production.up.railway.app/mcp';
+
 export type McpToolName =
   | 'list_apps'
   | 'search_apps'
