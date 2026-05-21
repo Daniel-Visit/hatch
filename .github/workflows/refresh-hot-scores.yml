@@ -1,0 +1,25 @@
+name: Refresh hot scores
+
+# Pings the Hatch refresh-scores cron endpoint every 15 minutes.
+# Moved off Vercel crons — the Vercel Hobby plan only allows daily crons.
+# CRON_SECRET is stored as a repo secret and must match the value set on Vercel.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /api/cron/refresh-scores
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          code=$(curl -sS -o /tmp/body -w '%{http_code}' \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "https://hatch-brown.vercel.app/api/cron/refresh-scores")
+          echo "HTTP $code"
+          cat /tmp/body; echo
+          test "$code" = "200"
