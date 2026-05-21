@@ -1,0 +1,3 @@
+{
+  "crons": [{ "path": "/api/cron/pick-featured", "schedule": "0 9 * * 1" }]
+}

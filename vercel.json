@@ -1,6 +1,0 @@
-{
-  "crons": [
-    { "path": "/api/cron/refresh-scores", "schedule": "*/15 * * * *" },
-    { "path": "/api/cron/pick-featured", "schedule": "0 9 * * 1" }
-  ]
-}
