@@ -4,11 +4,14 @@
 // part of the same product surface, not a separate app.
 
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { MCP_TOOL_GROUPS, MCP_ENDPOINT_URL } from '@hatch/shared';
+import { getUser } from '@/lib/auth';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Topbar } from '@/app/_landing/topbar';
 import { Footer } from '@/app/_landing/footer';
 import { CopyBlock } from './_components/copy-block';
+import { ApiKeyPanel, type ActiveKey } from './_components/api-key-panel';
 
 import '../landing.css';
 import './developers.css';
@@ -107,7 +110,48 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DevelopersPage() {
   const t = await getTranslations('Developers');
+  const locale = await getLocale();
   const copy = { copyLabel: t('Copy'), copiedLabel: t('Copied') };
+
+  // Step 1 is auth-aware: signed-in users generate / manage their key inline.
+  const session = await getUser();
+  let activeKey: ActiveKey | null = null;
+  if (session) {
+    const sb = await createSupabaseServerClient();
+    const { data } = await sb
+      .from('api_keys')
+      .select('id, token_prefix, created_at, last_used_at')
+      .eq('user_id', session.user.id)
+      .is('revoked_at', null)
+      .maybeSingle();
+    if (data) {
+      const never = t('ApiKey.Never');
+      const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString(locale) : never);
+      activeKey = {
+        id: data.id,
+        tokenPrefix: data.token_prefix,
+        meta: `${t('ApiKey.Created', { when: fmt(data.created_at) })} · ${t('ApiKey.LastUsed', {
+          when: fmt(data.last_used_at),
+        })}`,
+      };
+    }
+  }
+
+  const keyLabels = {
+    signInPrompt: t('ApiKey.SignInPrompt'),
+    signInCta: t('ApiKey.SignInCta'),
+    noKeyHint: t('ApiKey.NoKeyHint'),
+    generate: t('ApiKey.Generate'),
+    generating: t('ApiKey.Generating'),
+    revoke: t('ApiKey.Revoke'),
+    revoking: t('ApiKey.Revoking'),
+    saveNotice: t('ApiKey.SaveNotice'),
+    lossWarning: t('ApiKey.LossWarning'),
+    copy: t('Copy'),
+    copied: t('Copied'),
+    done: t('ApiKey.Done'),
+    error: t('ApiKey.Error'),
+  };
 
   return (
     <div className="landing-root">
@@ -158,9 +202,12 @@ export default async function DevelopersPage() {
               <div className="dev-step-body">
                 <h3>{t('Mcp.Step1.Title')}</h3>
                 <p>{t('Mcp.Step1.Body')}</p>
-                <a href="/settings/api-keys" className="btn btn--primary">
-                  {t('Mcp.Step1.Cta')}
-                </a>
+                <ApiKeyPanel
+                  signedIn={session !== null}
+                  activeKey={activeKey}
+                  defaultKeyLabel={t('ApiKey.DefaultLabel')}
+                  labels={keyLabels}
+                />
               </div>
             </li>
             <li className="dev-step">

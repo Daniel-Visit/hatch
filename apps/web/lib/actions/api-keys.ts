@@ -58,7 +58,7 @@ export async function generateApiKey(
 
   if (error) return { ok: false, error: 'db_error' };
 
-  revalidatePath('/settings/api-keys');
+  revalidatePath('/developers');
   return { ok: true, data: { plainToken, label: parsed.data.label } };
 }
 
@@ -85,6 +85,6 @@ export async function revokeApiKey(input: ApiKeyRevokeT): Promise<Result<{ id: s
 
   if (error || !data) return { ok: false, error: 'not_found' };
 
-  revalidatePath('/settings/api-keys');
+  revalidatePath('/developers');
   return { ok: true, data: { id: data.id } };
 }

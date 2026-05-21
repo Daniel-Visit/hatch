@@ -108,7 +108,7 @@ export async function GET() {
       title: 'Hatch Public API',
       version: '1.0.0',
       description:
-        'Read-only JSON API for the Hatch app gallery. CORS open. Rate-limited at 60 requests per minute per IP. For authenticated agent access (publishing, social actions, messaging), use the MCP server — see /settings/api-keys.',
+        'Read-only JSON API for the Hatch app gallery. CORS open. Rate-limited at 60 requests per minute per IP. For authenticated agent access (publishing, social actions, messaging), use the MCP server — see https://hatch.dev/developers.',
     },
     servers: [{ url: 'https://hatch.dev' }],
   });

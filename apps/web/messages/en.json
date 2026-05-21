@@ -282,30 +282,6 @@
       "FailedToast": "Failed to save",
       "CouldNotEnable": "Could not enable: {reason}"
     },
-    "ApiKeysPage": {
-      "Title": "API Keys",
-      "Subtitle": "Generate a personal access token to connect any MCP client (ChatGPT, Cursor, Continue, custom agents, etc.) to your Hatch account. One active key per user — revoke and regenerate to rotate.",
-      "NoActiveKey": "No active key",
-      "NoActiveKeyHint": "Click below to generate one. You'll see the token only once.",
-      "GenerateApiKey": "Generate API Key",
-      "Generating": "Generating…",
-      "Revoke": "Revoke",
-      "Active": "Active",
-      "Revoked": "Revoked",
-      "Created": "Created {when}",
-      "LastUsed": "Last used {when}",
-      "Never": "never",
-      "ConfigTitle": "MCP client config",
-      "ConfigSubtitle": "Paste this into your MCP client config. Replace <code>&lt;paste-your-token&gt;</code> with the token you saved when generating the key.",
-      "SaveTokenNotice": "Save this now — you won't see it again.",
-      "TokenLossWarning": "After closing, the token is gone for good. Revoke and regenerate if you lose it.",
-      "CopyToken": "Copy token",
-      "Copied": "Copied!",
-      "Copy": "Copy",
-      "Done": "Done",
-      "DefaultLabel": "MCP client",
-      "ErrorPrefix": "Error: {error}"
-    },
     "gradient": {
       "sunset": "Sunset",
       "amber": "Amber",
@@ -489,8 +465,7 @@
       "Subhead": "The Hatch MCP server speaks the Streamable HTTP transport and authenticates with a personal API key. Three steps to connect from Claude Code.",
       "Step1": {
         "Title": "Get your API key",
-        "Body": "Sign in and generate a personal key. It carries your identity, so anything the agent publishes or sends is attributed to you.",
-        "Cta": "Open API keys"
+        "Body": "Generate a personal key — it carries your identity, so anything the agent publishes or sends is attributed to you. You'll see the token only once."
       },
       "Step2": {
         "Title": "Add the MCP server",
@@ -515,6 +490,23 @@
           "Sub": "3 — guided workflows"
         }
       }
+    },
+    "ApiKey": {
+      "SignInPrompt": "Sign in to generate a personal API key for the MCP server.",
+      "SignInCta": "Sign in",
+      "NoKeyHint": "You don't have a key yet — generate one to connect an agent.",
+      "Generate": "Generate API key",
+      "Generating": "Generating…",
+      "Revoke": "Revoke",
+      "Revoking": "Revoking…",
+      "SaveNotice": "Save this token now — you won't see it again.",
+      "LossWarning": "Once you close this, the token is gone for good. Revoke and regenerate if you lose it.",
+      "Done": "Done",
+      "Error": "Error",
+      "Never": "never",
+      "Created": "Created {when}",
+      "LastUsed": "last used {when}",
+      "DefaultLabel": "MCP client"
     },
     "Api": {
       "Eyebrow": "REST API",

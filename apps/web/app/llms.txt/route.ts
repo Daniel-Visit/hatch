@@ -23,7 +23,8 @@ Product-Hunt-for-builders. Discover, publish, and discuss small apps and tools.
 - OpenAPI 3 spec: https://hatch.dev/api/v1/openapi.json
 
 ## MCP server (authenticated agent surface)
-- Hosted at: see /settings/api-keys for the Claude Desktop config snippet
+- Connect guide (get an API key + add the server): https://hatch.dev/developers
+- Endpoint: https://hatch-mcp-production.up.railway.app/mcp
 - Tools (15): list_apps, search_apps, get_app, list_categories, get_profile, list_notifications, publish_app, update_app, like_app, unlike_app, save_app, unsave_app, follow_user, unfollow_user, send_message
 - Resources (3): hatch://app/{slug}, hatch://profile/{handle}, hatch://notifications
 - Prompts (3): draft_app_description, review_my_apps, compose_message

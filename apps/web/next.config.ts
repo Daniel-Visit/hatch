@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const config: NextConfig = {
   transpilePackages: ['@hatch/shared'],
   typedRoutes: true,
+  // The MCP API-key flow moved into the public /developers connect guide.
+  // Edge-level redirect so it runs before the (shell) auth guard.
+  async redirects() {
+    return [{ source: '/settings/api-keys', destination: '/developers#mcp', permanent: false }];
+  },
   outputFileTracingIncludes: {
     '/privacy': ['./content/legal/**'],
     '/terms': ['./content/legal/**'],
