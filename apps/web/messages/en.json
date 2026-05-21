@@ -463,6 +463,92 @@
     "CouldNotEnable": "Could not enable: {reason}",
     "AriaLabel": "Enable notifications"
   },
+  "Developers": {
+    "MetaTitle": "Developers — Build on Hatch",
+    "MetaDescription": "Connect AI agents to Hatch via the MCP server, or read the gallery with the public REST API.",
+    "Eyebrow": "Developers",
+    "Title": "Build on Hatch",
+    "Subhead": "Two ways to plug in: the MCP server for AI agents that publish and act on your behalf, and a public read-only REST API for anything that just needs the gallery data.",
+    "Copy": "Copy",
+    "Copied": "Copied",
+    "Nav": {
+      "Mcp": {
+        "Kicker": "For AI agents",
+        "Title": "MCP server",
+        "Body": "An authenticated Model Context Protocol server — 15 tools, 3 resources and 3 prompts to discover apps, publish, and reach other builders."
+      },
+      "Api": {
+        "Kicker": "For apps",
+        "Title": "REST API",
+        "Body": "A public, read-only JSON API over the app gallery. CORS open, no key required, rate-limited per IP."
+      }
+    },
+    "Mcp": {
+      "Eyebrow": "MCP server",
+      "Title": "Connect an agent",
+      "Subhead": "The Hatch MCP server speaks the Streamable HTTP transport and authenticates with a personal API key. Three steps to connect from Claude Code.",
+      "Step1": {
+        "Title": "Get your API key",
+        "Body": "Sign in and generate a personal key. It carries your identity, so anything the agent publishes or sends is attributed to you.",
+        "Cta": "Open API keys"
+      },
+      "Step2": {
+        "Title": "Add the MCP server",
+        "Body": "Register the server with Claude Code. Replace YOUR_KEY with the key from the previous step.",
+        "ConfigNote": "Using a different MCP client? Add this to its config file instead:"
+      },
+      "Step3": {
+        "Title": "Verify the connection",
+        "Body": "List your MCP servers — hatch should appear as connected. The agent can now call any of the tools below."
+      },
+      "Surface": {
+        "Tools": {
+          "Title": "Tools",
+          "Sub": "15 — 6 read · 2 publish · 7 social"
+        },
+        "Resources": {
+          "Title": "Resources",
+          "Sub": "3 — addressable by URI"
+        },
+        "Prompts": {
+          "Title": "Prompts",
+          "Sub": "3 — guided workflows"
+        }
+      }
+    },
+    "Api": {
+      "Eyebrow": "REST API",
+      "Title": "Public read-only API",
+      "Subhead": "Every endpoint returns JSON and is open via CORS — no API key needed. For publishing or social actions, use the authenticated MCP server above.",
+      "RateLimit": "Base URL: https://hatch.dev · Rate limit: 60 requests per minute per IP",
+      "Endpoints": {
+        "list": {
+          "Desc": "Paginated list of published apps, newest first. Optionally filtered by category."
+        },
+        "detail": {
+          "Desc": "Full detail for a single published app, looked up by its slug."
+        },
+        "profile": {
+          "Desc": "A builder's public profile together with the apps they have published."
+        },
+        "categories": {
+          "Desc": "All app categories with their labels and icons."
+        },
+        "search": {
+          "Desc": "Full-text search across published apps by title, tagline and tags."
+        }
+      },
+      "Params": {
+        "category": "Filter by category id.",
+        "limit": "Maximum number of results to return.",
+        "cursor": "Keyset pagination — pass the previous response's next_cursor.",
+        "q": "Search query (2–100 characters)."
+      },
+      "ResponseNote": "Example response — GET /api/v1/apps",
+      "SpecCta": "Download OpenAPI spec",
+      "SpecNote": "Full request and response schemas, generated from the live API."
+    }
+  },
   "Landing": {
     "Topbar": {
       "Nav": {
@@ -701,9 +787,7 @@
         "Agents": {
           "Title": "For agents",
           "McpServer": "MCP server",
-          "ApiDocs": "API docs",
-          "OpenApi": "OpenAPI",
-          "LlmsTxt": "llms.txt"
+          "ApiReference": "API reference"
         },
         "Company": {
           "Title": "Company",

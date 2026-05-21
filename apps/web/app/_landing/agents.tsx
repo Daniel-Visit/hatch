@@ -133,10 +133,10 @@ export const Agents = async () => {
               </div>
 
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <a href="#" className="btn btn--primary">
+                <a href="/developers#api" className="btn btn--primary">
                   <Code size={14} /> {tA('ReadDocs')}
                 </a>
-                <a href="#" className="btn">
+                <a href="/developers#mcp" className="btn">
                   <Mcp size={14} /> {tA('ConnectMcp')}
                 </a>
               </div>

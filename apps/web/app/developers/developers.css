@@ -1,0 +1,259 @@
+/* /developers page styles — extends the landing design system (landing.css).
+ * Scoped under .landing-root so it inherits the same tokens, and only adds
+ * the structures the landing doesn't already have: the stepped MCP connect
+ * guide, the agent-surface grid, and the REST endpoint cards. */
+
+/* ---------- Quick-jump cards under the header ---------- */
+.landing-root .dev-nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+@media (max-width: 720px) {
+  .landing-root .dev-nav {
+    grid-template-columns: 1fr;
+  }
+}
+.landing-root .dev-nav-card {
+  display: block;
+  padding: 22px;
+  text-decoration: none;
+  color: inherit;
+}
+.landing-root .dev-nav-card .dev-nav-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ax);
+  margin-bottom: 8px;
+}
+.landing-root .dev-nav-card h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+.landing-root .dev-nav-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---------- Stepped connect guide ---------- */
+.landing-root .dev-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.landing-root .dev-step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.landing-root .dev-step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ax);
+  background: var(--ax-tint);
+  border: 1px solid var(--border);
+}
+.landing-root .dev-step-body h3 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 6px 0 6px;
+}
+.landing-root .dev-step-body p {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0 0 12px;
+  max-width: 56ch;
+}
+
+/* ---------- Copy-able code block ---------- */
+.landing-root .dev-code {
+  position: relative;
+}
+.landing-root .dev-code pre {
+  margin: 0;
+  overflow-x: auto;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 56px 14px 14px;
+}
+.landing-root .dev-code code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre;
+}
+.landing-root .dev-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.landing-root .dev-copy-btn:hover {
+  background: var(--surface-2);
+}
+.landing-root .dev-copy-btn[data-copied='true'] {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* ---------- Agent surface (tools / resources / prompts) ---------- */
+.landing-root .dev-surface {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 36px;
+}
+@media (max-width: 860px) {
+  .landing-root .dev-surface {
+    grid-template-columns: 1fr;
+  }
+}
+.landing-root .dev-surface-col {
+  padding: 20px;
+}
+.landing-root .dev-surface-col h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.landing-root .dev-surface-col .dev-surface-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.landing-root .dev-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.landing-root .dev-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+}
+.landing-root .dev-list li .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ax);
+  flex-shrink: 0;
+  transform: translateY(-1px);
+}
+.landing-root .dev-list li .dev-list-note {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ---------- REST endpoint cards ---------- */
+.landing-root .dev-endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.landing-root .dev-endpoint {
+  padding: 20px;
+}
+.landing-root .dev-endpoint-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.landing-root .dev-method {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  background: color-mix(in oklab, var(--green) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--green) 30%, transparent);
+  border-radius: 6px;
+  padding: 3px 7px;
+}
+.landing-root .dev-path {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+.landing-root .dev-endpoint p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 14px;
+  max-width: 64ch;
+}
+.landing-root .dev-params {
+  margin: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.landing-root .dev-param {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  flex-wrap: wrap;
+}
+.landing-root .dev-param-name {
+  font-family: var(--font-mono);
+  color: var(--ax);
+}
+.landing-root .dev-param-meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted-2);
+}
+.landing-root .dev-param-desc {
+  color: var(--muted);
+}
+.landing-root .dev-spec-row {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.landing-root .dev-spec-row .dev-spec-note {
+  font-size: 12.5px;
+  color: var(--muted);
+}

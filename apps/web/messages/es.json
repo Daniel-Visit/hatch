@@ -463,6 +463,92 @@
     "CouldNotEnable": "No se pudo activar: {reason}",
     "AriaLabel": "Activar notificaciones"
   },
+  "Developers": {
+    "MetaTitle": "Desarrolladores — Construye sobre Hatch",
+    "MetaDescription": "Conecta agentes de IA a Hatch mediante el servidor MCP, o lee la galería con la API REST pública.",
+    "Eyebrow": "Desarrolladores",
+    "Title": "Construye sobre Hatch",
+    "Subhead": "Dos formas de integrarte: el servidor MCP para agentes de IA que publican y actúan en tu nombre, y una API REST pública de solo lectura para cualquier cosa que solo necesite los datos de la galería.",
+    "Copy": "Copiar",
+    "Copied": "Copiado",
+    "Nav": {
+      "Mcp": {
+        "Kicker": "Para agentes de IA",
+        "Title": "Servidor MCP",
+        "Body": "Un servidor Model Context Protocol autenticado — 15 herramientas, 3 recursos y 3 prompts para descubrir apps, publicar y contactar a otros builders."
+      },
+      "Api": {
+        "Kicker": "Para aplicaciones",
+        "Title": "API REST",
+        "Body": "Una API JSON pública de solo lectura sobre la galería de apps. CORS abierto, sin clave, con límite de peticiones por IP."
+      }
+    },
+    "Mcp": {
+      "Eyebrow": "Servidor MCP",
+      "Title": "Conecta un agente",
+      "Subhead": "El servidor MCP de Hatch usa el transporte Streamable HTTP y se autentica con una clave de API personal. Tres pasos para conectarlo desde Claude Code.",
+      "Step1": {
+        "Title": "Obtén tu clave de API",
+        "Body": "Inicia sesión y genera una clave personal. Lleva tu identidad, así que todo lo que el agente publique o envíe queda atribuido a ti.",
+        "Cta": "Abrir claves de API"
+      },
+      "Step2": {
+        "Title": "Agrega el servidor MCP",
+        "Body": "Registra el servidor en Claude Code. Reemplaza YOUR_KEY con la clave del paso anterior.",
+        "ConfigNote": "¿Usas otro cliente MCP? Agrega esto a su archivo de configuración:"
+      },
+      "Step3": {
+        "Title": "Verifica la conexión",
+        "Body": "Lista tus servidores MCP — hatch debe aparecer como conectado. El agente ya puede llamar a cualquiera de las herramientas de abajo."
+      },
+      "Surface": {
+        "Tools": {
+          "Title": "Herramientas",
+          "Sub": "15 — 6 lectura · 2 publicación · 7 social"
+        },
+        "Resources": {
+          "Title": "Recursos",
+          "Sub": "3 — direccionables por URI"
+        },
+        "Prompts": {
+          "Title": "Prompts",
+          "Sub": "3 — flujos guiados"
+        }
+      }
+    },
+    "Api": {
+      "Eyebrow": "API REST",
+      "Title": "API pública de solo lectura",
+      "Subhead": "Cada endpoint devuelve JSON y está abierto vía CORS — sin clave de API. Para publicar o acciones sociales, usa el servidor MCP autenticado de arriba.",
+      "RateLimit": "URL base: https://hatch.dev · Límite: 60 peticiones por minuto por IP",
+      "Endpoints": {
+        "list": {
+          "Desc": "Lista paginada de apps publicadas, las más nuevas primero. Opcionalmente filtrada por categoría."
+        },
+        "detail": {
+          "Desc": "Detalle completo de una app publicada, buscada por su slug."
+        },
+        "profile": {
+          "Desc": "El perfil público de un builder junto con las apps que ha publicado."
+        },
+        "categories": {
+          "Desc": "Todas las categorías de apps con sus etiquetas e íconos."
+        },
+        "search": {
+          "Desc": "Búsqueda de texto completo en apps publicadas por título, lema y etiquetas."
+        }
+      },
+      "Params": {
+        "category": "Filtra por id de categoría.",
+        "limit": "Cantidad máxima de resultados a devolver.",
+        "cursor": "Paginación por keyset — pasa el next_cursor de la respuesta anterior.",
+        "q": "Texto de búsqueda (2–100 caracteres)."
+      },
+      "ResponseNote": "Respuesta de ejemplo — GET /api/v1/apps",
+      "SpecCta": "Descargar spec OpenAPI",
+      "SpecNote": "Esquemas completos de petición y respuesta, generados desde la API en vivo."
+    }
+  },
   "Landing": {
     "Topbar": {
       "Nav": {
@@ -701,9 +787,7 @@
         "Agents": {
           "Title": "Para agentes",
           "McpServer": "Servidor MCP",
-          "ApiDocs": "Documentación de la API",
-          "OpenApi": "OpenAPI",
-          "LlmsTxt": "llms.txt"
+          "ApiReference": "Referencia de la API"
         },
         "Company": {
           "Title": "Empresa",

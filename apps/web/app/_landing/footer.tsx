@@ -1,13 +1,8 @@
 // Hatch landing footer — verbatim port of /tmp/hatch-landing-v2/src/sections-3.jsx Footer (lines 279-321).
-// Hrefs wired to real routes (gallery, trending, llms.txt, openapi.json, Railway MCP).
-// Year is dynamic. Server Component.
+// Hrefs wired to real routes (gallery, trending, /developers). Year is dynamic. Server Component.
 
 import { getTranslations } from 'next-intl/server';
 import { Logo } from '@/app/_landing/logo';
-
-const MCP_URL = 'https://hatch-mcp-production.up.railway.app';
-const OPENAPI_URL = '/api/v1/openapi.json';
-const LLMS_TXT_URL = '/llms.txt';
 
 export const Footer = async () => {
   const t = await getTranslations('Landing.Footer');
@@ -40,24 +35,10 @@ export const Footer = async () => {
             <h5>{t('Columns.Agents.Title')}</h5>
             <ul>
               <li>
-                <a href={MCP_URL} target="_blank" rel="noopener noreferrer">
-                  {t('Columns.Agents.McpServer')}
-                </a>
+                <a href="/developers#mcp">{t('Columns.Agents.McpServer')}</a>
               </li>
               <li>
-                <a href={OPENAPI_URL} target="_blank" rel="noopener noreferrer">
-                  {t('Columns.Agents.ApiDocs')}
-                </a>
-              </li>
-              <li>
-                <a href={OPENAPI_URL} target="_blank" rel="noopener noreferrer">
-                  {t('Columns.Agents.OpenApi')}
-                </a>
-              </li>
-              <li>
-                <a href={LLMS_TXT_URL} target="_blank" rel="noopener noreferrer">
-                  {t('Columns.Agents.LlmsTxt')}
-                </a>
+                <a href="/developers#api">{t('Columns.Agents.ApiReference')}</a>
               </li>
             </ul>
           </div>
