@@ -7,23 +7,23 @@ const BODY = `# Hatch
 Product-Hunt-for-builders. Discover, publish, and discuss small apps and tools.
 
 ## Browse
-- Discover: https://hatch.dev/
-- Trending (last 7 days): https://hatch.dev/trending
-- Following: https://hatch.dev/following
-- Categories: https://hatch.dev/c/{category_id}
-- App detail: https://hatch.dev/a/{slug}
-- Maker profile: https://hatch.dev/u/{handle}
+- Discover: https://hatchme.cc/
+- Trending (last 7 days): https://hatchme.cc/trending
+- Following: https://hatchme.cc/following
+- Categories: https://hatchme.cc/c/{category_id}
+- App detail: https://hatchme.cc/a/{slug}
+- Maker profile: https://hatchme.cc/u/{handle}
 
 ## Public read-only JSON API (CORS open, rate-limited 60/min/IP)
-- List apps: https://hatch.dev/api/v1/apps
-- App detail: https://hatch.dev/api/v1/apps/{slug}
-- Maker profile + apps: https://hatch.dev/api/v1/profiles/{handle}
-- Categories: https://hatch.dev/api/v1/categories
-- Full-text search: https://hatch.dev/api/v1/search?q={query}
-- OpenAPI 3 spec: https://hatch.dev/api/v1/openapi.json
+- List apps: https://hatchme.cc/api/v1/apps
+- App detail: https://hatchme.cc/api/v1/apps/{slug}
+- Maker profile + apps: https://hatchme.cc/api/v1/profiles/{handle}
+- Categories: https://hatchme.cc/api/v1/categories
+- Full-text search: https://hatchme.cc/api/v1/search?q={query}
+- OpenAPI 3 spec: https://hatchme.cc/api/v1/openapi.json
 
 ## MCP server (authenticated agent surface)
-- Connect guide (get an API key + add the server): https://hatch.dev/developers
+- Connect guide (get an API key + add the server): https://hatchme.cc/developers
 - Endpoint: https://hatch-mcp-production.up.railway.app/mcp
 - Tools (15): list_apps, search_apps, get_app, list_categories, get_profile, list_notifications, publish_app, update_app, like_app, unlike_app, save_app, unsave_app, follow_user, unfollow_user, send_message
 - Resources (3): hatch://app/{slug}, hatch://profile/{handle}, hatch://notifications

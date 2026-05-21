@@ -16,7 +16,7 @@ function configureVapid() {
       'VAPID keys not configured — set NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY',
     );
   }
-  webpush.setVapidDetails('mailto:hello@hatch.dev', pub, priv);
+  webpush.setVapidDetails('mailto:hello@hatchme.cc', pub, priv);
   vapidConfigured = true;
 }
 

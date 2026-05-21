@@ -376,7 +376,7 @@
     "LinkPlaceholder": "https://",
     "Optional": "opcional",
     "HeadsUpTitle": "Aviso — esto comparte tu información de contacto.",
-    "HeadsUpBody": "Si <b>{name}</b> acepta, verá tu nombre, handle, correo ({email}@hatch.dev), perfil y el enlace de arriba. Pueden responderte directamente. Puedes revocar el acceso en cualquier momento.",
+    "HeadsUpBody": "Si <b>{name}</b> acepta, verá tu nombre, handle, correo ({email}@hatchme.cc), perfil y el enlace de arriba. Pueden responderte directamente. Puedes revocar el acceso en cualquier momento.",
     "ConsentLabel": "Estoy compartiendo mis datos de contacto con <b>{name}</b> para esta consulta de <b>{role}</b>.",
     "Cancel": "Cancelar",
     "Send": "Enviar solicitud",
@@ -512,7 +512,7 @@
       "Eyebrow": "API REST",
       "Title": "API pública de solo lectura",
       "Subhead": "Cada endpoint devuelve JSON y está abierto vía CORS — sin clave de API. Para publicar o acciones sociales, usa el servidor MCP autenticado de arriba.",
-      "RateLimit": "URL base: https://hatch.dev · Límite: 60 peticiones por minuto por IP",
+      "RateLimit": "URL base: https://hatchme.cc · Límite: 60 peticiones por minuto por IP",
       "Endpoints": {
         "list": {
           "Desc": "Lista paginada de apps publicadas, las más nuevas primero. Opcionalmente filtrada por categoría."

@@ -16,7 +16,7 @@ import { ApiKeyPanel, type ActiveKey } from './_components/api-key-panel';
 import '../landing.css';
 import './developers.css';
 
-const API_BASE = 'https://hatch.dev';
+const API_BASE = 'https://hatchme.cc';
 
 const MCP_ADD_CMD = `claude mcp add --transport http hatch ${MCP_ENDPOINT_URL} \\
   --header "Authorization: Bearer YOUR_KEY"`;
