@@ -1,13 +1,11 @@
 // Hatch landing footer — verbatim port of /tmp/hatch-landing-v2/src/sections-3.jsx Footer (lines 279-321).
-// Hrefs wired to real routes (gallery, trending, llms.txt, openapi.json, GitHub, Railway MCP).
-// `About / Privacy / Terms` still `#` until those pages exist. Year is dynamic. Server Component.
+// Hrefs wired to real routes (gallery, trending, llms.txt, openapi.json, Railway MCP).
+// Year is dynamic. Server Component.
 
 import { getTranslations } from 'next-intl/server';
 import { Logo } from '@/app/_landing/logo';
-import { GitHub } from '@/app/_landing/icons';
 
 const MCP_URL = 'https://hatch-mcp-production.up.railway.app';
-const REPO_URL = 'https://github.com/Daniel-Visit/hatch';
 const OPENAPI_URL = '/api/v1/openapi.json';
 const LLMS_TXT_URL = '/llms.txt';
 
@@ -66,14 +64,6 @@ export const Footer = async () => {
           <div className="footer-col">
             <h5>{t('Columns.Company.Title')}</h5>
             <ul>
-              <li>
-                <a href="#">{t('Columns.Company.About')}</a>
-              </li>
-              <li>
-                <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-                  <GitHub size={12} /> {t('Columns.Company.GitHub')}
-                </a>
-              </li>
               <li>
                 <a href="/privacy">{t('Columns.Company.Privacy')}</a>
               </li>

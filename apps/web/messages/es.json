@@ -707,8 +707,6 @@
         },
         "Company": {
           "Title": "Empresa",
-          "About": "Acerca de",
-          "GitHub": "GitHub",
           "Privacy": "Privacidad",
           "Terms": "Términos",
           "Commercial": "Acuerdo Comercial"
