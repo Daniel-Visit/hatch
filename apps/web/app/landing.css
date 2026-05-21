@@ -832,6 +832,15 @@ html:has(.landing-root) {
 }
 
 /* ============ BENTO ============ */
+/* Bento-scoped spacing: compact so all 5 cells + heading read as one
+   block within a single viewport. Scoped to #features so other sections
+   keep the default .sect / .section-head rhythm. */
+.landing-root #features.sect {
+  padding: 40px 0;
+}
+.landing-root #features .section-head {
+  margin-bottom: 20px;
+}
 .landing-root .bento {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -868,7 +877,7 @@ html:has(.landing-root) {
   position: relative;
   pointer-events: none;
   margin: 8px -20px -20px;
-  height: 160px;
+  height: 120px;
   overflow: hidden;
 }
 .landing-root .bento-cell .bento-copy {
@@ -926,7 +935,6 @@ html:has(.landing-root) {
   .landing-root .b-notifs,
   .landing-root .b-ranking {
     grid-column: span 2;
-    max-height: 280px;
   }
 }
 
