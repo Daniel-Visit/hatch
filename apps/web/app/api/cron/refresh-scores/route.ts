@@ -17,7 +17,6 @@ export async function GET(req: Request) {
   const admin = createSupabaseAdminClient();
   const { data, error } = await admin.rpc('refresh_hot_scores');
   if (error) {
-    // eslint-disable-next-line no-console
     console.error('cron refresh_hot_scores failed', { message: error.message, code: error.code });
     return NextResponse.json({ ok: false, error: 'rpc_failed' }, { status: 500 });
   }

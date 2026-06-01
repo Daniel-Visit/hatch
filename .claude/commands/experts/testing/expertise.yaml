@@ -1,0 +1,68 @@
+# Testing Expertise
+# hatch — vitest unit tests + TypeScript quality gates
+
+overview:
+  description: "vitest 2.1.9 unit test harness (first/only test framework in repo) + TypeScript quality gates"
+  project: hatch (Next.js 15 + Supabase + MCP-SDK pnpm monorepo)
+  test_runner: vitest 2.1.9
+  run_command: "pnpm test"   # maps to `vitest run` (non-watch, CI-safe)
+
+test_runner_config:
+  config_file: vitest.config.ts   # repo root
+  test_script: '"test": "vitest run"'   # root package.json scripts
+  include_globs:
+    - "apps/web/lib/**/*.test.ts"
+    - "packages/shared/src/**/*.test.ts"
+  environment: node
+  watch_mode: "vitest (no 'run') — only for local interactive use"
+
+test_file_convention:
+  pattern: "co-located *.test.ts next to the module under test"
+  examples:
+    - "apps/web/lib/wanted/completeness.test.ts  →  tests completeness.ts"
+    - "apps/web/lib/wanted/invariants.test.ts    →  tests invariants.ts"
+    - "packages/shared/src/feature-flags.test.ts →  tests feature-flags.ts"
+
+coverage:
+  # Phase 0 Wanted pure-function tests (all currently passing)
+  completeness: "apps/web/lib/wanted/completeness.test.ts — scores brief completeness"
+  invariants: "apps/web/lib/wanted/invariants.test.ts — structural invariant predicates"
+  feature_flags: "packages/shared/src/feature-flags.test.ts — feature flag helpers"
+
+test_style:
+  approach: "No mocks — pure-function unit tests only"
+  rationale: "All tested modules are pure TS functions with no I/O or Supabase calls"
+  imports: "@hatch/shared resolves via pnpm workspace — no path aliases needed"
+
+quality_gates:
+  # Run these in order for a full validation pass
+  unit_tests: "pnpm test          # vitest run — all *.test.ts"
+  typecheck:  "pnpm typecheck     # pnpm -r typecheck across all workspace packages"
+  lint:       "pnpm lint          # pnpm -r lint (ESLint 9 + typescript-eslint)"
+  build:      "pnpm build         # pnpm -r build — full production build"
+
+key_file_locations:
+  vitest_config: vitest.config.ts
+  root_package: package.json
+  completeness_test: apps/web/lib/wanted/completeness.test.ts
+  invariants_test:   apps/web/lib/wanted/invariants.test.ts
+  feature_flags_test: packages/shared/src/feature-flags.test.ts
+  # modules under test
+  completeness_src:  apps/web/lib/wanted/completeness.ts
+  invariants_src:    apps/web/lib/wanted/invariants.ts
+  feature_flags_src: packages/shared/src/feature-flags.ts
+
+best_practices:
+  new_tests: "Add *.test.ts co-located with the module; pure functions only; no mocks"
+  ci: "pnpm test is the unit-test gate; pnpm typecheck + pnpm lint + pnpm build are the broader gates"
+  coverage: "No coverage tooling configured yet — tests run but no coverage reports"
+  no_jest: "This repo uses vitest only — do NOT introduce jest"
+  scope: "vitest covers packages/shared and apps/web/lib; apps/mcp has no tests yet"
+
+architecture_summary: |
+  vitest 2.1.9 is the first and only test harness in the hatch monorepo.
+  Established in Phase 0 (Wanted feature) alongside the pure-function library substrate.
+  Config lives at the repo root (vitest.config.ts); tests are co-located *.test.ts files.
+  Run with `pnpm test` (non-watch). All tests are pure-function, no-mock unit tests.
+  Broader quality gates: pnpm typecheck / pnpm lint / pnpm build (all run recursively
+  across the monorepo via pnpm -r).

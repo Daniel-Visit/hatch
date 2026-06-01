@@ -57,6 +57,13 @@ function buildProfile(authorId: string, profileData: ProfileData): Tables<'profi
     theme_pref: '',
     banner_gradient: null,
     locale_pref: null,
+    accepts_requests: false,
+    request_capacity: 3,
+    request_domains: [],
+    request_rate_band: null,
+    inferred_capabilities: [],
+    last_brief_response_at: null,
+    feature_flags: {},
   };
 }
 
