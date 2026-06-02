@@ -17,6 +17,8 @@ The following paths are byte-for-byte ports of `prototype/apps-gallery/`. They M
 - `apps/web/app/_components/contact-modal.tsx`
 - `apps/web/app/_landing/*.tsx` (all landing sections — atoms, hero, bento, agents, footer, etc.)
 - `apps/web/app/_landing/bento/*.tsx` (5 bento vis cells)
+- `apps/web/app/(shell)/wanted/**/*.tsx` (refiner UI — verbatim port of mockups.html #refiner)
+- `apps/web/app/styles/wanted.css` (verbatim CSS from the #refiner mockup)
 
 For these files:
 - Tailwind utility classes are FORBIDDEN.

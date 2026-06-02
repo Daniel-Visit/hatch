@@ -795,5 +795,50 @@
       "Unlike": "Quitar me gusta",
       "Open": "Abrir {title}"
     }
+  },
+  "Wanted": {
+    "head": {
+      "title": "Publica una necesidad"
+    },
+    "composer": {
+      "placeholder": "Responde o pregúntale al agente…",
+      "hint": "Enter para enviar · Shift+Enter para salto de línea · Esc para detener"
+    },
+    "summary": {
+      "title": "Resumen del brief"
+    },
+    "Brief": {
+      "editHint": "Haz clic en cualquier campo para editarlo. Los cambios se guardan solos y el agente los respetará en los siguientes turnos."
+    },
+    "labels": {
+      "title": "título",
+      "trigger": "disparador",
+      "endState": "resultado deseado",
+      "mustHaves": "imprescindibles",
+      "outOfScope": "fuera de alcance",
+      "technicalLevel": "nivel técnico",
+      "solutionPreference": "preferencia de solución",
+      "budgetTimeline": "presupuesto · plazo"
+    },
+    "approve": {
+      "ready": "Se ve bien. Calidad en {score} con tus ediciones.",
+      "keepTalking": "Seguir hablando",
+      "cta": "Aprobar y emparejar →",
+      "editsTag": "✎ {n} ediciones",
+      "autosaved": "Todas las ediciones se guardaron · el agente las respetará"
+    },
+    "empty": {
+      "outOfScope": "— haz clic para añadir lo que NO lo resolvería —"
+    },
+    "addChip": "+ añadir",
+    "approved": {
+      "title": "Emparejamiento iniciado",
+      "body": "Estamos buscando coincidencias para tu brief."
+    },
+    "technicalLevel": {
+      "nonTechnical": "No técnico",
+      "semiTechnical": "Semi-técnico",
+      "developer": "Desarrollador"
+    }
   }
 }

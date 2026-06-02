@@ -1,0 +1,86 @@
+[
+  {
+    "id": "case_001_solo_designer_needs_invoicing",
+    "seedMessage": "Hi, I'm a freelance graphic designer and I'm really struggling with invoicing. Every month it takes me forever to put together invoices in Word and track who has paid. I want something that makes this easier — like an app that already exists, ideally cheap or free. I don't know much about tech stuff.",
+    "expectedTurnsMax": 6,
+    "mustExtract": {
+      "title": "Invoicing",
+      "problem": {
+        "trigger": "monthly"
+      },
+      "context": {
+        "technicalLevel": "non_technical"
+      },
+      "constraints": {
+        "budgetBand": "exploratory"
+      }
+    },
+    "mustAsk": ["trigger", "workaround", "budget"],
+    "mustNotAsk": ["great question", "certainly!", "absolutely!"]
+  },
+  {
+    "id": "case_002_dev_wants_to_fork_lumen",
+    "seedMessage": "I'm a developer and I've been using Lumen for API mocking but it's missing features I need — specifically custom response scripting and better team sharing. I want to fork it and add those features. I have a Node.js + React stack and I'm comfortable building this myself. Budget is flexible, just my time.",
+    "expectedTurnsMax": 6,
+    "mustExtract": {
+      "title": "Lumen fork",
+      "problem": {
+        "trigger": "missing features"
+      },
+      "context": {
+        "technicalLevel": "developer",
+        "existingStack": ["Node.js", "React"]
+      },
+      "preferredSolutionType": ["fork_and_modify"]
+    },
+    "mustAsk": ["affected", "workaround", "timeline"],
+    "mustNotAsk": ["great question", "certainly!", "absolutely!"]
+  },
+  {
+    "id": "case_003_smb_legacy_migration",
+    "seedMessage": "We're a small business running a 15-year-old Windows desktop app for tracking client jobs and billing. It crashes constantly and our IT person retired. We need to migrate to something modern — probably a web app — and we have budget to do this properly, maybe $15k-$20k. I understand software but I'm not a developer.",
+    "expectedTurnsMax": 6,
+    "mustExtract": {
+      "title": "Legacy migration",
+      "problem": {
+        "trigger": "crashes"
+      },
+      "context": {
+        "technicalLevel": "semi_technical"
+      },
+      "constraints": {
+        "budgetBand": "gt_10k"
+      },
+      "preferredSolutionType": ["custom_build"]
+    },
+    "mustAsk": ["workaround", "timeline", "affected"],
+    "mustNotAsk": ["great question", "certainly!", "absolutely!"]
+  },
+  {
+    "id": "case_004_vague_dont_know",
+    "seedMessage": "I just want better workflow. Things feel disorganized and I waste a lot of time every day but I'm not sure exactly what the problem is or what I need.",
+    "expectedTurnsMax": 6,
+    "mustExtract": {
+      "problem": {
+        "trigger": "disorganized"
+      }
+    },
+    "mustAsk": ["trigger", "workaround", "affected"],
+    "mustNotAsk": ["great question", "certainly!", "absolutely!"]
+  },
+  {
+    "id": "case_005_seeker_already_solution_focused",
+    "seedMessage": "I want an app like Notion but simpler — just personal notes with a calendar view and reminders. Notion is too complex for what I need.",
+    "expectedTurnsMax": 6,
+    "mustExtract": {
+      "problem": {
+        "trigger": "too complex"
+      },
+      "desiredOutcome": {
+        "mustHaves": ["notes", "calendar", "reminders"]
+      }
+    },
+    "mustAsk": ["trigger", "workaround"],
+    "mustNotAsk": ["great question", "certainly!", "absolutely!"]
+  }
+]

@@ -795,5 +795,50 @@
       "Unlike": "Unlike",
       "Open": "Open {title}"
     }
+  },
+  "Wanted": {
+    "head": {
+      "title": "Post a need"
+    },
+    "composer": {
+      "placeholder": "Reply or ask the agent a question…",
+      "hint": "Enter to send · Shift+Enter for newline · Esc to stop streaming"
+    },
+    "summary": {
+      "title": "Brief summary"
+    },
+    "Brief": {
+      "editHint": "Click any field to edit. Changes auto-save and the agent will respect them on next turns."
+    },
+    "labels": {
+      "title": "title",
+      "trigger": "trigger",
+      "endState": "end state",
+      "mustHaves": "must-haves",
+      "outOfScope": "out of scope",
+      "technicalLevel": "technical level",
+      "solutionPreference": "solution preference",
+      "budgetTimeline": "budget · timeline"
+    },
+    "approve": {
+      "ready": "Looks good. Quality at {score} with your edits.",
+      "keepTalking": "Keep talking",
+      "cta": "Approve & match →",
+      "editsTag": "✎ {n} edits",
+      "autosaved": "All edits auto-saved · agent will respect them"
+    },
+    "empty": {
+      "outOfScope": "— click to add what wouldn't solve this —"
+    },
+    "addChip": "+ add",
+    "approved": {
+      "title": "Matching started",
+      "body": "We're finding matches for your brief."
+    },
+    "technicalLevel": {
+      "nonTechnical": "Non-technical",
+      "semiTechnical": "Semi-technical",
+      "developer": "Developer"
+    }
   }
 }
