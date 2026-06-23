@@ -9,7 +9,14 @@ import { problemResponse } from '@/lib/wanted/problem';
 import { createBrief } from '@/lib/wanted/brief-repo';
 import { BriefQuotaExceededError } from '@/lib/wanted/invariants';
 import { appendTurn } from '@/lib/wanted/turn-repo';
-import { BriefContentSchema } from '@hatch/shared';
+import { BriefContentSchema, PARSE_MAX_CHARS } from '@hatch/shared';
+
+/**
+ * Minimum pasted-text length for `mode: paste` (§2.1 / §3.3.6). Shorter than
+ * this and the Parser is skipped — the seeker is redirected to Chat mode.
+ * (`PARSE_MAX_CHARS` is exported from shared; there is no shared min constant.)
+ */
+const PASTE_MIN_CHARS = 80;
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -74,7 +81,7 @@ export async function POST(req: Request) {
 
   // 3. Rate-limit: 10 create actions per hour per user (keyed by userId, not IP)
   const userKey = `briefs:create:${user.id}`;
-  const rl = await checkRateLimit(userKey);
+  const rl = await checkRateLimit(userKey, { limit: 10, windowSeconds: 3600 });
   if (!rl.ok) {
     return problemResponse(
       'too_many_drafts',
@@ -109,34 +116,84 @@ export async function POST(req: Request) {
 
   const { mode, seed, pastedText } = parsed.data;
 
-  // 5. Only CHAT mode is supported in Slice 1a
-  if (mode !== 'chat') {
-    return problemResponse(
-      'mode_not_supported_yet',
-      'Mode not supported yet',
-      400,
-      'Only chat mode is available in this release',
-    );
+  // 5. Mode-dependent field validation (§2.1). Each mode constrains which
+  //    optional fields may be present so downstream agents get a clean input.
+  if (mode === 'chat') {
+    // chat: `seed` optional, `pastedText` must be absent.
+    if (pastedText !== undefined) {
+      return problemResponse(
+        'mode_field_mismatch',
+        'Field mismatch',
+        400,
+        'pastedText is not valid for chat mode.',
+      );
+    }
+  } else if (mode === 'form') {
+    // form: both `seed` and `pastedText` must be absent.
+    if (seed !== undefined || pastedText !== undefined) {
+      return problemResponse(
+        'mode_field_mismatch',
+        'Field mismatch',
+        400,
+        'seed and pastedText are not valid for form mode.',
+      );
+    }
+  } else {
+    // paste: `pastedText` required (80–4000 chars), `seed` must be absent.
+    if (seed !== undefined) {
+      return problemResponse(
+        'mode_field_mismatch',
+        'Field mismatch',
+        400,
+        'seed is not valid for paste mode.',
+      );
+    }
+    if (pastedText === undefined) {
+      return problemResponse(
+        'mode_field_mismatch',
+        'Field mismatch',
+        400,
+        'pastedText is required for paste mode.',
+      );
+    }
+    const len = pastedText.length;
+    if (len < PASTE_MIN_CHARS) {
+      return problemResponse(
+        'paste_too_short',
+        'Paste too short',
+        400,
+        `Pasted text must be at least ${PASTE_MIN_CHARS} characters. Try Chat mode for short prompts.`,
+      );
+    }
+    if (len > PARSE_MAX_CHARS) {
+      return problemResponse(
+        'paste_too_long',
+        'Paste too long',
+        400,
+        `Pasted text must be at most ${PARSE_MAX_CHARS} characters. Trim it to the essentials.`,
+      );
+    }
   }
 
-  // For chat mode, pastedText must be absent
-  if (pastedText !== undefined) {
-    return problemResponse(
-      'mode_field_mismatch',
-      'Field mismatch',
-      400,
-      'pastedText is not valid for chat mode',
-    );
-  }
-
-  // 6. Create the brief (RLS session client, scoped to the authenticated user)
+  // 6. Create the brief (RLS session client, scoped to the authenticated user).
+  //    - chat → CHAT / DRAFT
+  //    - form → FORM / DRAFT
+  //    - paste → PASTE / PARSING (carries parsed_from; awaits the Parser pass)
   const session = await createSupabaseServerClient();
   let brief: Awaited<ReturnType<typeof createBrief>>;
   try {
-    brief = await createBrief(session, user.id, {
-      entryMode: 'CHAT',
-      content: BriefContentSchema.parse({}),
-    });
+    if (mode === 'paste') {
+      brief = await createBrief(session, user.id, {
+        entryMode: 'PASTE',
+        content: BriefContentSchema.parse({}),
+        parsedFrom: pastedText,
+      });
+    } else {
+      brief = await createBrief(session, user.id, {
+        entryMode: mode === 'form' ? 'FORM' : 'CHAT',
+        content: BriefContentSchema.parse({}),
+      });
+    }
   } catch (e) {
     if (e instanceof BriefQuotaExceededError) {
       return problemResponse(
@@ -149,8 +206,8 @@ export async function POST(req: Request) {
     throw e;
   }
 
-  // 7. If a seed message was provided, append it as the first USER turn
-  if (seed !== undefined && seed.trim().length > 0) {
+  // 7. If a chat seed message was provided, append it as the first USER turn.
+  if (mode === 'chat' && seed !== undefined && seed.trim().length > 0) {
     const admin = createSupabaseAdminClient();
     await appendTurn(admin, {
       briefId: brief.id,
@@ -161,6 +218,12 @@ export async function POST(req: Request) {
     });
   }
 
-  // 8. Return 201 with the created brief details
+  // 8. Return 201 with the created brief details + the mode's next action.
+  if (mode === 'paste') {
+    return jsonResponse({ briefId: brief.id, status: 'PARSING', nextAction: 'await_parse' }, 201);
+  }
+  if (mode === 'form') {
+    return jsonResponse({ briefId: brief.id, status: 'DRAFT', nextAction: 'fill_form' }, 201);
+  }
   return jsonResponse({ briefId: brief.id, status: 'DRAFT', nextAction: 'start_refinement' }, 201);
 }

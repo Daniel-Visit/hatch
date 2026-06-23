@@ -69,7 +69,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   // 3. Rate-limit: 200 actions per hour per brief
-  const rl = await checkRateLimit(`briefs:content:${id}`);
+  const rl = await checkRateLimit(`briefs:content:${id}`, { limit: 200, windowSeconds: 3600 });
   if (!rl.ok) {
     return problemResponse(
       'too_many_requests',

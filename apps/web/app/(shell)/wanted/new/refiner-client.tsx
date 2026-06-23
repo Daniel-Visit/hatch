@@ -16,14 +16,13 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { type BriefContent, BriefContentSchema } from '@hatch/shared';
+import { type BriefContent, BriefContentSchema, REFINER_MAX_TURNS } from '@hatch/shared';
 import { applyDraftPatch, setContentPath } from '@/lib/wanted/brief-state';
 import { streamRefine } from './_lib/sse-client';
 import { RefinerTranscript, type RefinerTurn } from './_components/refiner-transcript';
 import { RefinerComposer } from './_components/refiner-composer';
 import { BriefSummaryPanel } from '../_components/brief-summary-panel';
-
-const MAX_TURNS = 6;
+import type { UiOutput } from './_components/refiner-ui/types';
 
 type Phase = 'idle' | 'streaming' | 'ready' | 'approved';
 
@@ -38,6 +37,9 @@ export function RefinerClient() {
   const [phase, setPhase] = useState<Phase>('idle');
   const [turnCount, setTurnCount] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
+  // True while a ui_response submit + resume stream is in flight (disables the
+  // interactive UI component so it can't be double-submitted).
+  const [uiBusy, setUiBusy] = useState(false);
 
   // Ref mirror of briefId so handlers created in one render can read the latest
   // value without a stale closure (e.g. autosave fired right after the first
@@ -67,6 +69,77 @@ export function RefinerClient() {
       return next;
     });
   }, []);
+
+  // Attach a declarative UI invocation to the last (current) agent bubble so it
+  // renders an interactive component below the agent's text (§4.4.0a).
+  const attachUiCall = useCallback(
+    (turnId: string, component: string, props: Record<string, unknown>) => {
+      setTurns((prev) => {
+        if (prev.length === 0) return prev;
+        const last = prev[prev.length - 1];
+        if (last.role !== 'agent') return prev;
+        const next = prev.slice(0, -1);
+        next.push({ ...last, uiCall: { turnId, component, props } });
+        return next;
+      });
+    },
+    [],
+  );
+
+  // Freeze a UI component once the seeker submits — record the output so the
+  // transcript re-renders it in its locked, non-interactive state.
+  const freezeUiCall = useCallback((turnId: string, output: UiOutput) => {
+    setTurns((prev) =>
+      prev.map((turn) =>
+        turn.uiCall && turn.uiCall.turnId === turnId
+          ? { ...turn, uiCall: { ...turn.uiCall, output } }
+          : turn,
+      ),
+    );
+  }, []);
+
+  // Consume one refine SSE stream for `text`. Shared by handleSend (free text)
+  // and the ui_response resume path (synthesized message). Returns nothing; all
+  // effects flow through the handlers + setters.
+  const runStream = useCallback(
+    async (id: string, text: string) => {
+      let sawDone = false;
+      await streamRefine(id, text, {
+        onToken: ({ delta }) => appendDelta(delta),
+        onStructuredUpdate: ({ patch }) => {
+          setDraft((d) => applyDraftPatch(d, patch as Partial<BriefContent>));
+        },
+        onCompleteness: ({ score }) => setCompleteness(score),
+        onUiCall: ({ turnId, component, props }) => {
+          // The agent asked a UI question — finalize its text bubble, then attach
+          // the interactive component. The conversation pauses for the response.
+          finishAgentBubble();
+          attachUiCall(turnId, component, props);
+        },
+        onDone: ({ shouldStop, nextAction }) => {
+          sawDone = true;
+          finishAgentBubble();
+          // await_ui_response keeps the composer hidden (the user answers via the
+          // component); otherwise idle/ready per the agent's request.
+          if (nextAction === 'await_ui_response') {
+            setPhase('idle');
+          } else {
+            setPhase(shouldStop ? 'ready' : 'idle');
+          }
+        },
+        onError: () => {
+          finishAgentBubble();
+          setPhase('idle');
+          setNotice(t('approve.keepTalking'));
+        },
+      });
+      if (!sawDone) {
+        finishAgentBubble();
+        setPhase((p) => (p === 'streaming' ? 'idle' : p));
+      }
+    },
+    [appendDelta, attachUiCall, finishAgentBubble, t],
+  );
 
   const handleSend = useCallback(
     async (text: string) => {
@@ -105,34 +178,60 @@ export function RefinerClient() {
         }
       }
 
-      // Stream the refine turn. Track whether onDone fired so we can fall back
-      // to 'idle' if the stream closes without a terminal done frame.
-      let sawDone = false;
-      await streamRefine(id, text, {
-        onToken: ({ delta }) => appendDelta(delta),
-        onStructuredUpdate: ({ patch }) => {
-          setDraft((d) => applyDraftPatch(d, patch as Partial<BriefContent>));
-        },
-        onCompleteness: ({ score }) => setCompleteness(score),
-        onDone: ({ shouldStop }) => {
-          sawDone = true;
-          finishAgentBubble();
-          setPhase(shouldStop ? 'ready' : 'idle');
-        },
-        onError: () => {
-          finishAgentBubble();
-          setPhase('idle');
-          setNotice(t('approve.keepTalking'));
-        },
-      });
-
-      // Defensive fallback: stream closed without a done/error frame.
-      if (!sawDone) {
-        finishAgentBubble();
-        setPhase((p) => (p === 'streaming' ? 'idle' : p));
-      }
+      // Stream the refine turn through the shared consumer.
+      await runStream(id, text);
     },
-    [appendDelta, finishAgentBubble, t],
+    [finishAgentBubble, runStream, t],
+  );
+
+  // Submit a UI component's output (§3.1.5.2): POST /ui-response, freeze the
+  // component, then resume the conversation by re-opening /refine with the
+  // synthesized user message the endpoint returns. The 3-per-session cap is
+  // enforced server-side; surface its error gracefully.
+  const handleUiSubmit = useCallback(
+    async (turnId: string, component: string, output: UiOutput) => {
+      const id = briefIdRef.current;
+      if (!id || uiBusy) return;
+      setNotice(null);
+      setUiBusy(true);
+
+      let synthesized: string;
+      try {
+        const res = await fetch(`/api/v1/briefs/${id}/turns/${turnId}/ui-response`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ component, output }),
+        });
+        if (!res.ok) {
+          // Failures (incl. 409 ui_invocation_cap_exceeded — the 3-per-session
+          // cap): keep the component interactive, surface a soft notice.
+          setNotice(t('approve.keepTalking'));
+          setUiBusy(false);
+          return;
+        }
+        const j = (await res.json()) as { synthesizedUserMessage: string };
+        synthesized = j.synthesizedUserMessage;
+      } catch {
+        setNotice(t('approve.keepTalking'));
+        setUiBusy(false);
+        return;
+      }
+
+      // Freeze the component (record the output) and show the synthesized user
+      // turn, then a fresh streaming agent bubble for the resume.
+      freezeUiCall(turnId, output);
+      setTurns((prev) => [
+        ...prev,
+        { role: 'user', content: synthesized },
+        { role: 'agent', content: '', streaming: true },
+      ]);
+      setTurnCount((n) => n + 1);
+      setPhase('streaming');
+
+      await runStream(id, synthesized);
+      setUiBusy(false);
+    },
+    [uiBusy, freezeUiCall, runStream, t],
   );
 
   // Autosave a single scalar field edit (optimistic + persisted).
@@ -199,7 +298,12 @@ export function RefinerClient() {
   return (
     <div className="refiner">
       <div className="refiner-chat">
-        <RefinerTranscript turns={turns} turnCounter={{ current: turnCount, max: MAX_TURNS }} />
+        <RefinerTranscript
+          turns={turns}
+          turnCounter={{ current: turnCount, max: REFINER_MAX_TURNS }}
+          onUiSubmit={handleUiSubmit}
+          uiBusy={uiBusy}
+        />
 
         {notice && (
           <div className="refiner-bubble is-agent" role="status">

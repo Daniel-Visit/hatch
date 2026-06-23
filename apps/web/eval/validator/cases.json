@@ -1,0 +1,316 @@
+[
+  {
+    "id": "validator_001_high_quality_brief",
+    "briefContent": {
+      "title": "EU-compliant contractor timesheet and invoice automation for 12-person consultancy",
+      "problem": {
+        "trigger": "After growing from 5 to 12 people in Q2 2024, our billing cycle broke — it now takes 4+ hours of manual spreadsheet work per cycle",
+        "affected": "All 12 consultants and 2 PMs",
+        "currentWorkaround": "Export hours from Toggl, paste into Google Sheets, manually format invoices in Google Docs",
+        "costOfNotSolving": "4 hours of PM time per billing cycle, frequent invoicing errors causing client disputes"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "A full billing cycle completed in under 30 minutes with zero manual spreadsheet work",
+        "mustHaves": [
+          "Automatic import from Toggl and Harvest",
+          "Client-specific invoice templates with our branding",
+          "PM approval step before invoice is sent",
+          "PDF export"
+        ],
+        "niceToHaves": ["Stripe integration for payment tracking"],
+        "outOfScope": [
+          "Full project management features (we have Jira)",
+          "Built-in payment processing"
+        ]
+      },
+      "context": {
+        "industry": "Product consultancy",
+        "useCase": "team",
+        "technicalLevel": "semi_technical",
+        "existingStack": ["Toggl", "Harvest", "Google Workspace", "Jira", "Slack"]
+      },
+      "constraints": {
+        "budgetBand": "from_2k_10k",
+        "timeline": "months",
+        "licensing": "self_hosted_only",
+        "geography": "EU"
+      },
+      "preferredSolutionType": ["existing_app", "custom_build"]
+    },
+    "expected": {
+      "overallQualityRange": [0.8, 1.0],
+      "sectionScoreRanges": {
+        "title": [0.7, 1.0],
+        "problem.trigger": [0.7, 1.0],
+        "desiredOutcome.mustHaves": [0.7, 1.0]
+      },
+      "minSuggestions": 0,
+      "maxSuggestions": 0,
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_002_vague_must_haves",
+    "briefContent": {
+      "title": "Better project management tool for our startup",
+      "problem": {
+        "trigger": "Team keeps missing deadlines",
+        "affected": "Engineering team of 8",
+        "currentWorkaround": "Using email threads and a shared spreadsheet"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Team is more productive",
+        "mustHaves": ["Easy to use", "Fast", "Good UX", "Affordable"],
+        "niceToHaves": [],
+        "outOfScope": []
+      },
+      "context": {
+        "industry": "Software startup",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["GitHub", "Slack"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "overallQualityRange": [0.0, 0.7],
+      "sectionScoreRanges": {
+        "desiredOutcome.mustHaves": [0.0, 0.5]
+      },
+      "minSuggestions": 1,
+      "maxSuggestions": 3,
+      "requiredSuggestionSections": ["desiredOutcome.mustHaves"],
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_003_generic_title",
+    "briefContent": {
+      "title": "Productivity app",
+      "problem": {
+        "trigger": "After our team doubled in size, our current workflow broke down",
+        "affected": "Operations team",
+        "currentWorkaround": "Manual Excel tracking and weekly status emails"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Weekly reports generated automatically without any manual data entry",
+        "mustHaves": [
+          "Automated report generation",
+          "Integration with our existing CRM (Salesforce)",
+          "Role-based access for managers vs. ICs"
+        ],
+        "niceToHaves": ["Mobile app"],
+        "outOfScope": ["CRM replacement (Salesforce stays)", "HR features"]
+      },
+      "context": {
+        "industry": "SaaS operations",
+        "useCase": "team",
+        "technicalLevel": "semi_technical",
+        "existingStack": ["Salesforce", "Excel", "Slack"]
+      },
+      "constraints": {
+        "budgetBand": "from_500_2k",
+        "timeline": "months",
+        "licensing": "saas_ok",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "overallQualityRange": [0.3, 0.8],
+      "sectionScoreRanges": {
+        "title": [0.0, 0.5]
+      },
+      "minSuggestions": 1,
+      "maxSuggestions": 3,
+      "requiredSuggestionSections": ["title"],
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_004_no_trigger",
+    "briefContent": {
+      "title": "Automated expense reporting system for remote team",
+      "problem": {
+        "trigger": "I need this",
+        "affected": "Remote team of 25",
+        "currentWorkaround": "Manually collecting receipts via email and entering into spreadsheets",
+        "costOfNotSolving": "Finance team spends 2 days per month on reconciliation"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Expense reports submitted and approved within 48 hours of incurring expense",
+        "mustHaves": [
+          "Receipt photo upload via mobile",
+          "Manager approval workflow",
+          "Export to QuickBooks"
+        ],
+        "niceToHaves": ["Credit card auto-import"],
+        "outOfScope": ["Full accounting software (we have QuickBooks)", "Payroll"]
+      },
+      "context": {
+        "industry": "Professional services",
+        "useCase": "team",
+        "technicalLevel": "semi_technical",
+        "existingStack": ["QuickBooks", "Slack", "Google Workspace"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "saas_ok",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "overallQualityRange": [0.3, 0.8],
+      "sectionScoreRanges": {
+        "problem.trigger": [0.0, 0.4]
+      },
+      "minSuggestions": 1,
+      "maxSuggestions": 3,
+      "requiredSuggestionSections": ["problem.trigger"],
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_005_no_out_of_scope",
+    "briefContent": {
+      "title": "Customer support ticket routing for e-commerce store",
+      "problem": {
+        "trigger": "After Black Friday 2024, we received 800 support tickets in 48 hours and our team missed 40% of them",
+        "affected": "Support team of 3 and our customers",
+        "currentWorkaround": "Manually triaging all emails in a shared Gmail inbox"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "First response time under 2 hours for 95% of tickets during peak periods",
+        "mustHaves": [
+          "Auto-categorization by issue type (returns, shipping, damage)",
+          "Priority routing for high-value customers",
+          "Integration with our existing Shopify store"
+        ],
+        "niceToHaves": ["AI-suggested responses"],
+        "outOfScope": []
+      },
+      "context": {
+        "industry": "E-commerce",
+        "useCase": "team",
+        "technicalLevel": "non_technical",
+        "existingStack": ["Gmail", "Shopify"]
+      },
+      "constraints": {
+        "budgetBand": "from_500_2k",
+        "timeline": "weeks",
+        "licensing": "saas_ok",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "overallQualityRange": [0.3, 0.8],
+      "sectionScoreRanges": {
+        "desiredOutcome.outOfScope": [0.0, 0.4]
+      },
+      "minSuggestions": 1,
+      "maxSuggestions": 3,
+      "requiredSuggestionSections": ["desiredOutcome.outOfScope"],
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_006_already_specific",
+    "briefContent": {
+      "title": "Git-based deploy pipeline with staging parity for Rails monolith on Kubernetes",
+      "problem": {
+        "trigger": "In March 2024 a production outage caused by a staging-to-prod config mismatch cost us $12k in lost revenue and 8 hours of engineer time",
+        "affected": "4 backend engineers and the entire user base during outages",
+        "currentWorkaround": "Manual deploy checklists in Notion and Slack deploy announcements",
+        "costOfNotSolving": "~2 production incidents per month, each costing 4-8 hours of eng time"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Zero config-mismatch incidents for 3 months straight; deploy time under 10 minutes",
+        "mustHaves": [
+          "Staging environment that mirrors production config exactly (env vars, secrets, resource limits)",
+          "Automated smoke tests before any production deploy can proceed",
+          "One-click rollback to the previous release"
+        ],
+        "niceToHaves": ["Slack notifications on deploy start and finish"],
+        "outOfScope": [
+          "Replacing our existing Terraform IaC setup",
+          "Multi-cloud support (we're AWS-only)"
+        ]
+      },
+      "context": {
+        "industry": "SaaS",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["Rails", "Kubernetes", "AWS", "Terraform", "GitHub Actions", "Datadog"]
+      },
+      "constraints": {
+        "budgetBand": "from_500_2k",
+        "timeline": "weeks",
+        "licensing": "oss_only",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app", "fork_and_modify"]
+    },
+    "expected": {
+      "overallQualityRange": [0.75, 1.0],
+      "sectionScoreRanges": {
+        "title": [0.7, 1.0],
+        "problem.trigger": [0.7, 1.0],
+        "desiredOutcome.mustHaves": [0.7, 1.0]
+      },
+      "minSuggestions": 0,
+      "maxSuggestions": 1,
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  },
+  {
+    "id": "validator_007_low_quality_multi_flag",
+    "briefContent": {
+      "title": "Note-taking app",
+      "problem": {
+        "trigger": "I need better notes",
+        "affected": "Me",
+        "currentWorkaround": "Paper notebooks"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Better organization",
+        "mustHaves": ["Easy to use", "Syncs"],
+        "niceToHaves": [],
+        "outOfScope": []
+      },
+      "context": {
+        "industry": "Personal productivity",
+        "useCase": "personal",
+        "technicalLevel": "non_technical",
+        "existingStack": []
+      },
+      "constraints": {
+        "budgetBand": "exploratory",
+        "timeline": "no_rush",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "overallQualityRange": [0.0, 0.6],
+      "sectionScoreRanges": {
+        "title": [0.0, 0.5],
+        "problem.trigger": [0.0, 0.4],
+        "desiredOutcome.mustHaves": [0.0, 0.5],
+        "desiredOutcome.outOfScope": [0.0, 0.3]
+      },
+      "minSuggestions": 2,
+      "maxSuggestions": 3,
+      "suggestionsMustHaveConcreteExamples": true
+    }
+  }
+]

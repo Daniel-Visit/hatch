@@ -1,14 +1,18 @@
-// Wanted Refiner page — server gate.
+// Wanted mode picker page (/wanted/new) — server gate. §4.4.0.
 //
 // Sits under the (shell) route group so it inherits the topbar/shell from
 // (shell)/layout.tsx. This component renders ONLY the feature gate: it requires
 // an authenticated user, narrows the profile feature flags, and verifies the
-// Wanted feature is enabled before handing off to the client orchestrator.
+// Wanted feature is enabled before handing off to the mode-picker client.
+//
+// The picker shows three cards (Talk to AI / Fill it in / Paste a brief) and
+// routes to /wanted/new/{chat,form,paste}. Each downstream route is responsible
+// for creating a brief with the matching `mode` via POST /api/v1/briefs.
 
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { isWantedEnabled } from '@hatch/shared';
-import { RefinerClient } from './refiner-client';
+import { ModePicker } from './_components/mode-picker';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,5 +34,5 @@ export default async function WantedNewPage() {
     notFound();
   }
 
-  return <RefinerClient />;
+  return <ModePicker />;
 }

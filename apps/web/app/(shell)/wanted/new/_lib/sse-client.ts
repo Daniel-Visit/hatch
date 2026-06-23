@@ -10,6 +10,7 @@
  *   token             – streaming text delta
  *   structured_update – patch object for the draft
  *   completeness_score– numeric score
+ *   ui_call           – declarative UI component invocation (turnId/component/props)
  *   done              – terminal frame carrying shouldStop / nextAction
  *   error             – server-side error; also used for client-side errors
  *
@@ -24,6 +25,12 @@ export type RefineHandlers = {
   onToken?: (d: { delta: string }) => void;
   onStructuredUpdate?: (d: { patch: Record<string, unknown> }) => void;
   onCompleteness?: (d: { score: number }) => void;
+  /**
+   * The agent invoked a declarative UI component (§3.1.5.1). `turnId` is the
+   * AGENT turn the ui_response is POSTed back to; `props` are the validated
+   * tool input. A `done` frame with nextAction='await_ui_response' follows.
+   */
+  onUiCall?: (d: { turnId: string; component: string; props: Record<string, unknown> }) => void;
   onDone?: (d: { shouldStop: boolean; completeness: number; nextAction: string }) => void;
   onError?: (d: { type: string; message?: string }) => void;
 };
@@ -121,6 +128,22 @@ function dispatch(frame: SseFrame, handlers: RefineHandlers): void {
     case 'completeness_score': {
       if (typeof p['score'] === 'number') {
         handlers.onCompleteness?.({ score: p['score'] });
+      }
+      break;
+    }
+
+    case 'ui_call': {
+      if (
+        typeof p['turnId'] === 'string' &&
+        typeof p['component'] === 'string' &&
+        typeof p['props'] === 'object' &&
+        p['props'] !== null
+      ) {
+        handlers.onUiCall?.({
+          turnId: p['turnId'],
+          component: p['component'],
+          props: p['props'] as Record<string, unknown>,
+        });
       }
       break;
     }

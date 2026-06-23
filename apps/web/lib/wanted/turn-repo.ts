@@ -17,7 +17,16 @@ export interface AppendTurnParams {
   modelUsed?: string | null;
   tokensIn?: number | null;
   tokensOut?: number | null;
+  /**
+   * The agent's declarative UI invocation envelope ({ kind:'ui_call', component,
+   * props }), stored on the `ui_component_invocation` column. The ui-response
+   * endpoint reads this column to find a pending UI call (§3.1.5.1 / §3.1.5.2).
+   */
+  uiComponentInvocation?: unknown;
 }
+
+/** Max times appendTurn recomputes turn_index after a unique-violation race. */
+const APPEND_TURN_MAX_RETRIES = 3;
 
 /**
  * Insert a new turn row into brief_refinement_turns.
@@ -25,6 +34,12 @@ export interface AppendTurnParams {
  * IMPORTANT: Must be called with the admin client — this table has NO INSERT
  * RLS policy. The route handler is responsible for authenticating + authorizing
  * the author before calling this function.
+ *
+ * Concurrency: `nextTurnIndex` reads the current max then the caller inserts, so
+ * two concurrent turns in the same (brief_id, round) can compute the same index.
+ * Migration 0038's UNIQUE index makes the loser's insert fail with 23505; we
+ * recover by recomputing the next index and retrying (bounded), which serialises
+ * concurrent appends without a transaction.
  */
 export async function appendTurn(
   admin: AdminClient,
@@ -40,29 +55,44 @@ export async function appendTurn(
     modelUsed,
     tokensIn,
     tokensOut,
+    uiComponentInvocation,
   } = params;
 
-  const { data, error } = await admin
-    .from('brief_refinement_turns')
-    .insert({
-      brief_id: briefId,
-      round,
-      turn_index: turnIndex,
-      role: role as Database['public']['Enums']['turn_role'],
-      content,
-      content_json:
-        contentJson !== undefined
-          ? (contentJson as Database['public']['Tables']['brief_refinement_turns']['Insert']['content_json'])
-          : null,
-      model_used: modelUsed ?? null,
-      tokens_in: tokensIn ?? null,
-      tokens_out: tokensOut ?? null,
-    })
-    .select()
-    .single();
+  const basePayload = {
+    brief_id: briefId,
+    round,
+    role: role as Database['public']['Enums']['turn_role'],
+    content,
+    content_json:
+      contentJson !== undefined
+        ? (contentJson as Database['public']['Tables']['brief_refinement_turns']['Insert']['content_json'])
+        : null,
+    ui_component_invocation:
+      uiComponentInvocation !== undefined
+        ? (uiComponentInvocation as Database['public']['Tables']['brief_refinement_turns']['Insert']['ui_component_invocation'])
+        : null,
+    model_used: modelUsed ?? null,
+    tokens_in: tokensIn ?? null,
+    tokens_out: tokensOut ?? null,
+  };
 
-  if (error) throw error;
-  return data;
+  let candidateIndex = turnIndex;
+  for (let attempt = 0; ; attempt++) {
+    const { data, error } = await admin
+      .from('brief_refinement_turns')
+      .insert({ ...basePayload, turn_index: candidateIndex })
+      .select()
+      .single();
+
+    if (!error) return data;
+
+    // 23505 = unique_violation: another concurrent insert took this turn_index.
+    if (error.code === '23505' && attempt < APPEND_TURN_MAX_RETRIES) {
+      candidateIndex = await nextTurnIndex(admin, briefId, round);
+      continue;
+    }
+    throw error;
+  }
 }
 
 /**

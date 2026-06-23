@@ -67,7 +67,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   // 3. Rate-limit: 60/hour/brief (one refine turn can take many seconds, so a
   //    per-brief hourly cap is the right granularity, not a per-IP burst cap).
-  const rl = await checkRateLimit(`briefs:refine:${id}`);
+  const rl = await checkRateLimit(`briefs:refine:${id}`, { limit: 60, windowSeconds: 3600 });
   if (!rl.ok) {
     return problemResponse(
       'rate_limit_exceeded',
@@ -159,6 +159,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     let tokensOut = 0;
     let toolCall: unknown = null;
     let markedReady = false;
+    // A declarative UI invocation the agent emitted this turn (§3.1.5.1). When
+    // present, the route stores it on the AGENT turn's `ui_component_invocation`
+    // column so POST /ui-response can find the pending call, and emits a
+    // `ui_call` SSE event so the frontend renders the component.
+    let uiCall: { component: string; props: Record<string, unknown> } | null = null;
 
     for await (const ev of runRefinerTurn({ anthropic, history, draft, userMessage })) {
       switch (ev.type) {
@@ -181,6 +186,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           markedReady = true;
           break;
         }
+        case 'ui_call': {
+          uiCall = { component: ev.component, props: ev.props };
+          break;
+        }
         case 'agent_message_done': {
           agentText = ev.text || agentText;
           tokensIn = ev.tokensIn;
@@ -191,19 +200,47 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
     }
 
-    // Persist the AGENT turn.
+    // Build the ui_call envelope (persisted on the turn + emitted to the client).
+    // `kind:'ui_call'` discriminates it from the ui_response envelopes stored in
+    // content_json on synthesized USER turns (see ui-response/route.ts).
+    const uiInvocation =
+      uiCall !== null
+        ? { kind: 'ui_call' as const, component: uiCall.component, props: uiCall.props }
+        : undefined;
+
+    // Persist the AGENT turn. The declarative ui_call (if any) lives in
+    // `ui_component_invocation`; the raw tool_use block stays in content_json.
     const agentIdx = await nextTurnIndex(session, id, round);
-    await appendTurn(admin, {
+    const agentTurn = await appendTurn(admin, {
       briefId: id,
       round,
       turnIndex: agentIdx,
       role: 'AGENT',
       content: agentText,
       contentJson: toolCall,
+      uiComponentInvocation: uiInvocation,
       modelUsed: REFINER_MODEL,
       tokensIn,
       tokensOut,
     });
+
+    // If the agent invoked a UI tool, pause the conversation: emit the ui_call
+    // (carrying the AGENT turn id the frontend posts the response back to) and a
+    // done frame that directs the client to await a ui_response. A ui_call never
+    // also stops for matching.
+    if (uiCall !== null) {
+      send('ui_call', {
+        turnId: agentTurn.id,
+        component: uiCall.component,
+        props: uiCall.props,
+      });
+      send('done', {
+        shouldStop: false,
+        completeness: lastCompleteness,
+        nextAction: 'await_ui_response',
+      });
+      return;
+    }
 
     // The agent may only stop the conversation once the brief is complete
     // enough. Below the floor, the server overrides the agent and keeps refining.

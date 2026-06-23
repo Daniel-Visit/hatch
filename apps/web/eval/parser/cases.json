@@ -1,0 +1,106 @@
+[
+  {
+    "id": "parser_001_well_written_pm_brief",
+    "inputText": "Project: Contractor Timesheet Tracker\n\nBackground: We're a 12-person product consultancy. After growing from 5 to 12 people last quarter, tracking billable hours became chaos. We currently export hours from Toggl, paste them into a shared Google Sheet, and then manually format invoices in Google Docs. This takes ~4 hours per billing cycle and errors happen constantly.\n\nWhat we need:\n- Automatic import from Toggl and Harvest\n- Client-specific invoice templates\n- Approval workflow (PM reviews before sending)\n- PDF export\n- Must self-host because our clients' contracts require data residency in the EU\n\nNot what we need:\n- Full project management (we have Jira for that)\n- Built-in payment processing\n\nIdeal outcome: A billing cycle that takes < 30 minutes and zero manual spreadsheet work.\n\nTimeline: Before end of Q3 (3 months away).\nBudget: ~$8,000 for a custom build or $200-400/year for an existing SaaS.\nTeam: semi-technical (PMs who can set up integrations but not code).",
+    "expectedFields": {
+      "title": "Contractor Timesheet",
+      "problem": {
+        "trigger": "growing",
+        "currentWorkaround": "Toggl",
+        "affected": "consultancy"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "30 minutes",
+        "mustHaves": ["Toggl", "invoice"],
+        "outOfScope": ["project management", "payment"]
+      },
+      "context": {
+        "technicalLevel": "semi_technical"
+      },
+      "constraints": {
+        "timeline": "months",
+        "licensing": "self_hosted_only"
+      }
+    },
+    "forbiddenFields": [],
+    "minimumConfidence": 0.6
+  },
+  {
+    "id": "parser_002_terse_email",
+    "inputText": "Hey, I reached out because I need a better way to schedule client calls. Right now I'm using Calendly but it doesn't sync with my CRM. Would love something that just works out of the box.",
+    "expectedFields": {
+      "problem": {
+        "currentWorkaround": "Calendly"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "works out of the box"
+      }
+    },
+    "forbiddenFields": [
+      "constraints.budgetBand",
+      "constraints.timeline",
+      "context.technicalLevel",
+      "preferredSolutionType"
+    ],
+    "minimumConfidence": 0.2
+  },
+  {
+    "id": "parser_003_slack_rant",
+    "inputText": "ok so i've been dealing with this for like 6 months and i'm losing my mind. we have this whole content pipeline right where the writers write stuff in google docs, then the editors have to go in and leave comments, then the writers revise, then it goes to legal for review, then back to editors, then finally to the social media team to schedule. except literally no one knows where anything is at any given time. i had a meeting this morning and three different people thought they were responsible for the same article. last week we published something that hadn't been through legal review because nobody noticed. the tool we have for tracking this is a spreadsheet and it's a disaster. i've tried monday.com and it was too complex for the writers who are not technical at all. i've tried notion and it sort of worked but the integrations are terrible. at this point i honestly don't know what the right solution is. maybe a custom thing? maybe there's already something that does this exact workflow? we're a media company if that helps. i have about 15 writers, 5 editors, 2 legal reviewers. the big thing is it needs to be really simple for the non-technical writers to use. we tried complicated tools and they just don't get adopted. i could probably spend $500-1000 on this if the right thing exists but i'm not sure.",
+    "expectedFields": {
+      "problem": {
+        "trigger": "6 months",
+        "affected": "writers",
+        "currentWorkaround": "spreadsheet"
+      },
+      "context": {
+        "industry": "media",
+        "technicalLevel": "non_technical"
+      }
+    },
+    "forbiddenFields": ["constraints.timeline"],
+    "minimumConfidence": 0.3
+  },
+  {
+    "id": "parser_004_with_explicit_budget",
+    "inputText": "I need a custom inventory management system for my warehouse. We handle about 500 SKUs and currently track everything in Excel. I want barcode scanning support and real-time stock alerts. I have approximately $3,000 to spend on this and would need it within 2-3 months.",
+    "expectedFields": {
+      "constraints": {
+        "budgetBand": "from_2k_10k",
+        "timeline": "months"
+      },
+      "desiredOutcome": {
+        "mustHaves": ["barcode", "stock"]
+      }
+    },
+    "forbiddenFields": [],
+    "minimumConfidence": 0.3
+  },
+  {
+    "id": "parser_005_jargon_heavy",
+    "inputText": "We need to migrate our legacy Rails monolith to a microservices architecture on k8s. Currently running on Heroku but we're hitting resource limits and the deployment pipeline is broken. We use Terraform for IaC, Helm charts for our existing services, and CircleCI for CI/CD. I'd like to containerize the Rails app first, then extract the auth service, then the billing service. We're already running postgres and redis. Main pain is that every deploy breaks something in prod because there are no staging environments that match prod.",
+    "expectedFields": {
+      "context": {
+        "technicalLevel": "developer",
+        "existingStack": ["Rails", "k8s", "Terraform", "Helm", "CircleCI", "postgres", "redis"]
+      },
+      "problem": {
+        "currentWorkaround": "Heroku"
+      }
+    },
+    "forbiddenFields": ["constraints.budgetBand"],
+    "minimumConfidence": 0.3
+  },
+  {
+    "id": "parser_006_negative_test",
+    "inputText": "I want a productivity tool.",
+    "expectedFields": {},
+    "forbiddenFields": [
+      "preferredSolutionType",
+      "constraints.budgetBand",
+      "constraints.timeline",
+      "context.technicalLevel"
+    ],
+    "minimumConfidence": 0.0
+  }
+]
