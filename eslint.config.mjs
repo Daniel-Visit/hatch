@@ -21,7 +21,14 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
-      'no-console': 'error',
+      // Allow server-side diagnostic logging (console.warn/error) — matches the
+      // existing cron routes (pick-featured/refresh-scores). console.log stays banned.
+      'no-console': ['error', { allow: ['warn', 'error'] }],
     },
+  },
+  {
+    // Eval runners legitimately print scores/results to stdout.
+    files: ['**/eval/**'],
+    rules: { 'no-console': 'off' },
   },
 ];

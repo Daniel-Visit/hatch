@@ -19,6 +19,7 @@ import { appendTurn, countTurns, nextTurnIndex, listTurns } from '@/lib/wanted/t
 import { applyDraftPatch, computeAndPersistContent, transition } from '@/lib/wanted/brief-state';
 import { runRefinerTurn, type RefinerHistoryTurn } from '@/lib/wanted/agents/refiner';
 import { createAnthropic } from '@/lib/wanted/anthropic';
+import { embedBriefBestEffort } from '@/lib/wanted/embeddings/embed';
 
 // Node runtime: the Anthropic SDK + service-role Supabase client require Node APIs,
 // and the SSE producer holds a long-lived streaming connection.
@@ -240,6 +241,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         nextAction: 'await_ui_response',
       });
       return;
+    }
+
+    // Synchronous best-effort embedding of the final draft (spec E2). Awaited
+    // BEFORE the terminal `done` frame so it reliably completes within the
+    // handler's lifetime on serverless. The try/catch swallows every failure so
+    // an embedding error can never break the SSE stream or its terminal frame.
+    try {
+      const vec = await embedBriefBestEffort({
+        title: draft.title,
+        trigger: draft.problem?.trigger,
+        affected: draft.problem?.affected,
+        costOfNotSolving: draft.problem?.costOfNotSolving,
+        definitionOfGoodEnough: draft.desiredOutcome?.definitionOfGoodEnough,
+        mustHaves: draft.desiredOutcome?.mustHaves,
+      });
+      if (vec !== null) {
+        await admin
+          .from('briefs')
+          .update({ embedding: '[' + vec.join(',') + ']' })
+          .eq('id', id);
+      }
+    } catch (err) {
+      console.warn('[wanted/embed] refine route: brief embedding update failed', err);
     }
 
     // The agent may only stop the conversation once the brief is complete

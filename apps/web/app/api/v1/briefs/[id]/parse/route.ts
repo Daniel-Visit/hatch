@@ -13,6 +13,7 @@ import { appendTurn, nextTurnIndex } from '@/lib/wanted/turn-repo';
 import { applyDraftPatch, computeAndPersistContent } from '@/lib/wanted/brief-state';
 import { runParser } from '@/lib/wanted/agents/parser';
 import { createAnthropic } from '@/lib/wanted/anthropic';
+import { embedBriefBestEffort } from '@/lib/wanted/embeddings/embed';
 
 /**
  * `POST /api/v1/briefs/:id/parse` — Wanted feature, Task 4 (api-15). §2.1.
@@ -150,6 +151,30 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     const baseDraft = (brief.content ?? {}) as BriefContent;
     const newDraft = applyDraftPatch(baseDraft, result.patch);
     await computeAndPersistContent(session, id, newDraft);
+
+    // Synchronous best-effort embedding of the parsed draft (spec E2). Awaited
+    // so it reliably completes within the handler's lifetime on serverless. The
+    // try/catch swallows every failure so an embedding error can never break the
+    // SSE stream or its subsequent frames.
+    try {
+      const vec = await embedBriefBestEffort({
+        title: newDraft.title,
+        trigger: newDraft.problem?.trigger,
+        affected: newDraft.problem?.affected,
+        costOfNotSolving: newDraft.problem?.costOfNotSolving,
+        definitionOfGoodEnough: newDraft.desiredOutcome?.definitionOfGoodEnough,
+        mustHaves: newDraft.desiredOutcome?.mustHaves,
+      });
+      if (vec !== null) {
+        const embedAdmin = createSupabaseAdminClient();
+        await embedAdmin
+          .from('briefs')
+          .update({ embedding: '[' + vec.join(',') + ']' })
+          .eq('id', id);
+      }
+    } catch (err) {
+      console.warn('[wanted/embed] parse route: brief embedding update failed', err);
+    }
 
     // 8. structured_update — the extracted partial (one event).
     send('structured_update', { patch: result.patch });

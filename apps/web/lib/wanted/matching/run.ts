@@ -6,6 +6,7 @@ import { createAnthropic } from '@/lib/wanted/anthropic';
 import { insertMatches, type InsertMatchParams, type MatchRow } from '@/lib/wanted/match-repo';
 import { insertAuditLog, type AuditCandidate } from '@/lib/wanted/match-audit-repo';
 import { createFtsRetriever, type CandidateRetriever } from './retriever';
+import { createSemanticRetriever } from './semantic-retriever';
 import { runPhaseA, type PhaseAResult, type ScoredApp } from './phase-a';
 import { runPhaseB, type PhaseBResult, type ScoredBuilder } from './phase-b';
 
@@ -54,6 +55,22 @@ export interface RunMatchingResult {
   matches: MatchRow[];
   phaseA: PhaseAResult | null;
   phaseB: PhaseBResult | null;
+}
+
+/**
+ * Pick the default retriever for a run. When a semantic embedding provider is
+ * configured (`VOYAGE_API_KEY` present) we use the hybrid semantic retriever
+ * (RRF over FTS + pgvector cosine); otherwise we fall back to FTS-only. The
+ * semantic retriever itself degrades to FTS-only when the brief has no
+ * embedding, so a missing `briefEmbedding` is safe.
+ */
+export function createDefaultRetriever(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  briefEmbedding: string | null,
+): CandidateRetriever {
+  return process.env.VOYAGE_API_KEY
+    ? createSemanticRetriever(admin, briefEmbedding)
+    : createFtsRetriever(admin);
 }
 
 /** True if the brief explicitly wants a custom build / fork (forces Phase B). */
@@ -125,15 +142,19 @@ export async function runMatching(
 ): Promise<RunMatchingResult> {
   const admin = args.admin ?? createSupabaseAdminClient();
   const anthropic = args.anthropic ?? createAnthropic();
-  const retriever = args.retriever ?? createFtsRetriever(admin);
 
-  // Read the brief content (admin: matcher runs server-side, no RLS context).
+  // Read the brief content + embedding (admin: matcher runs server-side, no RLS
+  // context). The embedding is the raw pgvector text form (`string | null`).
   const { data: briefRow, error: briefErr } = await admin
     .from('briefs')
-    .select('content')
+    .select('content, embedding')
     .eq('id', briefId)
     .single();
   if (briefErr) throw briefErr;
+
+  // Construct the retriever AFTER the brief read so the semantic retriever can
+  // be seeded with the brief embedding. An injected retriever (tests) wins.
+  const retriever = args.retriever ?? createDefaultRetriever(admin, briefRow.embedding);
 
   // The stored content is a JSON partial; parse through the schema so defaults
   // (mustHaves: [], licensing: 'no_pref', etc.) are applied consistently.

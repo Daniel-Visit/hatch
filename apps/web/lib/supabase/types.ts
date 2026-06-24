@@ -109,6 +109,7 @@ export type Database = {
           created_at: string;
           description: string;
           discovery_via_brief_count: number;
+          embedding: string | null;
           hot_score: number;
           hue: number;
           id: string;
@@ -140,6 +141,7 @@ export type Database = {
           created_at?: string;
           description?: string;
           discovery_via_brief_count?: number;
+          embedding?: string | null;
           hot_score?: number;
           hue?: number;
           id?: string;
@@ -171,6 +173,7 @@ export type Database = {
           created_at?: string;
           description?: string;
           discovery_via_brief_count?: number;
+          embedding?: string | null;
           hot_score?: number;
           hue?: number;
           id?: string;
@@ -314,6 +317,7 @@ export type Database = {
           completeness_score: number;
           content: Json;
           created_at: string;
+          embedding: string | null;
           entry_mode: Database['public']['Enums']['brief_entry_mode'];
           expires_at: string;
           geography: string | null;
@@ -347,6 +351,7 @@ export type Database = {
           completeness_score?: number;
           content?: Json;
           created_at?: string;
+          embedding?: string | null;
           entry_mode: Database['public']['Enums']['brief_entry_mode'];
           expires_at?: string;
           geography?: string | null;
@@ -380,6 +385,7 @@ export type Database = {
           completeness_score?: number;
           content?: Json;
           created_at?: string;
+          embedding?: string | null;
           entry_mode?: Database['public']['Enums']['brief_entry_mode'];
           expires_at?: string;
           geography?: string | null;
@@ -956,6 +962,7 @@ export type Database = {
           avatar_url: string | null;
           banner_gradient: string | null;
           bio: string | null;
+          capability_embedding: string | null;
           created_at: string;
           display_name: string;
           emoji: string | null;
@@ -979,6 +986,7 @@ export type Database = {
           avatar_url?: string | null;
           banner_gradient?: string | null;
           bio?: string | null;
+          capability_embedding?: string | null;
           created_at?: string;
           display_name: string;
           emoji?: string | null;
@@ -1002,6 +1010,7 @@ export type Database = {
           avatar_url?: string | null;
           banner_gradient?: string | null;
           bio?: string | null;
+          capability_embedding?: string | null;
           created_at?: string;
           display_name?: string;
           emoji?: string | null;
@@ -1170,7 +1179,28 @@ export type Database = {
           reset_at: string;
         }[];
       };
+      is_brief_author: { Args: { p_brief_id: string }; Returns: boolean };
+      is_matched_builder: { Args: { p_brief_id: string }; Returns: boolean };
       is_participant: { Args: { c: string }; Returns: boolean };
+      match_apps_by_embedding: {
+        Args: {
+          exclude_saas?: boolean;
+          match_count?: number;
+          oss_only?: boolean;
+          query_embedding: string;
+        };
+        Returns: {
+          distance: number;
+          id: string;
+        }[];
+      };
+      match_builders_by_embedding: {
+        Args: { match_count?: number; query_embedding: string };
+        Returns: {
+          distance: number;
+          id: string;
+        }[];
+      };
       pick_featured_app: { Args: never; Returns: string };
       refresh_hot_scores: { Args: never; Returns: number };
       uid: { Args: never; Returns: string };

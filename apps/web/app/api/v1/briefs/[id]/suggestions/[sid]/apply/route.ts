@@ -7,6 +7,7 @@ import { requireUser } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { embedBriefBestEffort } from '@/lib/wanted/embeddings/embed';
 import { assertWantedEnabled, WantedDisabledError } from '@/lib/wanted/gate';
 import { problemResponse } from '@/lib/wanted/problem';
 import { getBrief } from '@/lib/wanted/brief-repo';
@@ -215,6 +216,28 @@ export async function POST(
 
   // 12. Mark the suggestion APPLIED (admin client — no UPDATE RLS).
   const admin = createSupabaseAdminClient();
+
+  // Synchronous best-effort embedding of the updated content (spec E2). Awaited
+  // so it reliably completes on serverless. The try/catch swallows every failure
+  // so it can never change the response, status code, or rate-limit behavior.
+  try {
+    const vec = await embedBriefBestEffort({
+      title: newContent.title,
+      trigger: newContent.problem?.trigger,
+      affected: newContent.problem?.affected,
+      costOfNotSolving: newContent.problem?.costOfNotSolving,
+      definitionOfGoodEnough: newContent.desiredOutcome?.definitionOfGoodEnough,
+      mustHaves: newContent.desiredOutcome?.mustHaves,
+    });
+    if (vec !== null) {
+      await admin
+        .from('briefs')
+        .update({ embedding: '[' + vec.join(',') + ']' })
+        .eq('id', id);
+    }
+  } catch (err) {
+    console.warn('[wanted/embed] suggestions/apply route: brief embedding update failed', err);
+  }
   await updateSuggestionStatus(admin, sid, { status: 'APPLIED', appliedValue });
 
   // 13. Re-run the match-potential heuristic (§3.4.9; cheap, NO LLM). `current`

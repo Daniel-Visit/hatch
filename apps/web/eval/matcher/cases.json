@@ -157,6 +157,46 @@
     }
   },
   {
+    "id": "match_006_semantic_paraphrase",
+    "description": "SEMANTIC CASE — brief uses paraphrase vocabulary instead of the app's exact keywords. The seeker says 'stand-in server' and 'canned responses' rather than 'mock server' and 'scripted replies'. The intent is identical to match_001 (Lumen), but keyword overlap is low. In the hermetic eval Lumen is still in the synthetic pool, so this case exercises only whether the re-ranker recognises paraphrased intent — it does NOT validate vector retrieval against a live corpus (that would require a real DB + Voyage). Coverage for the vector arm's contribution to ordering lives in lib/wanted/matching/semantic-retriever.test.ts and rrf.test.ts.",
+    "briefContent": {
+      "title": "Stand-in server that returns canned responses while backend is unavailable",
+      "problem": {
+        "trigger": "Client-side engineers keep sitting idle whenever the server-side team is still building endpoints",
+        "affected": "UI engineers — team of 5",
+        "currentWorkaround": "Hard-coding JSON fixtures directly in the frontend — messy and hard to clean up"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Client engineers can continue building against realistic responses without any dependency on the backend being ready",
+        "mustHaves": [
+          "Intercept HTTP calls and return configurable canned responses",
+          "Share response configurations across the team",
+          "Load an endpoint contract file to seed the stand-in server"
+        ],
+        "niceToHaves": ["Record and replay real traffic"],
+        "outOfScope": ["Production traffic routing", "Load balancing"]
+      },
+      "context": {
+        "industry": "Software development tooling",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["Node.js", "React"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_surface_app",
+      "appsAtLeastIncluded": ["lumen-fm"],
+      "maxBuildersReturned": 5
+    }
+  },
+  {
     "id": "match_005_seeker_existing_stack",
     "description": "Brief mentions seeker already uses Lumen. Lumen must NOT appear as an app match.",
     "briefContent": {

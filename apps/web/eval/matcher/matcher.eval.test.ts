@@ -1,4 +1,4 @@
-/* eslint-disable no-console -- eval runner intentionally prints pass/fail to stdout */
+ 
 /**
  * Matcher eval harness — env-guarded live test.
  *
@@ -15,7 +15,24 @@
  * To run:
  *   WANTED_EVAL_LIVE=1 ANTHROPIC_API_KEY=sk-... pnpm test
  *
- * Pass criterion: >=85% of the 5 seed cases must pass all assertions.
+ * Pass criterion: >=85% of the 6 cases must pass all assertions.
+ *
+ * --- COVERAGE LIMITATION (semantic/vector arm) ---
+ * The hermetic design means the synthetic CandidateRetriever always returns a
+ * fixed pool regardless of the brief wording — FTS and pgvector retrieval are
+ * NEVER exercised here. Case match_006_semantic_paraphrase documents the
+ * paraphrase scenario the vector arm is designed to win (brief uses different
+ * vocabulary than the matching app), but it only validates that Haiku's re-ranker
+ * can identify paraphrased intent given the app in the pool — NOT that the vector
+ * retriever would have surfaced the app in the first place.
+ *
+ * Vector arm coverage (RRF fusion ordering, null-embedding degradation, builder
+ * intersection, vector-only materialization) lives in unit tests:
+ *   apps/web/lib/wanted/matching/semantic-retriever.test.ts
+ *   apps/web/lib/wanted/matching/rrf.test.ts
+ *
+ * True end-to-end validation of the vector arm requires a live DB populated with
+ * embeddings + a Voyage API key — out of scope for this hermetic eval harness.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -55,5 +72,5 @@ describe.skipIf(!LIVE)('matcher eval (live)', () => {
     );
 
     expect(passRate).toBeGreaterThanOrEqual(0.85);
-  }, 120_000); // Generous timeout — 5 cases × 2 Haiku calls × ~3-5s per call
+  }, 150_000); // Generous timeout — 6 cases × 2 Haiku calls × ~3-5s per call
 });

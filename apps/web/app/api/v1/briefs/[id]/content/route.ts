@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireUser } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { assertWantedEnabled, WantedDisabledError } from '@/lib/wanted/gate';
 import { problemResponse } from '@/lib/wanted/problem';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -9,6 +10,7 @@ import { getBrief } from '@/lib/wanted/brief-repo';
 import { setContentPath, BRIEF_CONTENT_PATHS } from '@/lib/wanted/brief-state';
 import { type BriefContent, computeCompletenessScore } from '@hatch/shared';
 import type { Database } from '@hatch/shared';
+import { embedBriefBestEffort } from '@/lib/wanted/embeddings/embed';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -155,6 +157,30 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     throw error;
   }
 
-  // 10. Return success
+  // 10. Synchronous best-effort embedding (spec E2). Awaited so it reliably
+  //      completes on serverless (a fire-and-forget promise may not run after
+  //      the response is flushed). The try/catch swallows every failure so it
+  //      can never change the response, status code, or rate-limit behavior.
+  try {
+    const vec = await embedBriefBestEffort({
+      title: newContent.title,
+      trigger: newContent.problem?.trigger,
+      affected: newContent.problem?.affected,
+      costOfNotSolving: newContent.problem?.costOfNotSolving,
+      definitionOfGoodEnough: newContent.desiredOutcome?.definitionOfGoodEnough,
+      mustHaves: newContent.desiredOutcome?.mustHaves,
+    });
+    if (vec !== null) {
+      const admin = createSupabaseAdminClient();
+      await admin
+        .from('briefs')
+        .update({ embedding: '[' + vec.join(',') + ']' })
+        .eq('id', id);
+    }
+  } catch (err) {
+    console.warn('[wanted/embed] content route: brief embedding update failed', err);
+  }
+
+  // 11. Return success
   return jsonResponse({ briefId: id, manuallyEditedFields, completenessScore }, 200);
 }

@@ -493,6 +493,25 @@ function getPoolForCase(caseId: string): {
         builders: [SYNTHETIC_BUILDERS[3], SYNTHETIC_BUILDERS[4]], // builder-latam, builder-us-only
       };
 
+    case 'match_006_semantic_paraphrase':
+      // SEMANTIC / PARAPHRASE CASE — the brief uses different words than Lumen's
+      // description ("stand-in server", "canned responses", "endpoint contract file"
+      // instead of "mock server", "custom scripting", "OpenAPI import"). Lumen is
+      // still in the synthetic pool, so this case tests whether Haiku's re-ranker
+      // can recognise paraphrased intent and still award Lumen a strong score.
+      //
+      // COVERAGE LIMITATION: this eval is hermetic — the synthetic retriever always
+      // surfaces Lumen regardless of keyword overlap, so we are NOT testing vector
+      // retrieval here. In production, the semantic retriever would use embeddings
+      // (Voyage) to surface Lumen even when FTS misses it. That vector-arm
+      // contribution is unit-tested in:
+      //   apps/web/lib/wanted/matching/semantic-retriever.test.ts
+      //   apps/web/lib/wanted/matching/rrf.test.ts
+      return {
+        apps: [SYNTHETIC_APPS[0], SYNTHETIC_APPS[2], SYNTHETIC_APPS[3]], // Lumen, NoteFlow, EasyImport
+        builders: [SYNTHETIC_BUILDERS[0], SYNTHETIC_BUILDERS[1]], // alice, bob
+      };
+
     case 'match_005_seeker_existing_stack':
       return {
         // Lumen is in the pool but must be excluded by the existingStack filter before

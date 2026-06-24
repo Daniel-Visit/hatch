@@ -62,6 +62,7 @@ export default async function TrendingPage() {
           request_rate_band: null,
           inferred_capabilities: [],
           last_brief_response_at: null,
+          capability_embedding: null,
           feature_flags: {},
         }
       : null;

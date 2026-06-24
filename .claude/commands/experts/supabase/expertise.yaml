@@ -3,7 +3,7 @@
 
 overview:
   description: "Supabase auth provider, SSR client setup, realtime channels"
-  project: hatch (ref: vcbdtjjkkwryvmqbflah)
+  project: "hatch (ref: vcbdtjjkkwryvmqbflah)"
   key_packages:
     - "@supabase/ssr@0.10.x (web)"
     - "@supabase/supabase-js@2.x (mcp)"
@@ -25,7 +25,7 @@ client_setup:
 
 database_migrations:
   package: "@hatch/db (packages/db/)"
-  location: "packages/db/migrations/NNNN_name.sql — 34 numbered files, 0001_init → 0034_extend_profiles_apps"
+  location: "packages/db/migrations/NNNN_name.sql — 40 numbered files, 0001_init → 0040_wanted_embeddings"
   rls_migrations: [0003_rls_phase1.sql, 0007_apps_rls.sql, 0010_social_rls.sql, 0017_phase6_rls.sql]
   apply_method: "Cloud-only (NO Supabase CLI, NO local Postgres/Docker). Applied via the Supabase MCP server (project ref vcbdtjjkkwryvmqbflah) from the controller agent. Manual fallback: paste SQL into Supabase Dashboard → SQL Editor → Run."
   types_regen: "After applying a migration, regenerate apps/web/lib/supabase/types.ts via the MCP."
@@ -36,7 +36,14 @@ database_migrations:
     - "public.brief_refinement_turns (agent conversation audit)"
     - "public.brief_match_audit_logs (matcher run audit)"
     - "public.validator_suggestions (validator agent output)"
-  wanted_schema_note: "types.ts has been regenerated to include all 5 Wanted tables and 15 enums. Re-export path: packages/shared/src/database.ts → apps/web/lib/supabase/types.ts"
+  wanted_schema_note: "types.ts has been regenerated to include all 5 Wanted tables, 15 enums, and the pgvector columns + cosine RPCs added in migration 0040. Re-export path: packages/shared/src/database.ts → apps/web/lib/supabase/types.ts"
+  pgvector_columns:
+    - "public.briefs.embedding vector(1024)"
+    - "public.apps.embedding vector(1024)"
+    - "public.profiles.capability_embedding vector(1024)"
+  pgvector_rpcs:
+    - "match_apps_by_embedding(query_embedding, match_count, exclude_saas, oss_only) → (id, distance)"
+    - "match_builders_by_embedding(query_embedding, match_count) → (id, distance)"
 
 realtime:
   thread_channel: "use-realtime-thread.ts — real-time comments/chat"
@@ -47,6 +54,7 @@ configuration:
     - NEXT_PUBLIC_SUPABASE_URL
     - NEXT_PUBLIC_SUPABASE_ANON_KEY
     - SUPABASE_SERVICE_ROLE_KEY (server-only)
+    - VOYAGE_API_KEY (server-only; required for Voyage voyage-3 embedding generation)
   env_mcp:
     - SUPABASE_URL
     - SUPABASE_SERVICE_ROLE_KEY
@@ -69,13 +77,54 @@ key_file_locations:
   auth_routes: apps/web/app/auth/
   sign_in: apps/web/app/(auth)/sign-in/
 
+wanted_client_split:
+  description: |
+    Phase 1.5+2 (Wanted matching) established a hard rule for which Supabase client
+    to use in Wanted route handlers:
+  reads: |
+    Use the session client (createSupabaseServerClient()) for all brief/app/profile reads.
+    RLS enforces that only the author (and, for matches, the candidate) can read their own rows.
+    Example: getBrief(session, id) in apps/web/app/api/v1/briefs/[id]/match/route.ts.
+  writes: |
+    Use the admin client (createSupabaseAdminClient()) for writes to matches,
+    validator_suggestions, and brief_match_audit_logs. These tables have SELECT-only RLS
+    (the agent pipelines must bypass RLS to insert on behalf of the system).
+    Pattern in repos: apps/web/lib/wanted/match-repo.ts, match-audit-repo.ts, suggestion-repo.ts.
+  fts_retrieval: |
+    Full-text search over apps uses the session client:
+      client.from('apps').textSearch('search_vector', q, { type: 'websearch' })
+    The search_vector column has a GIN index (migration 0006). This is one of two
+    retrieval paths — the other is semantic via pgvector cosine RPCs (migration 0040).
+    Both paths are merged with RRF in CandidateRetriever.
+  pgvector_retrieval: |
+    Cosine-match RPCs (match_apps_by_embedding, match_builders_by_embedding) are called
+    via the admin client (service role bypasses RLS) using rpc():
+      adminClient.rpc('match_apps_by_embedding', { query_embedding, match_count, ... })
+    The embedding parameter is a '[n1,n2,...]' Postgres vector literal string (not a JS
+    array). The supabase-js client returns vector columns as `string | null`.
+    Env var: VOYAGE_API_KEY (server-only; used by apps/web/lib/wanted/embed.ts to call
+    Voyage voyage-3 before passing the embedding to these RPCs).
+  thread_reuse: |
+    When a match results in a new conversation (respond route), the route reuses the
+    existing find_or_create_conversation RPC (same as messaging feature) and calls
+    pushToUser() from apps/web/lib/push/server.ts to notify the candidate.
+  embeddings_migration: |
+    Migration 0040 added pgvector (Voyage voyage-3 / 1024 dims). Types regen was required
+    after 0040. The schema is now at 40 migrations total (0001_init → 0040_wanted_embeddings).
+
 architecture_summary: |
   Supabase Auth is the sole identity provider — no custom auth logic.
   Server Components call getUser() which uses @supabase/ssr cookie-based client.
   Browser components use createBrowserClient() for client-side auth state.
   MCP server uses service role key for privileged write operations.
   Realtime channels handle live comments and notifications.
-  Schema is at 34 migrations. Phase 0 Wanted tables (briefs, matches, 3 audit tables)
-  are present in types.ts but inert — no routes consume them yet. After every migration
-  the types.ts must be regenerated via MCP; the re-export in packages/shared/src/database.ts
+  Schema is at 40 migrations. Phase 0 Wanted tables (briefs, matches, 3 audit tables)
+  are now actively used (Phase 1.5+2 wired all routes). Migration 0040 added pgvector
+  (Voyage voyage-3, 1024 dims): embedding columns on briefs/apps/profiles, HNSW cosine
+  indexes, and security-invoker cosine-match RPCs. After every migration the types.ts
+  must be regenerated via MCP; the re-export in packages/shared/src/database.ts
   propagates the new types to all workspace packages automatically.
+  Wanted matching: reads via session client (RLS author/candidate), writes to matches +
+  audit tables via admin client (SELECT-only RLS on those tables). Cosine-match RPCs
+  also called via admin client (service role bypasses RLS). VOYAGE_API_KEY is required
+  server-side for embedding generation (Voyage voyage-3).

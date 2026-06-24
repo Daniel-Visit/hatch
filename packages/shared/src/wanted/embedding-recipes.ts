@@ -8,7 +8,7 @@
 /**
  * Build the embedding text for a Brief.
  *
- * Maps to the Brief.embedding column (vector(1536) stored via pgvector).
+ * Maps to the Brief.embedding column (vector(1024) stored via pgvector).
  */
 export function briefEmbeddingText(input: {
   title?: string;
@@ -31,7 +31,7 @@ export function briefEmbeddingText(input: {
 /**
  * Build the embedding text for an App.
  *
- * Maps to the App.embedding column (vector(1536) stored via pgvector).
+ * Maps to the App.embedding column (vector(1024) stored via pgvector).
  */
 export function appEmbeddingText(input: {
   name?: string;
@@ -52,7 +52,7 @@ export function appEmbeddingText(input: {
 /**
  * Build the capability embedding text for a User (builder).
  *
- * Maps to User.capability_embedding (vector(1536)). Per spec, capability
+ * Maps to User.capability_embedding (vector(1024)). Per spec, capability
  * is the concatenation of the top loved apps' embedding texts (typically
  * the top 5 most-loved, weighted by recency — recomputed nightly + on
  * each new app published). Callers are responsible for selecting and
