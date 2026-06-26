@@ -34,7 +34,6 @@ export async function updateProfile(
   const { error } = await sb.from('profiles').update(payload).eq('id', user.id);
 
   if (error) {
-    // eslint-disable-next-line no-console
     console.error('updateProfile db_error', { message: error.message, code: error.code });
     return { ok: false, error: 'db_error' };
   }

@@ -13,6 +13,7 @@ import './styles/prototype-cards.css';
 import './styles/prototype-screens.css';
 import './styles/prototype-contact.css';
 import './styles/phase6.css';
+import './styles/wanted.css';
 
 export const metadata: Metadata = {
   title: 'Hatch',

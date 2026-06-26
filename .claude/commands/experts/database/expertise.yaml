@@ -1,0 +1,128 @@
+# Database Expertise
+# hatch — Supabase Postgres schema, migrations, RLS policies
+
+overview:
+  description: "Supabase Postgres database with 40 migration files, RLS on all tables"
+  project: "hatch (Supabase project ref: vcbdtjjkkwryvmqbflah)"
+  migration_tool: Supabase MCP tools (never supabase CLI)
+  migrations_dir: "packages/db/migrations/"
+  total_migrations: 40
+
+core_tables:
+  profiles: "User profiles (handle, theme_pref, locale_pref, avatar, banner, accepts_requests, request_capacity, request_domains, request_rate_band, inferred_capabilities, last_brief_response_at, feature_flags jsonb)"
+  apps: "App listings (title, slug, description, url, category, built_with, discovery_via_brief_count, solves_problems text[])"
+  categories: "App categories"
+  social: "Likes, saves, follows, comments, messages (migration 0009)"
+  notifications: "Push notifications, web-push subscriptions"
+  api_rate_limits: "Per-key rate limiting (migration 0021)"
+  app_views: "View tracking (migration 0026)"
+  # Wanted feature tables (Phase 0 — inert behind feature flag, not wired to any route yet)
+  briefs: "public.briefs — user request briefs with status lifecycle + touch_updated_at trigger (migration 0031)"
+  matches: "public.matches — matched apps/builders per brief; XOR constraint enforces candidate_app_id vs candidate_builder_id (migration 0032)"
+  brief_refinement_turns: "Append-only Refiner agent conversation turns per brief (migration 0033)"
+  brief_match_audit_logs: "Append-only matcher agent run logs per brief (migration 0033)"
+  validator_suggestions: "Validator agent suggestions on briefs (migration 0033)"
+
+migration_sequence:
+  "0001_init.sql": "Initial schema — profiles, auth hooks"
+  "0003_rls_phase1.sql": "First RLS policies"
+  "0004_phase1_hardening.sql": "RLS hardening"
+  "0006_apps.sql": "Apps table"
+  "0007_apps_rls.sql": "Apps RLS policies"
+  "0009_social.sql": "Social tables (likes, saves, follows)"
+  "0010_social_rls.sql": "Social RLS"
+  "0020_ranking.sql": "Hot score ranking"
+  "0021_api_rate_limits.sql": "API key rate limits"
+  "0028_security_hardening.sql": "Security hardening"
+  "0029_apps_built_with.sql": "built_with field for apps"
+  # Wanted feature — Phase 0 (migrations 0030–0034)
+  "0030_wanted_enums.sql": "15 native Postgres enums for Wanted feature (brief_status, brief_entry_mode, suggestion_status, brief_visibility, brief_use_case, technical_level, budget_band, brief_timeline, solution_type, etc.) — all idempotent with pg_type existence guards"
+  "0031_briefs.sql": "public.briefs table + RLS + touch_updated_at trigger (reuses shared function from 0001)"
+  "0032_matches.sql": "public.matches table — XOR constraint ensures exactly one of candidate_app_id / candidate_builder_id is set"
+  "0033_brief_audit.sql": "brief_refinement_turns, brief_match_audit_logs, validator_suggestions tables — all append-only with RLS"
+  "0034_extend_profiles_apps.sql": "profiles += accepts_requests, request_capacity, request_domains, request_rate_band, inferred_capabilities, last_brief_response_at, feature_flags jsonb; apps += discovery_via_brief_count, solves_problems text[] (with GIN index)"
+  # Wanted feature — Phase 2 embeddings (migration 0040); plus minor schema fixes 0035–0039
+  "0035_rate_limit_window.sql": "Rate-limit window refinements"
+  "0036_match_feedback.sql": "Match feedback table"
+  "0037_apps_licensing.sql": "apps.licensing enum column (saas | self_hosted | oss)"
+  "0038_turn_index_unique.sql": "Unique index on brief_refinement_turns"
+  "0039_fix_briefs_matches_rls_recursion.sql": "Fix RLS recursion on briefs/matches policies"
+  "0040_wanted_embeddings.sql": "pgvector extension; vector(1024) columns briefs.embedding, apps.embedding, profiles.capability_embedding; HNSW cosine indexes (vector_cosine_ops); security-invoker RPCs match_apps_by_embedding and match_builders_by_embedding"
+
+rls_policy:
+  rule: "All tables MUST have RLS enabled"
+  pattern: "SELECT policies use auth.uid() checks; INSERT/UPDATE/DELETE restricted to row owner"
+  anon_access: "Read-only public access for published apps and profiles"
+
+configuration:
+  supabase_project: vcbdtjjkkwryvmqbflah
+  env_vars:
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_SUPABASE_ANON_KEY
+    - SUPABASE_SERVICE_ROLE_KEY
+  client_creation: "apps/web/lib/supabase/ (server + browser clients via @supabase/ssr)"
+
+best_practices:
+  migrations: "Apply via Supabase MCP tools only — never supabase CLI"
+  rls: "Every new table must have RLS enabled before going to production"
+  service_role: "SUPABASE_SERVICE_ROLE_KEY is server-only — never expose to client"
+  naming: "snake_case for all table and column names"
+
+key_file_locations:
+  migrations: packages/db/migrations/
+  web_supabase: apps/web/lib/supabase/
+  mcp_supabase: apps/mcp/src/supabase.ts
+  shared_types: packages/shared/src/database.ts
+
+pgvector: |
+  pgvector IS in use as of migration 0040. Extension: `create extension if not exists vector`.
+  Embedding model: Voyage voyage-3 → 1024 dimensions (do NOT change this width).
+  Columns: briefs.embedding vector(1024), apps.embedding vector(1024),
+           profiles.capability_embedding vector(1024).
+  HNSW cosine indexes: briefs_embedding_hnsw, apps_embedding_hnsw,
+                       profiles_capability_embedding_hnsw (all vector_cosine_ops).
+  RPCs (language sql stable security invoker, called by the service-role admin client):
+    match_apps_by_embedding(query_embedding vector(1024), match_count int, exclude_saas bool, oss_only bool) → table(id uuid, distance real)
+    match_builders_by_embedding(query_embedding vector(1024), match_count int) → table(id uuid, distance real)
+  Vectors come back as `string | null` from supabase-js; write using the '[n1,n2,...]' literal format.
+  Env var required by the embedding pipeline: VOYAGE_API_KEY (server-only).
+
+wanted_active_usage:
+  description: |
+    Phase 1.5+2 (Wanted) wired the tables added in Phase 0 (0030–0034). They are no
+    longer inert — all five tables are actively read/written by route handlers and repos.
+  matches: |
+    public.matches is written by the Matcher pipeline (apps/web/lib/wanted/match-repo.ts).
+    The XOR constraint (exactly one of candidate_app_id / candidate_builder_id must be set)
+    is enforced in JS via match-repo before insert, matching the DB constraint in 0032.
+    Reads use the session client (RLS: author + candidate); writes use the admin client.
+  brief_match_audit_logs: |
+    One row is inserted per Matcher phase run (Phase A + Phase B) for audit/debug.
+    Written exclusively by the admin client from match-audit-repo.ts. Append-only.
+  validator_suggestions: |
+    Rows transition: PENDING → APPLIED (via /suggestions/[sid]/apply) or DISMISSED
+    (via /suggestions/[sid]/dismiss). The status column uses the suggestion_status enum.
+    Written by the admin client; read by the session client (author-only RLS).
+  fts_retrieval: |
+    CandidateRetriever (apps/web/lib/wanted/matching/retriever.ts) uses two paths:
+    1. FTS over apps.search_vector (GIN index, migration 0006):
+       client.from('apps').textSearch('search_vector', q, { type: 'websearch' })
+    2. Semantic vector retrieval via match_apps_by_embedding / match_builders_by_embedding
+       RPCs (migration 0040). Results from both paths are merged with RRF.
+    Builder candidates filter on profiles.accepts_requests, request_capacity,
+    request_domains, request_rate_band; app candidates use apps.solves_problems.
+
+architecture_summary: |
+  Supabase Postgres with 40 migrations establishing the full schema.
+  All tables have RLS — anon gets read-only access to public data.
+  Migrations applied via Supabase MCP tools only (never supabase CLI).
+  Service role key is server-only. Both apps/web and apps/mcp use separate clients.
+  Hot score ranking for apps. Rate limiting for API keys. Social graph for interactions.
+  Phase 0 (0030–0034) adds the Wanted feature substrate: 15 enums, 5 tables (briefs,
+  matches, brief_refinement_turns, brief_match_audit_logs, validator_suggestions), and
+  extended profiles/apps columns — now actively used (Phase 1.5+2).
+  Migration 0040 adds pgvector (Voyage voyage-3, 1024 dims): embedding columns on briefs,
+  apps, and profiles; HNSW cosine indexes; security-invoker cosine-match RPCs.
+  Retrieval is now hybrid: FTS (apps.search_vector GIN) + semantic vector (pgvector) merged via RRF.
+  Wanted write paths use admin client to bypass SELECT-only RLS on matches/audit/suggestions;
+  read paths use session client so RLS scopes rows to author/candidate.

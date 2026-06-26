@@ -1,0 +1,239 @@
+[
+  {
+    "id": "match_001_obvious_app_exists",
+    "description": "Brief that Lumen.fm solves exactly. Must surface Lumen with score >= 80 in Phase A.",
+    "briefContent": {
+      "title": "API mock server with custom scripting and team sharing",
+      "problem": {
+        "trigger": "Our frontend team is blocked every time the backend API is not ready",
+        "affected": "Frontend team of 4",
+        "currentWorkaround": "Using Lumen for basic mocking but missing custom response scripting"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Frontend team can develop against realistic API responses without waiting for backend",
+        "mustHaves": [
+          "Custom response scripting per endpoint",
+          "Team workspace sharing",
+          "Import OpenAPI specs"
+        ],
+        "niceToHaves": ["Request logging"],
+        "outOfScope": ["Full API gateway functionality", "Production traffic handling"]
+      },
+      "context": {
+        "industry": "Software development tooling",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["Node.js", "React", "OpenAPI"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_surface_app",
+      "appsAtLeastIncluded": ["lumen-fm"],
+      "maxBuildersReturned": 5
+    }
+  },
+  {
+    "id": "match_002_no_app_fits",
+    "description": "Vague creative brief, no app in pool matches. Must go to builder matching with >= 3 builders.",
+    "briefContent": {
+      "title": "AI-powered brand identity system for indie music labels",
+      "problem": {
+        "trigger": "After signing 3 new artists in Q3, we can't maintain consistent brand across all their releases",
+        "affected": "Creative director and 3 artists",
+        "currentWorkaround": "Manual Figma templates but each release still looks inconsistent"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Each artist has a living brand system that auto-adapts to new releases while staying consistent",
+        "mustHaves": [
+          "AI-generated visual variations from brand guidelines",
+          "Artist-specific brand tokens",
+          "Export for social media formats"
+        ],
+        "niceToHaves": ["Spotify canvas integration"],
+        "outOfScope": ["General graphic design tool (we have Figma)", "Music distribution"]
+      },
+      "context": {
+        "industry": "Independent music labels",
+        "useCase": "client_deliverable",
+        "technicalLevel": "non_technical",
+        "existingStack": ["Figma", "Spotify for Artists"]
+      },
+      "constraints": {
+        "budgetBand": "from_500_2k",
+        "timeline": "months",
+        "licensing": "saas_ok",
+        "geography": null
+      },
+      "preferredSolutionType": ["custom_build"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_skip_to_builders",
+      "buildersAtLeastIncluded": ["builder-alice", "builder-bob", "builder-carol"]
+    }
+  },
+  {
+    "id": "match_003_budget_filter",
+    "description": "Exploratory budget brief. App pool contains only irrelevant apps so Phase A finds nothing strong. Builders with rate_band GT_10K must be filtered out by the rate-band check.",
+    "briefContent": {
+      "title": "Simple CSV import tool for non-technical users",
+      "problem": {
+        "trigger": "New intern can't figure out how to get data into our system",
+        "affected": "Non-technical staff",
+        "currentWorkaround": "Asking engineers to do manual imports"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Non-technical users can import CSV files without engineering help",
+        "mustHaves": ["CSV column mapping UI", "Validation with clear error messages"],
+        "niceToHaves": [],
+        "outOfScope": ["Enterprise ETL pipeline", "Real-time sync"]
+      },
+      "context": {
+        "industry": "Operations",
+        "useCase": "team",
+        "technicalLevel": "non_technical",
+        "existingStack": []
+      },
+      "constraints": {
+        "budgetBand": "exploratory",
+        "timeline": "no_rush",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app", "custom_build"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_skip_to_builders",
+      "buildersAtLeastIncluded": ["builder-csv"],
+      "buildersMustNotInclude": ["builder-expensive"],
+      "maxBuildersReturned": 5
+    }
+  },
+  {
+    "id": "match_004_geo_filter",
+    "description": "Brief with geography LATAM only. Builders outside LATAM must be excluded.",
+    "briefContent": {
+      "title": "Local delivery route optimizer for LATAM last-mile logistics",
+      "problem": {
+        "trigger": "Our fleet of 20 drivers is covering routes manually, leading to 40% extra distance driven",
+        "affected": "Fleet managers and 20 drivers in Brazil, Mexico, Colombia",
+        "currentWorkaround": "WhatsApp group + driver intuition for routing"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Automated route optimization that reduces average distance by 25% within first month",
+        "mustHaves": [
+          "Real-time route optimization for 5-50 stops",
+          "Driver mobile app in Spanish and Portuguese",
+          "Fleet manager dashboard"
+        ],
+        "niceToHaves": ["Integration with VTEX"],
+        "outOfScope": ["International shipping", "Customs/freight forwarding"]
+      },
+      "context": {
+        "industry": "Last-mile logistics in Latin America",
+        "useCase": "team",
+        "technicalLevel": "semi_technical",
+        "existingStack": ["WhatsApp", "VTEX"]
+      },
+      "constraints": {
+        "budgetBand": "from_2k_10k",
+        "timeline": "months",
+        "licensing": "saas_ok",
+        "geography": "LATAM only"
+      },
+      "preferredSolutionType": ["custom_build"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_skip_to_builders",
+      "buildersAtLeastIncluded": ["builder-latam"],
+      "buildersMustNotInclude": ["builder-us-only"],
+      "maxBuildersReturned": 5
+    }
+  },
+  {
+    "id": "match_006_semantic_paraphrase",
+    "description": "SEMANTIC CASE — brief uses paraphrase vocabulary instead of the app's exact keywords. The seeker says 'stand-in server' and 'canned responses' rather than 'mock server' and 'scripted replies'. The intent is identical to match_001 (Lumen), but keyword overlap is low. In the hermetic eval Lumen is still in the synthetic pool, so this case exercises only whether the re-ranker recognises paraphrased intent — it does NOT validate vector retrieval against a live corpus (that would require a real DB + Voyage). Coverage for the vector arm's contribution to ordering lives in lib/wanted/matching/semantic-retriever.test.ts and rrf.test.ts.",
+    "briefContent": {
+      "title": "Stand-in server that returns canned responses while backend is unavailable",
+      "problem": {
+        "trigger": "Client-side engineers keep sitting idle whenever the server-side team is still building endpoints",
+        "affected": "UI engineers — team of 5",
+        "currentWorkaround": "Hard-coding JSON fixtures directly in the frontend — messy and hard to clean up"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "Client engineers can continue building against realistic responses without any dependency on the backend being ready",
+        "mustHaves": [
+          "Intercept HTTP calls and return configurable canned responses",
+          "Share response configurations across the team",
+          "Load an endpoint contract file to seed the stand-in server"
+        ],
+        "niceToHaves": ["Record and replay real traffic"],
+        "outOfScope": ["Production traffic routing", "Load balancing"]
+      },
+      "context": {
+        "industry": "Software development tooling",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["Node.js", "React"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "no_pref",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_surface_app",
+      "appsAtLeastIncluded": ["lumen-fm"],
+      "maxBuildersReturned": 5
+    }
+  },
+  {
+    "id": "match_005_seeker_existing_stack",
+    "description": "Brief mentions seeker already uses Lumen. Lumen must NOT appear as an app match.",
+    "briefContent": {
+      "title": "Postman alternative with better team collaboration and version control",
+      "problem": {
+        "trigger": "After team grew to 10 engineers, our shared Postman workspace became a mess of outdated collections",
+        "affected": "10 backend and frontend engineers",
+        "currentWorkaround": "Using Lumen for mocking and Postman for API testing, but they don't integrate"
+      },
+      "desiredOutcome": {
+        "definitionOfGoodEnough": "All engineers working from a single source of truth for API collections with no stale data",
+        "mustHaves": [
+          "Git-based version control for API collections",
+          "Environment variable management with secrets",
+          "Team workspace with role-based permissions"
+        ],
+        "niceToHaves": ["Automatic API documentation generation"],
+        "outOfScope": ["API gateway (we have AWS API Gateway)", "Mock servers (we have Lumen)"]
+      },
+      "context": {
+        "industry": "Software development",
+        "useCase": "team",
+        "technicalLevel": "developer",
+        "existingStack": ["Lumen", "Postman", "AWS API Gateway", "GitHub"]
+      },
+      "constraints": {
+        "budgetBand": "lt_500",
+        "timeline": "weeks",
+        "licensing": "oss_only",
+        "geography": null
+      },
+      "preferredSolutionType": ["existing_app", "fork_and_modify"]
+    },
+    "expected": {
+      "phaseAOutcome": "should_skip_to_builders",
+      "appsMustNotInclude": ["lumen-fm"],
+      "maxBuildersReturned": 5
+    }
+  }
+]

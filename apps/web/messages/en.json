@@ -795,5 +795,176 @@
       "Unlike": "Unlike",
       "Open": "Open {title}"
     }
+  },
+  "Wanted": {
+    "head": {
+      "title": "Post a need"
+    },
+    "composer": {
+      "placeholder": "Reply or ask the agent a question…",
+      "hint": "Enter to send · Shift+Enter for newline · Esc to stop streaming"
+    },
+    "summary": {
+      "title": "Brief summary"
+    },
+    "Brief": {
+      "editHint": "Click any field to edit. Changes auto-save and the agent will respect them on next turns."
+    },
+    "labels": {
+      "title": "title",
+      "trigger": "trigger",
+      "endState": "end state",
+      "mustHaves": "must-haves",
+      "outOfScope": "out of scope",
+      "technicalLevel": "technical level",
+      "solutionPreference": "solution preference",
+      "budgetTimeline": "budget · timeline"
+    },
+    "approve": {
+      "ready": "Looks good. Quality at {score} with your edits.",
+      "keepTalking": "Keep talking",
+      "cta": "Approve & match →",
+      "editsTag": "✎ {n} edits",
+      "autosaved": "All edits auto-saved · agent will respect them"
+    },
+    "empty": {
+      "outOfScope": "— click to add what wouldn't solve this —"
+    },
+    "addChip": "+ add",
+    "approved": {
+      "title": "Matching started",
+      "body": "We're finding matches for your brief."
+    },
+    "technicalLevel": {
+      "nonTechnical": "Non-technical",
+      "semiTechnical": "Semi-technical",
+      "developer": "Developer"
+    },
+    "ModePicker": {
+      "pageTitle": "Post a need",
+      "pageSubtitle": "Choose how you'd like to describe what you're looking for.",
+      "Chat": {
+        "title": "Talk to AI",
+        "body": "Answer a few guided questions. The agent drafts your brief as you go.",
+        "bestFor": "Best for: first-timers or fuzzy problems"
+      },
+      "Form": {
+        "title": "Fill it in",
+        "body": "Go straight to the structured form. Fill fields at your own pace.",
+        "bestFor": "Best for: returning users who know what they need"
+      },
+      "Paste": {
+        "title": "Paste a brief",
+        "body": "Drop an email, Slack message, or notes. We'll extract the structure for you.",
+        "bestFor": "Best for: you already have something written down"
+      }
+    },
+    "FormMode": {
+      "pageTitle": "Fill in your brief",
+      "completeness": "{pct}% complete",
+      "validateCta": "Validate & match →",
+      "sections": {
+        "problem": "The problem",
+        "outcome": "Desired outcome",
+        "context": "Context",
+        "constraints": "Constraints",
+        "solutionType": "Solution type"
+      },
+      "fields": {
+        "title": "Title",
+        "trigger": "What triggers this problem?",
+        "currentWorkaround": "What do you use today?",
+        "costOfNotSolving": "Cost of not solving it",
+        "mustHaves": "Must-haves",
+        "outOfScope": "Out of scope",
+        "industry": "Industry / domain",
+        "technicalLevel": "Technical level",
+        "stack": "Stack / environment",
+        "definitionOfGoodEnough": "Definition of good enough",
+        "budget": "Budget",
+        "timeline": "Timeline",
+        "licensing": "Licensing"
+      },
+      "helpPill": "Need help with this field?"
+    },
+    "PasteMode": {
+      "pageTitle": "Paste a brief",
+      "pageSubtitle": "Drop an email, Slack message, or notes — we'll parse the structure.",
+      "placeholder": "Paste an email, Slack message, or notes describing what you need…",
+      "counter": "{count} chars",
+      "guidance": "80–4000 characters works best",
+      "parseCta": "Parse it →",
+      "parsing": "Parsing…",
+      "bannerExtracted": "I extracted {extracted}. I couldn't infer {missing}. Review below.",
+      "validateCta": "Validate & match →"
+    },
+    "HealthCard": {
+      "pageTitle": "Your brief is ready to match",
+      "pageSubtitle": "Your brief is ready to match — but the matcher will work better with these tweaks. Skim, apply what you agree with, and publish.",
+      "qualityLabel": "quality score",
+      "qualityBySection": "Quality by section",
+      "matchPotentialTitle": "Match potential",
+      "matchPotentialCurrentLabel": "Current",
+      "matchPotentialWithSuggestions": "With suggestions",
+      "matchPotentialHint": "matches at ≥ 60%",
+      "suggestionsTitle": "suggestions to make matches stronger",
+      "suggestionApply": "Apply",
+      "suggestionDismiss": "Dismiss",
+      "suggestionApplied": "✓ Applied",
+      "applyAllCta": "Apply all & re-validate",
+      "publishAsIsCta": "Publish as-is",
+      "publishAsIsDisabledTooltip": "Apply at least one suggestion to publish — current quality is too low to match well",
+      "secondaryNote": "You can always refine after publishing.",
+      "badge": {
+        "good": "good",
+        "weak": "weak",
+        "missing": "missing"
+      }
+    },
+    "MatchDeck": {
+      "existingAppBannerTitle": "This might already exist",
+      "existingAppBannerBody": "The matcher found an app that scores {score} against your brief. Try it before commissioning a build.",
+      "customBuildBannerTitle": "Looks like this would be a custom build",
+      "customBuildBannerBody": "Here are {count} builders whose work matches your brief.",
+      "confidenceLabel": "{pct}% match",
+      "whyThisMatch": "Why this match",
+      "connectCta": "Connect →",
+      "tryAppCta": "Try {title} →",
+      "skipCta": "Skip",
+      "sentConfirmation": "Sent. They'll see your brief and decide.",
+      "noMatchesTitle": "No matches yet",
+      "noMatchesBody": "We've shared your brief publicly — builders will start to see it.",
+      "briefMeta": "brief {id} · {count} matches",
+      "briefSubMeta": "Refined {when} · quality {score} · expires in {days} days"
+    },
+    "Gallery": {
+      "pageTitle": "Wanted",
+      "pageSubtitle": "Briefs that didn't match privately — open for any builder to pitch.",
+      "openCount": "{count} open",
+      "sortHot": "Hot",
+      "sortNew": "New",
+      "buildersInterested": "{count, plural, one {# builder interested} other {# builders interested}}",
+      "emptyTitle": "No open briefs yet",
+      "emptyBody": "Be the first to post a need."
+    },
+    "InboxRequests": {
+      "pageTitle": "Incoming requests",
+      "emptyTitle": "You're not receiving requests yet.",
+      "emptyCta": "Turn on requests",
+      "notificationBody": "{name} has a brief that matches your profile ({pct}%)",
+      "decideLater": "Decide later"
+    },
+    "Notifications": {
+      "matchingReady": "Your matches are ready",
+      "briefPublic": "Your brief is now public",
+      "builderAccepted": "{name} accepted your brief"
+    },
+    "EmptyStates": {
+      "quotaReached": "You have {count} active briefs. Resolve or expire one to start a new one.",
+      "quotaReachedCta": "View my briefs →",
+      "noMatchesPublic": "No matches yet. We've shared your brief publicly — builders will start to see it.",
+      "briefResolved": "Glad you found it! Want to rate the match?",
+      "briefExpiringSoon": "Brief expires soon — extend or resolve?"
+    }
   }
 }

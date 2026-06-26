@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@asteasolutions/zod-to-openapi": "^7.0.0",
     "@hatch/shared": "workspace:*",
     "@hookform/resolvers": "^3.9.0",

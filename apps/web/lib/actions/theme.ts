@@ -25,7 +25,6 @@ export async function setThemePref(theme: ThemePref): Promise<ActionResult<{ the
   const { error } = await sb.from('profiles').update({ theme_pref: parsed.data }).eq('id', user.id);
 
   if (error) {
-    // eslint-disable-next-line no-console
     console.error('setThemePref db_error', { message: error.message, code: error.code });
     return { ok: false, error: 'db_error' };
   }

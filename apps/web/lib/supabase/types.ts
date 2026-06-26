@@ -108,17 +108,21 @@ export type Database = {
           cover_url: string | null;
           created_at: string;
           description: string;
+          discovery_via_brief_count: number;
+          embedding: string | null;
           hot_score: number;
           hue: number;
           id: string;
           is_featured: boolean;
           is_published: boolean;
+          licensing: Database['public']['Enums']['app_licensing'] | null;
           likes_count: number;
           link: string;
           published_at: string;
           saves_count: number;
           search_vector: unknown;
           slug: string;
+          solves_problems: string[];
           tagline: string;
           tags: string[];
           title: string;
@@ -136,17 +140,21 @@ export type Database = {
           cover_url?: string | null;
           created_at?: string;
           description?: string;
+          discovery_via_brief_count?: number;
+          embedding?: string | null;
           hot_score?: number;
           hue?: number;
           id?: string;
           is_featured?: boolean;
           is_published?: boolean;
+          licensing?: Database['public']['Enums']['app_licensing'] | null;
           likes_count?: number;
           link: string;
           published_at?: string;
           saves_count?: number;
           search_vector?: unknown;
           slug: string;
+          solves_problems?: string[];
           tagline: string;
           tags?: string[];
           title: string;
@@ -164,17 +172,21 @@ export type Database = {
           cover_url?: string | null;
           created_at?: string;
           description?: string;
+          discovery_via_brief_count?: number;
+          embedding?: string | null;
           hot_score?: number;
           hue?: number;
           id?: string;
           is_featured?: boolean;
           is_published?: boolean;
+          licensing?: Database['public']['Enums']['app_licensing'] | null;
           likes_count?: number;
           link?: string;
           published_at?: string;
           saves_count?: number;
           search_vector?: unknown;
           slug?: string;
+          solves_problems?: string[];
           tagline?: string;
           tags?: string[];
           title?: string;
@@ -194,6 +206,219 @@ export type Database = {
             columns: ['category_id'];
             isOneToOne: false;
             referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      brief_match_audit_logs: {
+        Row: {
+          brief_id: string;
+          candidates_considered: number;
+          candidates_final: number;
+          candidates_shortlisted: number;
+          created_at: string;
+          duration_ms: number;
+          id: string;
+          model_used: string | null;
+          phase: Database['public']['Enums']['match_phase'];
+          rationale_json: Json | null;
+        };
+        Insert: {
+          brief_id: string;
+          candidates_considered?: number;
+          candidates_final?: number;
+          candidates_shortlisted?: number;
+          created_at?: string;
+          duration_ms?: number;
+          id?: string;
+          model_used?: string | null;
+          phase: Database['public']['Enums']['match_phase'];
+          rationale_json?: Json | null;
+        };
+        Update: {
+          brief_id?: string;
+          candidates_considered?: number;
+          candidates_final?: number;
+          candidates_shortlisted?: number;
+          created_at?: string;
+          duration_ms?: number;
+          id?: string;
+          model_used?: string | null;
+          phase?: Database['public']['Enums']['match_phase'];
+          rationale_json?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'brief_match_audit_logs_brief_id_fkey';
+            columns: ['brief_id'];
+            isOneToOne: false;
+            referencedRelation: 'briefs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      brief_refinement_turns: {
+        Row: {
+          brief_id: string;
+          content: string;
+          content_json: Json | null;
+          created_at: string;
+          id: string;
+          model_used: string | null;
+          role: Database['public']['Enums']['turn_role'];
+          round: number;
+          tokens_in: number | null;
+          tokens_out: number | null;
+          turn_index: number;
+          ui_component_invocation: Json | null;
+        };
+        Insert: {
+          brief_id: string;
+          content?: string;
+          content_json?: Json | null;
+          created_at?: string;
+          id?: string;
+          model_used?: string | null;
+          role: Database['public']['Enums']['turn_role'];
+          round: number;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+          turn_index: number;
+          ui_component_invocation?: Json | null;
+        };
+        Update: {
+          brief_id?: string;
+          content?: string;
+          content_json?: Json | null;
+          created_at?: string;
+          id?: string;
+          model_used?: string | null;
+          role?: Database['public']['Enums']['turn_role'];
+          round?: number;
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+          turn_index?: number;
+          ui_component_invocation?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'brief_refinement_turns_brief_id_fkey';
+            columns: ['brief_id'];
+            isOneToOne: false;
+            referencedRelation: 'briefs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      briefs: {
+        Row: {
+          author_id: string;
+          budget_band: Database['public']['Enums']['budget_band'] | null;
+          completeness_score: number;
+          content: Json;
+          created_at: string;
+          embedding: string | null;
+          entry_mode: Database['public']['Enums']['brief_entry_mode'];
+          expires_at: string;
+          geography: string | null;
+          id: string;
+          industry: string | null;
+          intent: string;
+          manually_edited_fields: string[];
+          match_potential_estimate: Json | null;
+          matching_started_at: string | null;
+          parsed_from: string | null;
+          public_at: string | null;
+          public_likes: number;
+          public_rank: number;
+          quality_by_section: Json | null;
+          quality_score: number;
+          refinement_round: number;
+          resolution: Database['public']['Enums']['brief_resolution'] | null;
+          resolved_at: string | null;
+          solution_types: Database['public']['Enums']['solution_type'][];
+          status: Database['public']['Enums']['brief_status'];
+          technical_level: Database['public']['Enums']['technical_level'] | null;
+          timeline: Database['public']['Enums']['brief_timeline'] | null;
+          title: string | null;
+          updated_at: string;
+          use_case: Database['public']['Enums']['brief_use_case'] | null;
+          visibility: Database['public']['Enums']['brief_visibility'];
+        };
+        Insert: {
+          author_id: string;
+          budget_band?: Database['public']['Enums']['budget_band'] | null;
+          completeness_score?: number;
+          content?: Json;
+          created_at?: string;
+          embedding?: string | null;
+          entry_mode: Database['public']['Enums']['brief_entry_mode'];
+          expires_at?: string;
+          geography?: string | null;
+          id?: string;
+          industry?: string | null;
+          intent?: string;
+          manually_edited_fields?: string[];
+          match_potential_estimate?: Json | null;
+          matching_started_at?: string | null;
+          parsed_from?: string | null;
+          public_at?: string | null;
+          public_likes?: number;
+          public_rank?: number;
+          quality_by_section?: Json | null;
+          quality_score?: number;
+          refinement_round?: number;
+          resolution?: Database['public']['Enums']['brief_resolution'] | null;
+          resolved_at?: string | null;
+          solution_types?: Database['public']['Enums']['solution_type'][];
+          status?: Database['public']['Enums']['brief_status'];
+          technical_level?: Database['public']['Enums']['technical_level'] | null;
+          timeline?: Database['public']['Enums']['brief_timeline'] | null;
+          title?: string | null;
+          updated_at?: string;
+          use_case?: Database['public']['Enums']['brief_use_case'] | null;
+          visibility?: Database['public']['Enums']['brief_visibility'];
+        };
+        Update: {
+          author_id?: string;
+          budget_band?: Database['public']['Enums']['budget_band'] | null;
+          completeness_score?: number;
+          content?: Json;
+          created_at?: string;
+          embedding?: string | null;
+          entry_mode?: Database['public']['Enums']['brief_entry_mode'];
+          expires_at?: string;
+          geography?: string | null;
+          id?: string;
+          industry?: string | null;
+          intent?: string;
+          manually_edited_fields?: string[];
+          match_potential_estimate?: Json | null;
+          matching_started_at?: string | null;
+          parsed_from?: string | null;
+          public_at?: string | null;
+          public_likes?: number;
+          public_rank?: number;
+          quality_by_section?: Json | null;
+          quality_score?: number;
+          refinement_round?: number;
+          resolution?: Database['public']['Enums']['brief_resolution'] | null;
+          resolved_at?: string | null;
+          solution_types?: Database['public']['Enums']['solution_type'][];
+          status?: Database['public']['Enums']['brief_status'];
+          technical_level?: Database['public']['Enums']['technical_level'] | null;
+          timeline?: Database['public']['Enums']['brief_timeline'] | null;
+          title?: string | null;
+          updated_at?: string;
+          use_case?: Database['public']['Enums']['brief_use_case'] | null;
+          visibility?: Database['public']['Enums']['brief_visibility'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'briefs_author_id_fkey';
+            columns: ['author_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -525,6 +750,85 @@ export type Database = {
           },
         ];
       };
+      matches: {
+        Row: {
+          agent_confidence: number;
+          agent_rationale: string;
+          brief_id: string;
+          candidate_acted_at: string | null;
+          candidate_action: Database['public']['Enums']['swipe_action'];
+          candidate_app_id: string | null;
+          candidate_builder_id: string | null;
+          candidate_feedback: Database['public']['Enums']['match_feedback'] | null;
+          candidate_feedback_note: string | null;
+          candidate_type: Database['public']['Enums']['candidate_type'];
+          commercial_status: Database['public']['Enums']['commercial_status'];
+          created_at: string;
+          id: string;
+          seeker_acted_at: string | null;
+          seeker_action: Database['public']['Enums']['swipe_action'];
+          thread_id: string | null;
+        };
+        Insert: {
+          agent_confidence: number;
+          agent_rationale?: string;
+          brief_id: string;
+          candidate_acted_at?: string | null;
+          candidate_action?: Database['public']['Enums']['swipe_action'];
+          candidate_app_id?: string | null;
+          candidate_builder_id?: string | null;
+          candidate_feedback?: Database['public']['Enums']['match_feedback'] | null;
+          candidate_feedback_note?: string | null;
+          candidate_type: Database['public']['Enums']['candidate_type'];
+          commercial_status?: Database['public']['Enums']['commercial_status'];
+          created_at?: string;
+          id?: string;
+          seeker_acted_at?: string | null;
+          seeker_action?: Database['public']['Enums']['swipe_action'];
+          thread_id?: string | null;
+        };
+        Update: {
+          agent_confidence?: number;
+          agent_rationale?: string;
+          brief_id?: string;
+          candidate_acted_at?: string | null;
+          candidate_action?: Database['public']['Enums']['swipe_action'];
+          candidate_app_id?: string | null;
+          candidate_builder_id?: string | null;
+          candidate_feedback?: Database['public']['Enums']['match_feedback'] | null;
+          candidate_feedback_note?: string | null;
+          candidate_type?: Database['public']['Enums']['candidate_type'];
+          commercial_status?: Database['public']['Enums']['commercial_status'];
+          created_at?: string;
+          id?: string;
+          seeker_acted_at?: string | null;
+          seeker_action?: Database['public']['Enums']['swipe_action'];
+          thread_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'matches_brief_id_fkey';
+            columns: ['brief_id'];
+            isOneToOne: false;
+            referencedRelation: 'briefs';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'matches_candidate_app_id_fkey';
+            columns: ['candidate_app_id'];
+            isOneToOne: false;
+            referencedRelation: 'apps';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'matches_candidate_builder_id_fkey';
+            columns: ['candidate_builder_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       messages: {
         Row: {
           body: string;
@@ -654,50 +958,74 @@ export type Database = {
       };
       profiles: {
         Row: {
+          accepts_requests: boolean;
           avatar_url: string | null;
           banner_gradient: string | null;
           bio: string | null;
+          capability_embedding: string | null;
           created_at: string;
           display_name: string;
           emoji: string | null;
+          feature_flags: Json;
           handle: string;
           hue: number;
           id: string;
+          inferred_capabilities: string[];
+          last_brief_response_at: string | null;
           links: Json;
           locale_pref: string | null;
           notification_prefs: Json;
+          request_capacity: number;
+          request_domains: string[];
+          request_rate_band: Database['public']['Enums']['budget_band'] | null;
           theme_pref: string;
           updated_at: string;
         };
         Insert: {
+          accepts_requests?: boolean;
           avatar_url?: string | null;
           banner_gradient?: string | null;
           bio?: string | null;
+          capability_embedding?: string | null;
           created_at?: string;
           display_name: string;
           emoji?: string | null;
+          feature_flags?: Json;
           handle: string;
           hue?: number;
           id: string;
+          inferred_capabilities?: string[];
+          last_brief_response_at?: string | null;
           links?: Json;
           locale_pref?: string | null;
           notification_prefs?: Json;
+          request_capacity?: number;
+          request_domains?: string[];
+          request_rate_band?: Database['public']['Enums']['budget_band'] | null;
           theme_pref?: string;
           updated_at?: string;
         };
         Update: {
+          accepts_requests?: boolean;
           avatar_url?: string | null;
           banner_gradient?: string | null;
           bio?: string | null;
+          capability_embedding?: string | null;
           created_at?: string;
           display_name?: string;
           emoji?: string | null;
+          feature_flags?: Json;
           handle?: string;
           hue?: number;
           id?: string;
+          inferred_capabilities?: string[];
+          last_brief_response_at?: string | null;
           links?: Json;
           locale_pref?: string | null;
           notification_prefs?: Json;
+          request_capacity?: number;
+          request_domains?: string[];
+          request_rate_band?: Database['public']['Enums']['budget_band'] | null;
           theme_pref?: string;
           updated_at?: string;
         };
@@ -774,6 +1102,53 @@ export type Database = {
           },
         ];
       };
+      validator_suggestions: {
+        Row: {
+          applied_value: string | null;
+          brief_id: string;
+          created_at: string;
+          diagnosis: string;
+          example_better: string;
+          id: string;
+          model_used: string | null;
+          resolved_at: string | null;
+          section_path: string;
+          status: Database['public']['Enums']['suggestion_status'];
+        };
+        Insert: {
+          applied_value?: string | null;
+          brief_id: string;
+          created_at?: string;
+          diagnosis: string;
+          example_better: string;
+          id?: string;
+          model_used?: string | null;
+          resolved_at?: string | null;
+          section_path: string;
+          status?: Database['public']['Enums']['suggestion_status'];
+        };
+        Update: {
+          applied_value?: string | null;
+          brief_id?: string;
+          created_at?: string;
+          diagnosis?: string;
+          example_better?: string;
+          id?: string;
+          model_used?: string | null;
+          resolved_at?: string | null;
+          section_path?: string;
+          status?: Database['public']['Enums']['suggestion_status'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'validator_suggestions_brief_id_fkey';
+            columns: ['brief_id'];
+            isOneToOne: false;
+            referencedRelation: 'briefs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -796,14 +1171,69 @@ export type Database = {
         Args: { p_bucket_start: string; p_ip: string };
         Returns: number;
       };
+      increment_rate_limit_window: {
+        Args: { p_key: string; p_limit?: number; p_window_seconds?: number };
+        Returns: {
+          count: number;
+          limited: boolean;
+          reset_at: string;
+        }[];
+      };
+      is_brief_author: { Args: { p_brief_id: string }; Returns: boolean };
+      is_matched_builder: { Args: { p_brief_id: string }; Returns: boolean };
       is_participant: { Args: { c: string }; Returns: boolean };
+      match_apps_by_embedding: {
+        Args: {
+          exclude_saas?: boolean;
+          match_count?: number;
+          oss_only?: boolean;
+          query_embedding: string;
+        };
+        Returns: {
+          distance: number;
+          id: string;
+        }[];
+      };
+      match_builders_by_embedding: {
+        Args: { match_count?: number; query_embedding: string };
+        Returns: {
+          distance: number;
+          id: string;
+        }[];
+      };
       pick_featured_app: { Args: never; Returns: string };
       refresh_hot_scores: { Args: never; Returns: number };
       uid: { Args: never; Returns: string };
     };
     Enums: {
+      app_licensing: 'saas' | 'self_hosted' | 'oss';
+      brief_entry_mode: 'CHAT' | 'FORM' | 'PASTE';
+      brief_resolution:
+        | 'RESOLVED_WITH_APP'
+        | 'RESOLVED_WITH_BUILDER'
+        | 'RESOLVED_ELSEWHERE'
+        | 'ABANDONED';
+      brief_status:
+        | 'DRAFT'
+        | 'REFINING'
+        | 'PARSING'
+        | 'AWAITING_VALIDATION'
+        | 'REVIEW_HEALTH'
+        | 'MATCHING'
+        | 'PRIVATE'
+        | 'PUBLIC'
+        | 'RESOLVED'
+        | 'EXPIRED';
+      brief_timeline: 'ASAP' | 'WEEKS' | 'MONTHS' | 'NO_RUSH';
+      brief_use_case: 'PERSONAL' | 'TEAM' | 'CLIENT_DELIVERABLE' | 'OTHER';
+      brief_visibility: 'PRIVATE_MATCHED' | 'PUBLIC_GALLERY';
+      budget_band: 'EXPLORATORY' | 'LT_500' | 'FROM_500_2K' | 'FROM_2K_10K' | 'GT_10K' | 'OPEN';
+      candidate_type: 'APP' | 'BUILDER';
+      commercial_status: 'NONE' | 'REPORTED_AGREED' | 'REPORTED_CLOSED';
       contact_role: 'investor' | 'partner' | 'hire' | 'fan';
       contact_status: 'pending' | 'accepted' | 'declined' | 'expired';
+      match_feedback: 'not_my_area' | 'no_capacity' | 'budget_mismatch' | 'other';
+      match_phase: 'APP' | 'BUILDER';
       notif_kind:
         | 'contact_request'
         | 'contact_accepted'
@@ -813,6 +1243,11 @@ export type Database = {
         | 'comment_reply'
         | 'follow'
         | 'message';
+      solution_type: 'EXISTING_APP' | 'CUSTOM_BUILD' | 'FORK_AND_MODIFY' | 'CONSULTING';
+      suggestion_status: 'PENDING' | 'APPLIED' | 'DISMISSED' | 'AUTO_DISMISSED';
+      swipe_action: 'PENDING' | 'CONNECT' | 'SKIP' | 'AUTO_SKIPPED';
+      technical_level: 'NON_TECHNICAL' | 'SEMI_TECHNICAL' | 'DEVELOPER';
+      turn_role: 'AGENT' | 'USER' | 'SYSTEM';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -938,8 +1373,36 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_licensing: ['saas', 'self_hosted', 'oss'],
+      brief_entry_mode: ['CHAT', 'FORM', 'PASTE'],
+      brief_resolution: [
+        'RESOLVED_WITH_APP',
+        'RESOLVED_WITH_BUILDER',
+        'RESOLVED_ELSEWHERE',
+        'ABANDONED',
+      ],
+      brief_status: [
+        'DRAFT',
+        'REFINING',
+        'PARSING',
+        'AWAITING_VALIDATION',
+        'REVIEW_HEALTH',
+        'MATCHING',
+        'PRIVATE',
+        'PUBLIC',
+        'RESOLVED',
+        'EXPIRED',
+      ],
+      brief_timeline: ['ASAP', 'WEEKS', 'MONTHS', 'NO_RUSH'],
+      brief_use_case: ['PERSONAL', 'TEAM', 'CLIENT_DELIVERABLE', 'OTHER'],
+      brief_visibility: ['PRIVATE_MATCHED', 'PUBLIC_GALLERY'],
+      budget_band: ['EXPLORATORY', 'LT_500', 'FROM_500_2K', 'FROM_2K_10K', 'GT_10K', 'OPEN'],
+      candidate_type: ['APP', 'BUILDER'],
+      commercial_status: ['NONE', 'REPORTED_AGREED', 'REPORTED_CLOSED'],
       contact_role: ['investor', 'partner', 'hire', 'fan'],
       contact_status: ['pending', 'accepted', 'declined', 'expired'],
+      match_feedback: ['not_my_area', 'no_capacity', 'budget_mismatch', 'other'],
+      match_phase: ['APP', 'BUILDER'],
       notif_kind: [
         'contact_request',
         'contact_accepted',
@@ -950,6 +1413,11 @@ export const Constants = {
         'follow',
         'message',
       ],
+      solution_type: ['EXISTING_APP', 'CUSTOM_BUILD', 'FORK_AND_MODIFY', 'CONSULTING'],
+      suggestion_status: ['PENDING', 'APPLIED', 'DISMISSED', 'AUTO_DISMISSED'],
+      swipe_action: ['PENDING', 'CONNECT', 'SKIP', 'AUTO_SKIPPED'],
+      technical_level: ['NON_TECHNICAL', 'SEMI_TECHNICAL', 'DEVELOPER'],
+      turn_role: ['AGENT', 'USER', 'SYSTEM'],
     },
   },
 } as const;

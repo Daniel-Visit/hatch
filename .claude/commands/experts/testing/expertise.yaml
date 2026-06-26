@@ -1,0 +1,199 @@
+# Testing Expertise
+# hatch — vitest unit tests + TypeScript quality gates
+
+overview:
+  description: "vitest 2.1.9 unit test harness (first/only test framework in repo) + TypeScript quality gates"
+  project: hatch (Next.js 15 + Supabase + MCP-SDK pnpm monorepo)
+  test_runner: vitest 2.1.9
+  run_command: "pnpm test"   # maps to `vitest run` (non-watch, CI-safe)
+
+test_runner_config:
+  config_file: vitest.config.ts   # repo root
+  test_script: '"test": "vitest run"'   # root package.json scripts
+  include_globs:
+    - "apps/web/lib/**/*.test.ts"
+    - "packages/shared/src/**/*.test.ts"
+    - "apps/web/eval/**/*.test.ts"       # env-guarded eval suites (Phase 1.5+2)
+    - "apps/web/app/**/*.test.ts"        # component-adjacent tests (e.g. health-badges)
+  environment: node
+  watch_mode: "vitest (no 'run') — only for local interactive use"
+
+test_file_convention:
+  pattern: "co-located *.test.ts next to the module under test"
+  examples:
+    - "apps/web/lib/wanted/completeness.test.ts  →  tests completeness.ts"
+    - "apps/web/lib/wanted/invariants.test.ts    →  tests invariants.ts"
+    - "packages/shared/src/feature-flags.test.ts →  tests feature-flags.ts"
+
+coverage:
+  # Phase 0 Wanted pure-function tests (all currently passing)
+  completeness: "apps/web/lib/wanted/completeness.test.ts — scores brief completeness"
+  invariants: "apps/web/lib/wanted/invariants.test.ts — structural invariant predicates"
+  feature_flags: "packages/shared/src/feature-flags.test.ts — feature flag helpers"
+  # Phase 1.5+2 Wanted agent + repo + matching tests
+  parser_agent: "apps/web/lib/wanted/agents/parser.test.ts — runParser with injected fake Anthropic client"
+  validator_agent: "apps/web/lib/wanted/agents/validator.test.ts — runValidator with injected fake Anthropic client"
+  refiner_agent: "apps/web/lib/wanted/refiner.test.ts — refiner with mocked Anthropic client (established pattern)"
+  retriever: "apps/web/lib/wanted/matching/retriever.test.ts — CandidateRetriever with fake Supabase client (canned rows)"
+  heuristic: "apps/web/lib/wanted/matching/heuristic.test.ts — computeMatchPotential (deterministic via injected now)"
+  phase_a: "apps/web/lib/wanted/matching/phase-a.test.ts"
+  phase_b: "apps/web/lib/wanted/matching/phase-b.test.ts"
+  match_repo: "apps/web/lib/wanted/match-repo.test.ts — fake Supabase client"
+  match_audit_repo: "apps/web/lib/wanted/match-audit-repo.test.ts"
+  suggestion_repo: "apps/web/lib/wanted/suggestion-repo.test.ts"
+  sse_client: "apps/web/app/(shell)/wanted/new/_lib/sse-client.test.ts"
+  health_badges: "apps/web/app/(shell)/wanted/_components/health-badges.test.ts"
+  # Semantic embeddings (Phase 2 Wanted)
+  voyage_client: "apps/web/lib/wanted/embeddings/voyage.test.ts — thin Voyage HTTP client; stubs global fetch via vi.stubGlobal; tests request shape, response parsing, out-of-order index re-ordering, empty/malformed body, VoyageError on 4xx/5xx, missing API key"
+  embed_helpers: "apps/web/lib/wanted/embeddings/embed.test.ts — high-level embed helpers; vi.mock('./voyage') to avoid network; asserts recipe text construction + correct input_type per helper; best-effort variants return null on error"
+  capability_module: "apps/web/lib/wanted/embeddings/capability.test.ts — recomputeCapability, recomputeAllCapabilities, sweepNullEmbeddings; faked Supabase client (canned rows) + mocked ./embed; tests recompute success/failure isolation per row and NULL-sweep logic"
+  rrf: "apps/web/lib/wanted/matching/rrf.test.ts — pure-function RRF fusion; no mocks; covers empty inputs, single list passthrough, dual-list reordering"
+  semantic_retriever: "apps/web/lib/wanted/matching/semantic-retriever.test.ts — SemanticCandidateRetriever; faked Supabase client with both .from(table) and .rpc(name, args) stubs; asserts RRF order, null-embedding degradation path, vector-only materialization, existingStack exclusion, builder intersection"
+  capability_embeddings_cron: "apps/web/app/api/cron/capability-embeddings/route.test.ts — cron route; vi.mock for capability module + admin client; tests 500 on missing CRON_SECRET, 401 on bad/missing Authorization header, 200 + both function calls on valid bearer token"
+
+test_style:
+  approach: "Mixed: pure-function unit tests (no deps) AND injected-fake tests for agents/repos AND vi.mock module patching for thin clients"
+  rationale: |
+    Pure functions are tested directly. Modules with I/O (Anthropic API, Supabase) are tested
+    by injecting a hand-built fake/mock at construction time — no vi.mock() module patching needed.
+    Exception: thin HTTP clients (voyage.ts) use vi.stubGlobal('fetch', ...) to intercept network
+    calls without rewiring callers. Intermediate helper layers (embed.ts) use vi.mock('./voyage')
+    to isolate recipe-building logic from the network client.
+  imports: "@hatch/shared resolves via pnpm workspace — no path aliases needed"
+  current_counts: "~269 passing / 6 skipped (as of Phase 2 semantic embeddings)"
+
+global_fetch_stub_pattern:
+  description: |
+    Thin HTTP clients that call fetch() directly (e.g. voyage.ts) are tested by stubbing
+    global fetch with vi.stubGlobal('fetch', fakeFetch) inside each test, then calling
+    vi.unstubAllGlobals() in afterEach. The fake is a vi.fn() returning a hand-built Response.
+  example: "apps/web/lib/wanted/embeddings/voyage.test.ts — makeVoyageResponse() / makeErrorResponse() helpers"
+  rule: "Use vi.stubGlobal for HTTP clients that own the fetch call; use vi.mock for callers of a wrapper module."
+
+supabase_rpc_pattern:
+  description: |
+    When a module under test calls both .from(table).select()... AND .rpc(name, args), the
+    fake Supabase client must handle both paths. The .rpc() method resolves directly
+    (returns { data, error }) while .from() chains through the builder.
+  example: "apps/web/lib/wanted/matching/semantic-retriever.test.ts — makeFakeSupabase() with per-name rpc dispatch"
+  rule: "Extend the query-builder fake to add a top-level rpc(name, args) method that returns canned { data, error }."
+
+agent_test_pattern:
+  description: |
+    Agent functions (runParser, runValidator, runRefiner) accept the Anthropic client as a
+    parameter so tests can inject a fake without mocking the module.
+  fake_client_shape: |
+    The fake implements only the subset of the Anthropic SDK the agent calls.
+    For one-shot agents (Parser, Validator): `{ messages: { create: vi.fn() } }` returning
+    a hand-built message with `content` array + `usage` object.
+    For streaming agents (Refiner): the fake returns an async iterable of stream events.
+  example: "apps/web/lib/wanted/agents/parser.test.ts — makeUpdateMessage() helper builds canned responses"
+  rule: "Never use vi.mock('@anthropic-ai/sdk') — inject the fake at call-site instead."
+
+repo_test_pattern:
+  description: |
+    Repository functions (match-repo, retriever, etc.) are tested with a hand-built fake
+    Supabase client that records query-builder calls and returns canned rows.
+  fake_client_shape: |
+    The fake chains .from() → .select() → .textSearch() / .insert() etc. and resolves
+    with { data: cannedRows, error: null } or a configurable error.
+  rule: "Assert BOTH the query construction (which filters were applied) AND the result mapping."
+  example: "apps/web/lib/wanted/matching/retriever.test.ts — buildFakeClient() helper"
+
+deterministic_heuristic_pattern:
+  description: |
+    computeMatchPotential (heuristic.ts) accepts an optional { now: number } options arg
+    so tests can pin the wall-clock used for liveness decay.
+  example: "computeMatchPotential(brief, retriever, { now: 1_000_000_000_000 })"
+  rule: "Always inject now in heuristic tests — do NOT rely on Date.now() in test assertions."
+
+eval_suites:
+  description: |
+    Env-guarded eval suites live under apps/web/eval/{parser,validator,matcher,refiner}/.
+    They are included in the vitest glob (apps/web/eval/**/*.test.ts) but use
+    describe.skipIf(!LIVE) so they are no-ops in normal CI.
+  env_guard: "WANTED_EVAL_LIVE=1 (and ANTHROPIC_API_KEY + VOYAGE_API_KEY set) to run live suites"
+  run_command: "WANTED_EVAL_LIVE=1 ANTHROPIC_API_KEY=sk-... VOYAGE_API_KEY=pa-... pnpm test"
+  files:
+    - "apps/web/eval/parser/parser.eval.test.ts"
+    - "apps/web/eval/validator/validator.eval.test.ts"
+    - "apps/web/eval/matcher/matcher.eval.test.ts"
+    - "apps/web/eval/refiner/refiner.eval.test.ts"
+  structure: "Each eval dir: cases.json (fixtures), runner.ts (harness), *.eval.test.ts (describe.skipIf wrapper)"
+  rule: "All eval suites MUST use describe.skipIf(!LIVE) — never use plain describe for live-API tests."
+  matcher_eval_note: |
+    apps/web/eval/matcher/cases.json now includes match_006_semantic_paraphrase — a labeled
+    case that tests paraphrase/synonym recall requiring vector search (not expressible with FTS
+    alone). Hermetic-coverage limitation: the semantic eval hits the real Voyage + Supabase
+    pgvector stack, so it is NOT a substitute for the unit-level semantic-retriever.test.ts
+    which tests RRF logic, degradation paths, and builder intersection deterministically.
+
+quality_gates:
+  # Run these in order for a full validation pass
+  unit_tests: "pnpm test          # vitest run — all *.test.ts"
+  typecheck:  "pnpm typecheck     # pnpm -r typecheck across all workspace packages"
+  lint:       "pnpm lint          # pnpm -r lint (ESLint 9 + typescript-eslint)"
+  build:      "pnpm build         # pnpm -r build — full production build"
+
+best_practices:
+  new_tests: "Add *.test.ts co-located with the module; inject fakes for I/O; pure functions tested directly"
+  ci: "pnpm test is the unit-test gate; pnpm typecheck + pnpm lint + pnpm build are the broader gates"
+  coverage: "No coverage tooling configured yet — tests run but no coverage reports"
+  no_jest: "This repo uses vitest only — do NOT introduce jest"
+  scope: "vitest covers packages/shared, apps/web/lib, apps/web/eval, and apps/web/app/**/_components; apps/mcp has no tests yet"
+  agent_tests: "Inject fake Anthropic client at call-site — never use vi.mock('@anthropic-ai/sdk')"
+  repo_tests: "Inject fake Supabase client — record query calls, return canned rows; add .rpc() stub when module calls RPC functions"
+  http_client_tests: "Stub global fetch with vi.stubGlobal('fetch', vi.fn()); always call vi.unstubAllGlobals() in afterEach"
+  module_layer_tests: "Use vi.mock('./dep') to isolate a module from its dependency without touching callers (e.g. embed.test.ts mocks voyage)"
+  eval_guard: "Eval suites MUST be wrapped in describe.skipIf(!LIVE) where LIVE = WANTED_EVAL_LIVE=1"
+  eval_keys: "Semantic evals also require VOYAGE_API_KEY — document both env vars when adding new live-API evals"
+  run_all: "pnpm exec vitest run (from repo root) runs all unit + eval suites"
+
+key_file_locations:
+  vitest_config: vitest.config.ts
+  root_package: package.json
+  completeness_test: apps/web/lib/wanted/completeness.test.ts
+  invariants_test:   apps/web/lib/wanted/invariants.test.ts
+  feature_flags_test: packages/shared/src/feature-flags.test.ts
+  # Phase 1.5+2 agent + repo tests
+  parser_agent_test:    apps/web/lib/wanted/agents/parser.test.ts
+  validator_agent_test: apps/web/lib/wanted/agents/validator.test.ts
+  retriever_test:       apps/web/lib/wanted/matching/retriever.test.ts
+  heuristic_test:       apps/web/lib/wanted/matching/heuristic.test.ts
+  match_repo_test:      apps/web/lib/wanted/match-repo.test.ts
+  # Semantic embeddings tests (Phase 2)
+  voyage_test:           apps/web/lib/wanted/embeddings/voyage.test.ts
+  embed_test:            apps/web/lib/wanted/embeddings/embed.test.ts
+  capability_test:       apps/web/lib/wanted/embeddings/capability.test.ts
+  rrf_test:              apps/web/lib/wanted/matching/rrf.test.ts
+  semantic_retriever_test: apps/web/lib/wanted/matching/semantic-retriever.test.ts
+  capability_cron_test:  apps/web/app/api/cron/capability-embeddings/route.test.ts
+  # Eval suites
+  eval_parser:    apps/web/eval/parser/parser.eval.test.ts
+  eval_validator: apps/web/eval/validator/validator.eval.test.ts
+  eval_matcher:   apps/web/eval/matcher/matcher.eval.test.ts
+  eval_refiner:   apps/web/eval/refiner/refiner.eval.test.ts
+  eval_matcher_cases: apps/web/eval/matcher/cases.json
+  # modules under test
+  completeness_src:  apps/web/lib/wanted/completeness.ts
+  invariants_src:    apps/web/lib/wanted/invariants.ts
+  feature_flags_src: packages/shared/src/feature-flags.ts
+
+architecture_summary: |
+  vitest 2.1.9 is the first and only test harness in the hatch monorepo.
+  Established in Phase 0 (Wanted feature) alongside the pure-function library substrate.
+  Config lives at the repo root (vitest.config.ts); tests are co-located *.test.ts files.
+  Run with `pnpm test` or `pnpm exec vitest run` (non-watch). ~269 passing / 6 skipped.
+  Three test styles now coexist:
+    1. Pure-function unit tests (no mocks) — completeness, invariants, feature-flags, heuristic, rrf.
+    2. Injected-fake tests — agent functions receive a fake Anthropic client; repo/retriever
+       functions receive a fake Supabase client (with optional .rpc() stub for pgvector calls).
+    3. vi.mock / vi.stubGlobal module patching — thin HTTP clients (voyage.ts) stub global fetch;
+       intermediate helpers (embed.ts) use vi.mock('./voyage') to isolate recipe logic.
+  Env-guarded eval suites under apps/web/eval/ skip in normal CI (describe.skipIf(!LIVE))
+  and hit the real Anthropic + Voyage APIs only when WANTED_EVAL_LIVE=1 (+ both API keys).
+  Matcher eval now includes a labeled semantic/paraphrase case (match_006_semantic_paraphrase)
+  that exercises vector recall — hermetic unit coverage for RRF/degradation lives in
+  semantic-retriever.test.ts (no live APIs required).
+  Broader quality gates: pnpm typecheck / pnpm lint / pnpm build (all run recursively
+  across the monorepo via pnpm -r).

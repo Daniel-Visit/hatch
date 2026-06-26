@@ -10,6 +10,9 @@ import {
 } from '@/lib/zod/publish';
 import { requireUser } from '@/lib/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { embedAppBestEffort } from '@/lib/wanted/embeddings/embed';
+import { recomputeCapability } from '@/lib/wanted/embeddings/capability';
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -90,13 +93,37 @@ export async function publishApp(input: PublishAppInputT): Promise<Result<{ slug
       slug: '', // trigger overwrites with title-derived slug
       is_published: true,
     })
-    .select('slug, category_id')
+    .select('id, slug, category_id')
     .single();
 
   if (error || !data) {
     // 23505 = unique_violation — slug collision escaping the trigger's suffix loop
     if (error?.code === '23505') return { ok: false, error: 'duplicate_slug' };
     return { ok: false, error: 'db_error' };
+  }
+
+  // Synchronous best-effort embedding + capability recompute (spec E2). Awaited
+  // so the app is matchable immediately and the work reliably completes on
+  // serverless (a fire-and-forget promise may not run after the action returns).
+  // The try/catch swallows every failure so publishing never fails on embedding;
+  // the nightly cron is still the backstop.
+  try {
+    const admin = createSupabaseAdminClient();
+    const vec = await embedAppBestEffort({
+      name: title,
+      oneLiner: tagline,
+      description,
+      category: categoryId,
+    });
+    if (vec !== null) {
+      await admin
+        .from('apps')
+        .update({ embedding: '[' + vec.join(',') + ']' })
+        .eq('id', data.id);
+    }
+    await recomputeCapability(admin, user.id);
+  } catch (err) {
+    console.warn('[wanted/embed] publish: app embedding / capability update failed', err);
   }
 
   // Revalidate surfaces where the newly published app appears

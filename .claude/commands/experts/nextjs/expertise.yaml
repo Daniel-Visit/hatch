@@ -108,6 +108,16 @@ routing_conventions:
     - '/auth/callback           — OAuth callback'
     - '/auth/sign-out           — sign-out route'
   signed_in_routes: 'app/publish, app/notifications, app/messages, app/messages/[conversationId], app/settings/profile, app/settings/notifications — each calls requireUser() with redirect to /sign-in?next=<path> on failure'
+  shell_pages:
+    wanted_new: |
+      apps/web/app/(shell)/wanted/new/ — Wanted Refiner UI (feature-flagged, auth-gated).
+      page.tsx is a Server Component: calls getUser() → redirect('/sign-in') if no session;
+      then checks isWantedEnabled(profile, process.env) → notFound() if flag is off; then
+      renders <RefinerClient> (the client orchestrator in refiner-client.tsx).
+      Sub-components: apps/web/app/(shell)/wanted/new/_components/ (refiner-transcript.tsx,
+      refiner-composer.tsx — verbatim port of mockup #refiner).
+      Shared wanted components: apps/web/app/(shell)/wanted/_components/ (brief-summary-panel.tsx,
+      editable-field.tsx, removable-chip.tsx — also prototype-port; no Tailwind).
   api_routes: 'app/api/ pattern (none yet in Phase 0-7)'
   settings: 'app/settings/profile/ (profile), app/settings/notifications/ (Phase 6 — push prefs + browser permission toggle)'
   dynamic_export: "Routes with realtime data set `export const dynamic = 'force-dynamic'` to prevent stale RSC cache (e.g., /notifications, /messages). Do NOT combine with `export const revalidate = N` — mutually exclusive."
@@ -197,6 +207,23 @@ i18n_patterns:
   topbar_client_note: |
     apps/web/app/_landing/topbar.tsx is 'use client' and uses useTranslations('Landing.Topbar').
     It is the only landing atom that is a client component purely for useTheme + useTranslations.
+  wanted_namespace: |
+    Wanted Refiner UI strings live under the `Wanted` namespace in
+    apps/web/messages/{en,es}.json. Components (refiner-transcript, refiner-composer,
+    brief-summary-panel, editable-field, removable-chip) use useTranslations('Wanted').
+    ES translation is neutral Spanish (tú), never voseo.
+
+wanted_inline_autosave:
+  description: |
+    EditableField and RemovableChip (wanted/_components/) perform inline autosave on
+    blur/save. The client orchestrator (refiner-client.tsx) handles the persistence layer.
+  flow: |
+    1. Component calls back to refiner-client.tsx on blur/save with (path, value).
+    2. refiner-client.tsx calls PATCH /api/v1/briefs/:id/content.
+    3. Optimistic local update via applyDraftPatch (whole-object merge) or
+       setContentPath (typed deep-set) from @/lib/wanted/brief-state.
+  api_endpoint: 'PATCH /api/v1/briefs/:id/content — updates brief content fields'
+  helpers: '@/lib/wanted/brief-state — applyDraftPatch(draft, patch), setContentPath(draft, path, value)'
 
 built_with_ai_pattern:
   description: |
@@ -263,6 +290,21 @@ phase_5_routes:
   agent_routes:
     - '/llms.txt — llmstxt.org-format index of all public URLs + MCP info'
 
+client_sse_consumption:
+  description: |
+    Pattern for consuming a streaming route handler (SSE) from the browser. EventSource
+    cannot POST, so the repo uses fetch + ReadableStream instead.
+  canonical_file: 'apps/web/app/(shell)/wanted/new/_lib/sse-client.ts'
+  function: 'streamRefine(briefId, userMessage, callbacks) — exported async function'
+  pattern: |
+    const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    // Accumulate chunks; split on '\n\n' to get SSE frames.
+    // Within each frame parse `event:` and `data:` lines manually.
+    // Dispatch on event name to caller-supplied callbacks.
+  rule: 'Never use the EventSource API for POST-based SSE; always use fetch+getReader+TextDecoder.'
+
 realtime_patterns:
   hook_location: 'apps/web/app/_components/use-realtime-*.ts (3 hooks: useUnreadTitle, useRealtimeNotifs, useRealtimeThread)'
   subscription_pattern: |
@@ -290,6 +332,17 @@ ui_components:
     Enforced by .claude/hooks/validators/no_tailwind_in_prototype_port.py (ALLOWED_DIRS = ("_components", "_landing")).
     See .claude/rules/prototype-port-exception.md.
   new_components_use_phase6_css: 'NotificationsBell, NotificationToaster, PushPermissionPrompt, ServiceWorkerRegistrar use plain CSS classes from apps/web/app/styles/phase6.css. Page bodies (under /notifications, /messages, /settings/notifications) follow Tailwind rules per frontend-components.md.'
+  wanted_css: |
+    apps/web/app/styles/wanted.css — verbatim port of the mockup #refiner CSS rules.
+    Imported in apps/web/app/layout.tsx (alongside phase6.css and prototype-*.css).
+    No Tailwind. Components under apps/web/app/(shell)/wanted/**/*.tsx are covered by the
+    prototype-port exception (see .claude/rules/prototype-port-exception.md); Tailwind is
+    FORBIDDEN there, inline style={{...}} REQUIRED where the mockup uses it.
+  port_exception_scope_wanted: |
+    .claude/rules/prototype-port-exception.md now also covers:
+      - apps/web/app/(shell)/wanted/**/*.tsx
+      - apps/web/app/styles/wanted.css
+    These are added to the existing _components/* and _landing/** scope.
   sonner_toaster: 'NotificationToaster wraps Toaster from sonner@2.0.7. Mount at root layout. Call toast(), toast.success(), toast.error() anywhere.'
 
 dev_commands:
