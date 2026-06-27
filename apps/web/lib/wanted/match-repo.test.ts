@@ -8,7 +8,9 @@ import {
   insertMatches,
   updateMatchAction,
   MatchInvariantError,
+  listBuilderRequests,
   type InsertMatchParams,
+  type BuilderRequest,
 } from './match-repo';
 
 /** Faked client that records the .from()/.insert()/.update() payloads. */
@@ -147,5 +149,116 @@ describe('updateMatchAction — stamps acted_at', () => {
     const patch = recorded.update as Record<string, unknown>;
     expect(patch.thread_id).toBe('th1');
     expect(patch.seeker_acted_at).toBeUndefined();
+  });
+});
+
+// ── listBuilderRequests ───────────────────────────────────────────────────────
+
+/**
+ * Faked session client for listBuilderRequests. Tracks all .eq() calls and the
+ * .order() call so tests can assert every filter and the sort direction.
+ * Same hand-rolled builder pattern as makeFakeAdmin above.
+ */
+function makeFakeSession(returnRows: unknown[] = []) {
+  const recorded: {
+    table?: string;
+    eqs: unknown[][];
+    orderArgs?: unknown[];
+  } = { eqs: [] };
+
+  const builder: Record<string, unknown> = {};
+  builder.select = () => builder;
+  builder.eq = (...args: unknown[]) => {
+    recorded.eqs.push(args);
+    return builder;
+  };
+  builder.order = (...args: unknown[]) => {
+    recorded.orderArgs = args;
+    return builder;
+  };
+  (builder as { then?: unknown }).then = (
+    onFulfilled: (v: { data: unknown[]; error: null }) => unknown,
+  ) => Promise.resolve({ data: returnRows, error: null }).then(onFulfilled);
+
+  const client = {
+    from(table: string) {
+      recorded.table = table;
+      return builder;
+    },
+  };
+  return { client, recorded };
+}
+
+const mockBriefSummary = {
+  id: 'brief-1',
+  title: 'Need a data pipeline',
+  content: { problem: { trigger: 'too slow' } },
+  budget_band: 'UNDER_5K',
+  timeline: 'ONE_TO_THREE_MONTHS',
+  solution_types: ['CUSTOM_BUILD'],
+  expires_at: '2026-09-01T00:00:00.000Z',
+  author_id: 'author-1',
+};
+
+const mockMatchWithBrief = {
+  id: 'match-1',
+  brief_id: 'brief-1',
+  candidate_type: 'BUILDER',
+  candidate_builder_id: 'builder-1',
+  candidate_app_id: null,
+  candidate_action: 'PENDING',
+  seeker_action: 'PENDING',
+  agent_confidence: 0.88,
+  agent_rationale: 'Strong domain expertise',
+  seeker_acted_at: null,
+  candidate_acted_at: null,
+  thread_id: null,
+  candidate_feedback: null,
+  candidate_feedback_note: null,
+  commercial_status: 'STANDARD',
+  created_at: '2026-06-27T00:00:00.000Z',
+  brief: mockBriefSummary,
+};
+
+describe('listBuilderRequests', () => {
+  it('applies candidate_builder_id, candidate_type, and candidate_action filters', async () => {
+    const { client, recorded } = makeFakeSession([mockMatchWithBrief]);
+    await listBuilderRequests(client as never, 'builder-1');
+    expect(recorded.table).toBe('matches');
+    expect(recorded.eqs).toContainEqual(['candidate_builder_id', 'builder-1']);
+    expect(recorded.eqs).toContainEqual(['candidate_type', 'BUILDER']);
+    expect(recorded.eqs).toContainEqual(['candidate_action', 'PENDING']);
+  });
+
+  it('orders by agent_confidence descending', async () => {
+    const { client, recorded } = makeFakeSession([mockMatchWithBrief]);
+    await listBuilderRequests(client as never, 'builder-1');
+    expect(recorded.orderArgs).toEqual(['agent_confidence', { ascending: false }]);
+  });
+
+  it('maps DB rows to camelCase BuilderRequest shape', async () => {
+    const { client } = makeFakeSession([mockMatchWithBrief]);
+    const result: BuilderRequest[] = await listBuilderRequests(client as never, 'builder-1');
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      id: 'match-1',
+      agentConfidence: 0.88,
+      agentRationale: 'Strong domain expertise',
+      candidateAction: 'PENDING',
+      briefId: 'brief-1',
+      title: 'Need a data pipeline',
+      budgetBand: 'UNDER_5K',
+      timeline: 'ONE_TO_THREE_MONTHS',
+      solutionTypes: ['CUSTOM_BUILD'],
+      expiresAt: '2026-09-01T00:00:00.000Z',
+    });
+    expect(result[0]?.content).toMatchObject({ problem: { trigger: 'too slow' } });
+  });
+
+  it('returns empty array when no rows', async () => {
+    const { client, recorded } = makeFakeSession([]);
+    const result = await listBuilderRequests(client as never, 'builder-uuid');
+    expect(result).toEqual([]);
+    expect(recorded.table).toBe('matches');
   });
 });

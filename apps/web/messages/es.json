@@ -61,8 +61,10 @@
       "NewAndFresh": "Nuevo y reciente",
       "Following": "Siguiendo",
       "Saved": "Guardados",
+      "Requests": "Solicitudes",
       "Label": "Explorar",
-      "LibraryLabel": "Tu biblioteca"
+      "LibraryLabel": "Tu biblioteca",
+      "InboxLabel": "Bandeja"
     },
     "AvatarMenu": {
       "Profile": "Perfil",
@@ -952,7 +954,22 @@
       "emptyTitle": "Todavía no estás recibiendo solicitudes.",
       "emptyCta": "Activar solicitudes",
       "notificationBody": "{name} tiene un brief que coincide con tu perfil ({pct}%)",
-      "decideLater": "Decidir después"
+      "decideLater": "Decidir después",
+      "pendingCount": "{count} pendientes",
+      "subtitle": "Briefs que el emparejador cree que encajan contigo. Aceptar abre un hilo; rechazar actualiza tu perfil de emparejamiento.",
+      "problem": "Problema",
+      "endState": "Resultado final deseado",
+      "constraints": "Restricciones",
+      "whyYou": "¿Por qué tú?",
+      "connect": "Conectar →",
+      "skip": "Omitir",
+      "reasonNotMyArea": "No es mi área",
+      "reasonNoCapacity": "Sin capacidad",
+      "reasonBudgetMismatch": "Presupuesto no compatible",
+      "reasonOther": "Otro",
+      "confidencePct": "{pct}% de coincidencia",
+      "capacityIndicator": "{open} de {total} plazas de solicitud disponibles",
+      "connectSuccess": "Enviado — te avisaremos si conecta contigo."
     },
     "Notifications": {
       "matchingReady": "Tus coincidencias están listas",
@@ -965,6 +982,44 @@
       "noMatchesPublic": "Sin coincidencias todavía. Hemos compartido tu brief públicamente — los builders empezarán a verlo pronto.",
       "briefResolved": "¡Qué bueno que lo encontraste! ¿Quieres valorar la coincidencia?",
       "briefExpiringSoon": "El brief caduca pronto — ¿amplías o lo resuelves?"
+    },
+    "RequestPrefs": {
+      "pageTitle": "Preferencias de solicitudes",
+      "receiveTitle": "Recibir solicitudes",
+      "receiveLead": "Briefs que coinciden con tus apps publicadas e intereses declarados. Tú decides si aceptar cada uno.",
+      "openToBriefs": "Abierto a briefs entrantes",
+      "openToBriefsHelp": "Los builders ven tus apps aunque esto esté desactivado, pero ningún agente te enviará briefs.",
+      "maxConcurrent": "Máximo de briefs simultáneos",
+      "maxConcurrentHelp": "Una vez que hayas aceptado este número de briefs activos, el emparejador te omitirá para nuevas propuestas.",
+      "rateBand": "Banda de tarifa",
+      "rateBandHelp": "Los briefs con bandas de presupuesto muy por debajo de esta serán pre-filtrados. Déjalo vacío para recibir cualquiera.",
+      "rateBandAny": "Cualquiera",
+      "bandExploratory": "Exploratorio",
+      "bandLt500": "< 500",
+      "bandFrom500_2k": "500 – 2k",
+      "bandFrom2k10k": "2k – 10k",
+      "bandGt10k": "10k+",
+      "bandOpen": "Abierto",
+      "domainsTitle": "Dominios de interés",
+      "domainsLead": "Categorías en las que quieres recibir briefs. Por defecto usa donde has publicado apps. Cambia cuando quieras.",
+      "capabilitiesTitle": "Capacidades inferidas",
+      "capabilitiesLead": "El emparejador lee tus apps publicadas y propone estas etiquetas. Edítalas si algo no es correcto.",
+      "activeDomains": "Dominios activos",
+      "addChip": "+ Añadir",
+      "fromYourApps": "De tus apps",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "saved": "Guardado",
+      "errorPrefix": "Error: {error}"
+    },
+    "BriefDetail": {
+      "pageTitle": "Brief",
+      "statusLabel": "Estado",
+      "viewHealth": "Ver tarjeta de salud",
+      "viewMatches": "Ver coincidencias",
+      "builderCtaTitle": "Fuiste emparejado en este brief",
+      "builderCtaBody": "Responde desde tu bandeja de solicitudes.",
+      "builderCtaLink": "Ir a solicitudes"
     }
   }
 }
