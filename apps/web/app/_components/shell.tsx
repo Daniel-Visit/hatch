@@ -29,7 +29,7 @@ export interface ShellProps {
   bell?: React.ReactNode;
 }
 
-type NavKey = 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved';
+type NavKey = 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved' | 'Requests';
 
 // Browse: feeds anyone can read (no auth required).
 const BROWSE_NAV: { href: Route; key: NavKey; icon: string }[] = [
@@ -43,6 +43,11 @@ const BROWSE_NAV: { href: Route; key: NavKey; icon: string }[] = [
 const LIBRARY_NAV: { href: Route; key: NavKey; icon: string }[] = [
   { href: '/following', key: 'Following', icon: '◉' },
   { href: '/saved', key: 'Saved', icon: '▢' },
+];
+
+// Inbox: incoming matcher proposals — grouped separately per the mockup.
+const INBOX_NAV: { href: Route; key: NavKey; icon: string }[] = [
+  { href: '/requests' as Route, key: 'Requests', icon: '↘' },
 ];
 
 function Logo() {
@@ -190,6 +195,23 @@ export function Shell({ user, children, bell }: ShellProps) {
             );
           })}
         </div>
+        <div className="sidebar-sect">
+          <div className="sidebar-label">{t('Nav.InboxLabel')}</div>
+          {INBOX_NAV.map((n) => {
+            const isActive = pathname === n.href;
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                className={`nav-item${isActive ? ' is-on' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <i className="nav-i">{n.icon}</i>
+                <span>{t(`Nav.${n.key}`)}</span>
+              </Link>
+            );
+          })}
+        </div>
       </aside>
 
       {navOpen && (
@@ -221,6 +243,24 @@ export function Shell({ user, children, bell }: ShellProps) {
               {t('Nav.LibraryLabel')}
             </div>
             {LIBRARY_NAV.map((n) => {
+              const isActive = pathname === n.href;
+              return (
+                <Link
+                  key={n.href}
+                  href={n.href}
+                  className={`nav-item${isActive ? ' is-on' : ''}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setNavOpen(false)}
+                >
+                  <i className="nav-i">{n.icon}</i>
+                  <span>{t(`Nav.${n.key}`)}</span>
+                </Link>
+              );
+            })}
+            <div className="sidebar-label" style={{ marginTop: 16 }}>
+              {t('Nav.InboxLabel')}
+            </div>
+            {INBOX_NAV.map((n) => {
               const isActive = pathname === n.href;
               return (
                 <Link

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@hatch/shared';
+import type { Database, BriefContent } from '@hatch/shared';
 
 /**
  * match-repo — reads/writes over `public.matches` (Wanted feature, Task 3).
@@ -110,6 +110,77 @@ export async function listMatchesForBrief(
   const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
+}
+
+// ── Builder inbox ─────────────────────────────────────────────────────────────
+
+type BriefRow = Database['public']['Tables']['briefs']['Row'];
+type BriefSummary = Pick<
+  BriefRow,
+  | 'id'
+  | 'title'
+  | 'content'
+  | 'budget_band'
+  | 'timeline'
+  | 'solution_types'
+  | 'expires_at'
+  | 'author_id'
+>;
+
+/** Raw DB row shape returned by the nested join in listBuilderRequests. */
+type MatchWithBrief = MatchRow & { brief: BriefSummary | null };
+
+/** The inbox card shape the builder-side UI needs — match fields + embedded brief summary. */
+export interface BuilderRequest {
+  id: string;
+  agentConfidence: number;
+  agentRationale: string | null;
+  candidateAction: SwipeAction;
+  briefId: string;
+  title: string | null;
+  content: BriefContent;
+  budgetBand: Database['public']['Enums']['budget_band'] | null;
+  timeline: Database['public']['Enums']['brief_timeline'] | null;
+  solutionTypes: Database['public']['Enums']['solution_type'][];
+  expiresAt: string;
+}
+
+/**
+ * List a builder's incoming PENDING matches, joined to the brief summary they
+ * need to decide on. Sorted by agent_confidence descending.
+ *
+ * Reads with the caller's session client (RLS "matches candidate builder read
+ * own" + "briefs matched builder read" scope visibility). The nested join uses
+ * the FK `matches_brief_id_fkey` (migration 0032).
+ */
+export async function listBuilderRequests(
+  client: AnyClient,
+  builderId: string,
+): Promise<BuilderRequest[]> {
+  const { data, error } = await client
+    .from('matches')
+    .select(
+      '*, brief:briefs!matches_brief_id_fkey(id, title, content, budget_band, timeline, solution_types, expires_at, author_id)',
+    )
+    .eq('candidate_builder_id', builderId)
+    .eq('candidate_type', 'BUILDER')
+    .eq('candidate_action', 'PENDING')
+    .order('agent_confidence', { ascending: false });
+  if (error) throw error;
+  const rows = (data ?? []) as unknown as MatchWithBrief[];
+  return rows.map((r) => ({
+    id: r.id,
+    agentConfidence: r.agent_confidence,
+    agentRationale: r.agent_rationale,
+    candidateAction: r.candidate_action,
+    briefId: r.brief_id,
+    title: r.brief?.title ?? null,
+    content: (r.brief?.content ?? {}) as unknown as BriefContent,
+    budgetBand: r.brief?.budget_band ?? null,
+    timeline: r.brief?.timeline ?? null,
+    solutionTypes: r.brief?.solution_types ?? [],
+    expiresAt: r.brief?.expires_at ?? '',
+  }));
 }
 
 /** Read a single match by id. Returns null if not found / not visible. */

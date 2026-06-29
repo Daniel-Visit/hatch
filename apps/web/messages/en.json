@@ -61,8 +61,10 @@
       "NewAndFresh": "New & fresh",
       "Following": "Following",
       "Saved": "Saved",
+      "Requests": "Requests",
       "Label": "Browse",
-      "LibraryLabel": "Your library"
+      "LibraryLabel": "Your library",
+      "InboxLabel": "Inbox"
     },
     "AvatarMenu": {
       "Profile": "Profile",
@@ -952,7 +954,22 @@
       "emptyTitle": "You're not receiving requests yet.",
       "emptyCta": "Turn on requests",
       "notificationBody": "{name} has a brief that matches your profile ({pct}%)",
-      "decideLater": "Decide later"
+      "decideLater": "Decide later",
+      "pendingCount": "{count} pending",
+      "subtitle": "Briefs the matcher thinks fit you. Accept opens a thread; decline updates your matching profile.",
+      "problem": "Problem",
+      "endState": "Desired end state",
+      "constraints": "Constraints",
+      "whyYou": "Why you?",
+      "connect": "Connect →",
+      "skip": "Skip",
+      "reasonNotMyArea": "Not my area",
+      "reasonNoCapacity": "No capacity",
+      "reasonBudgetMismatch": "Budget mismatch",
+      "reasonOther": "Other",
+      "confidencePct": "{pct}% match",
+      "capacityIndicator": "{open} of {total} request slots open",
+      "connectSuccess": "Sent — we'll let you know if they connect back."
     },
     "Notifications": {
       "matchingReady": "Your matches are ready",
@@ -965,6 +982,44 @@
       "noMatchesPublic": "No matches yet. We've shared your brief publicly — builders will start to see it.",
       "briefResolved": "Glad you found it! Want to rate the match?",
       "briefExpiringSoon": "Brief expires soon — extend or resolve?"
+    },
+    "RequestPrefs": {
+      "pageTitle": "Request preferences",
+      "receiveTitle": "Receive requests",
+      "receiveLead": "Briefs that match your shipped apps and declared interests. You decide whether to accept each one.",
+      "openToBriefs": "Open to incoming briefs",
+      "openToBriefsHelp": "Builders see your apps even when this is off — but no agent will route briefs to you.",
+      "maxConcurrent": "Max concurrent briefs",
+      "maxConcurrentHelp": "Once you've accepted this many active briefs, the matcher skips you for new proposals.",
+      "rateBand": "Rate band",
+      "rateBandHelp": "Briefs with budget bands far below this will be pre-filtered. Leave empty to receive any.",
+      "rateBandAny": "Any",
+      "bandExploratory": "Exploratory",
+      "bandLt500": "< 500",
+      "bandFrom500_2k": "500 – 2k",
+      "bandFrom2k10k": "2k – 10k",
+      "bandGt10k": "10k+",
+      "bandOpen": "Open",
+      "domainsTitle": "Domains of interest",
+      "domainsLead": "Categories you want briefs in. Defaults to where you've shipped apps. Override anytime.",
+      "capabilitiesTitle": "Inferred capabilities",
+      "capabilitiesLead": "The matcher reads your published apps and proposes these tags. Edit if it got something wrong.",
+      "activeDomains": "Active domains",
+      "addChip": "+ Add",
+      "fromYourApps": "From your apps",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "errorPrefix": "Error: {error}"
+    },
+    "BriefDetail": {
+      "pageTitle": "Brief",
+      "statusLabel": "Status",
+      "viewHealth": "View health card",
+      "viewMatches": "View matches",
+      "builderCtaTitle": "You were matched on this brief",
+      "builderCtaBody": "Respond from your requests inbox.",
+      "builderCtaLink": "Go to requests"
     }
   }
 }
