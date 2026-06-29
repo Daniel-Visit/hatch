@@ -116,12 +116,18 @@ export function RequestCard({ request, onAction, onDismiss }: RequestCardProps) 
     <article className="card-request">
       <header className="card-request-head">
         <span
-          className="avatar"
           style={{
-            background: `oklch(72% .15 ${hue})`,
-            width: '36px',
-            height: '36px',
-            fontSize: '15px',
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            flexShrink: 0,
+            display: 'grid',
+            placeItems: 'center',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 15,
+            background: `linear-gradient(135deg, oklch(70% .14 ${hue}), oklch(60% .15 ${(hue + 40) % 360}))`,
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.16)',
           }}
         >
           {initial}
@@ -134,8 +140,6 @@ export function RequestCard({ request, onAction, onDismiss }: RequestCardProps) 
       </header>
 
       <div className="card-request-body">
-        <h3 className="card-request-title">{title}</h3>
-
         {problem && (
           <div className="card-request-section">
             <h5>{t('problem')}</h5>

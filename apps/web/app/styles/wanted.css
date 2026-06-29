@@ -510,9 +510,13 @@
   color: #fff;
 }
 .intent-pill-request {
-  background: #f97316;
-  color: #fff;
-  box-shadow: 0 4px 10px -3px color-mix(in oklab, #f97316 50%, transparent);
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 10px;
+  box-shadow: none;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -560,99 +564,52 @@
    Phase 1.5 / 2 — Match deck + match card (swipe deck)
    ════════════════════════════════════════════════════════════════════════ */
 .match-deck {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--grid-gap);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
 }
 .card-match {
-  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  overflow: hidden;
+  box-shadow: var(--sh-1);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--sh-2);
+  gap: 13px;
   transition:
-    transform 0.2s,
-    box-shadow 0.2s,
-    border-color 0.2s;
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
 }
 .card-match:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--sh-3);
+  transform: translateY(-2px);
+  box-shadow: var(--sh-2);
   border-color: var(--border-2);
 }
-.card-match-conf {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 3;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  backdrop-filter: blur(8px);
+.card-match-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
-.card-match-conf.is-high {
-  background: var(--ax);
-  color: #fff;
-  border-color: var(--ax);
-}
-.card-match-art {
-  height: 140px;
-  position: relative;
-  background: linear-gradient(135deg, #f97316, #ec4899 50%, #a855f7);
-  overflow: hidden;
-}
-.card-match-art-builder {
+.card-match-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 13px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-family: var(--display);
-  font-size: 42px;
-  font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, oklch(72% 0.15 210), oklch(60% 0.15 290));
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 17px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
-.card-match-art-bg-circles::before,
-.card-match-art-bg-circles::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(20px);
-  opacity: 0.55;
-  mix-blend-mode: screen;
-}
-.card-match-art-bg-circles::before {
-  width: 60%;
-  height: 80%;
-  top: -20%;
-  right: -10%;
-  background: rgba(255, 255, 255, 0.4);
-}
-.card-match-art-bg-circles::after {
-  width: 50%;
-  height: 60%;
-  bottom: -20%;
-  left: -10%;
-  background: rgba(255, 255, 255, 0.3);
-}
-.card-match-body {
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.card-match-id {
   flex: 1;
-}
-.card-match-title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+  min-width: 0;
 }
 .card-match-title {
   font-family: var(--display);
@@ -660,23 +617,63 @@
   font-weight: 600;
   letter-spacing: -0.015em;
   margin: 0;
-  text-wrap: balance;
 }
 .card-match-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
-  margin: 0;
+  margin: 3px 0 0;
   font-family: var(--mono);
 }
-.card-match-rationale {
-  font-size: 12.5px;
-  color: var(--text-2);
-  line-height: 1.5;
-  margin: 4px 0 0;
-  padding: 10px 12px;
+.card-match-conf {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  color: var(--muted);
   background: var(--surface-2);
-  border-left: 2px solid var(--ax);
-  border-radius: 4px 8px 8px 4px;
+  border: 1px solid var(--border);
+}
+.card-match-conf.is-high {
+  color: var(--ax);
+  background: color-mix(in oklab, var(--ax) 14%, transparent);
+  border-color: color-mix(in oklab, var(--ax) 26%, transparent);
+}
+/* Category badge inside the match card header — subtle pill on the card
+   surface (the base .shell .cat-badge is a translucent-white pill meant to sit
+   on cover art, which reads wrong on a plain card). Self-contained so it also
+   renders in standalone previews. */
+.card-match-top .cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  backdrop-filter: none;
+}
+.card-match-top .cat-badge i {
+  font-style: normal;
+  color: var(--muted-2);
+}
+.card-match-rationale {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin: 0;
+  padding: 13px 15px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
   text-wrap: pretty;
 }
 .card-match-rationale-label {
@@ -684,34 +681,35 @@
   font-family: var(--mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted-2);
-  margin-bottom: 4px;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 5px;
 }
 .card-match-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 4px;
+  gap: 6px;
 }
 .card-match-foot {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 12px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
 }
 .card-match-foot .btn {
-  width: 100%;
-  justify-content: center;
   height: 38px;
   font-size: 13px;
   font-weight: 600;
 }
 .btn-skip {
-  background: var(--surface);
-  color: var(--text-2);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+.btn-skip:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: none;
 }
 .btn-connect {
   background: var(--ax);
@@ -719,7 +717,7 @@
   border: 0;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 6px 16px -4px color-mix(in oklab, var(--ax) 50%, transparent);
+    0 7px 16px -6px color-mix(in oklab, var(--ax) 55%, transparent);
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -780,8 +778,8 @@
   font-size: 13px;
   line-height: 1.5;
   background: var(--surface-2);
-  border-left: 2px solid var(--ax);
-  border-radius: 4px 8px 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
   padding: 10px 12px;
   font-style: italic;
   text-wrap: pretty;
@@ -848,48 +846,61 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  overflow: hidden;
   box-shadow: var(--sh-1);
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  gap: 14px;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+.card-request:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-2);
+  border-color: var(--border-2);
 }
 .card-request-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
 }
 .card-request-id {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  gap: 3px;
   min-width: 0;
   flex: 1;
 }
 .card-request-id b {
-  font-size: 13.5px;
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
 }
 .card-request-id i {
   font-style: normal;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: 11px;
   font-family: var(--mono);
 }
 .card-request-conf {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 999px;
-  background: var(--ax);
-  color: #fff;
+  color: var(--ax);
+  background: color-mix(in oklab, var(--ax) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ax) 26%, transparent);
+  white-space: nowrap;
 }
 .card-request-body {
-  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 13px;
 }
 .card-request-title {
   font-family: var(--display);
@@ -905,17 +916,17 @@
 }
 .card-request-section h5 {
   font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--muted-2);
+  color: var(--muted);
   margin: 0;
 }
 .card-request-section p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.55;
-  color: var(--text);
+  color: var(--text-2);
   text-wrap: pretty;
 }
 .card-request-meta-row {
@@ -924,12 +935,12 @@
   gap: 6px;
 }
 .card-request-rationale {
-  padding: 12px 14px;
-  background: var(--ax-tint);
-  border: 1px solid color-mix(in oklab, var(--ax) 22%, var(--border));
-  border-radius: 10px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  padding: 13px 15px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--text-2);
 }
 .card-request-rationale b {
@@ -938,10 +949,7 @@
 }
 .card-request-foot {
   display: flex;
-  gap: 8px;
-  padding: 12px 18px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
+  gap: 9px;
   justify-content: flex-end;
 }
 
@@ -1487,8 +1495,8 @@
   margin: 0 16px 12px;
   padding: 12px 14px;
   background: var(--surface-2);
-  border-left: 2px solid var(--ax);
-  border-radius: 4px 8px 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
   font-size: 13px;
   color: var(--text);
   line-height: 1.5;
