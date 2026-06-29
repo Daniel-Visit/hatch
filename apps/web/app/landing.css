@@ -1386,6 +1386,102 @@ html:has(.landing-root) {
   gap: 12px;
 }
 
+/* ============ BRIEF & MATCH ============ */
+.landing-root .bm-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 900px) {
+  .landing-root .bm-split {
+    grid-template-columns: 1fr;
+  }
+}
+.landing-root .bm-side {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@media (max-width: 720px) {
+  .landing-root .bm-side {
+    padding: 24px;
+  }
+}
+.landing-root .bm-side--seeker {
+  border-right: 1px solid var(--border);
+  background:
+    radial-gradient(
+      circle at 25% 0%,
+      color-mix(in oklab, var(--ax) 9%, transparent),
+      transparent 55%
+    ),
+    var(--surface);
+}
+@media (max-width: 900px) {
+  .landing-root .bm-side--seeker {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
+.landing-root .bm-side--builder {
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      color-mix(in oklab, var(--orange) 8%, transparent),
+      transparent 55%
+    ),
+    var(--surface-2);
+}
+.landing-root .bm-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.landing-root .bm-side h3 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+.landing-root .bm-side > p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 42ch;
+}
+.landing-root .bm-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+}
+.landing-root .bm-step {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 9px;
+}
+.landing-root .bm-side--seeker .bm-step {
+  background: var(--surface);
+}
+.landing-root .bm-sep {
+  color: var(--ax);
+  font-size: 12px;
+}
+.landing-root .bm-side .btn {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
 /* ============ SECTION SPACING ============ */
 .landing-root .sect {
   padding: 64px 0;

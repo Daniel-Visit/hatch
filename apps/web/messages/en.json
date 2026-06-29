@@ -665,6 +665,37 @@
         }
       }
     },
+    "BriefMatch": {
+      "Eyebrow": "Brief & Match",
+      "Title": "Don't just browse apps — <grad>describe what you need</grad>.",
+      "Subhead": "Hatch isn't only a gallery. Tell us the problem; our agents match you to an app that already exists — or a builder who can make it.",
+      "Seeker": {
+        "Tag": "I need something",
+        "Heading": "Need something built?",
+        "Body": "Describe it in plain words. The Refiner agent sharpens it into a brief, then matches you to existing apps — or builders who fit.",
+        "BriefLabel": "YOUR BRIEF",
+        "BriefTitle": "Ambient soundscape for deep-work blocks",
+        "BriefDesc": "Lyric-free audio that adapts to time of day…",
+        "AppKind": "existing app",
+        "FlowDescribe": "Describe",
+        "FlowRefine": "AI refines",
+        "FlowMatched": "Matched",
+        "Cta": "Post a brief"
+      },
+      "Builder": {
+        "Tag": "I ship apps",
+        "Heading": "Ship apps? Get matched to briefs.",
+        "Body": "Turn your published apps into inbound work. Opt in, set your capacity and domains; the matcher routes briefs that fit. Accept to open a conversation.",
+        "Proposed": "proposed 4h ago",
+        "Rationale": "“Adaptive soundscape for focus — your Lumen.fm preset feature is almost exactly this.”",
+        "Skip": "Skip",
+        "Connect": "Connect →",
+        "FlowOptIn": "Opt in",
+        "FlowMatched": "Matched",
+        "FlowAccept": "Accept & connect",
+        "Cta": "Receive briefs"
+      }
+    },
     "ForInvestors": {
       "Eyebrow": "for investors & collaborators",
       "Title": "Organic deal-flow,<br></br>without the cold-DM cringe.",
