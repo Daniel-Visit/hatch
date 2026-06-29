@@ -12,6 +12,7 @@ import { Hero } from './_landing/hero';
 import { SocialProof } from './_landing/social-proof';
 import { Bento } from './_landing/bento';
 import { HowItWorks } from './_landing/how-it-works';
+import { BriefMatch } from './_landing/brief-match';
 import { ForInvestors } from './_landing/for-investors';
 import { Agents } from './_landing/agents';
 import { GalleryPreview } from './_landing/gallery-preview';
@@ -41,6 +42,7 @@ export default async function LandingPage() {
       />
       <Bento />
       <HowItWorks />
+      <BriefMatch />
       <ForInvestors />
       <Agents />
       <GalleryPreview tabs={tabs} />
