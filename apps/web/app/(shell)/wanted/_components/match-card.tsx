@@ -88,48 +88,30 @@ function builderGradient(hue: number): string {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-/** App art area — generative gradient with a decorative inner glyph, verbatim from mockup. */
-function AppArtArea({ app }: { app: AppCandidate }) {
-  // Use cover_url if present; otherwise fall back to a gradient derived from the app's hue.
+/** App thumbnail — small rounded cover/gradient square in the card header row. */
+function AppThumb({ app }: { app: AppCandidate }) {
   if (app.coverUrl) {
     return (
       <div
-        className="card-match-art card-match-art-bg-circles"
+        className="card-match-thumb"
         style={{ background: `url(${app.coverUrl}) center/cover no-repeat` }}
       />
     );
   }
-  // Generative fallback: gradient seeded from hue. Uses the same formula as the mockup's
-  // Lumen.fm example: linear-gradient(135deg,#0ea5e9,#6366f1) with inner ◍ glyph.
   const h1 = app.hue;
   const h2 = (h1 + 80) % 360;
   const bg = `linear-gradient(135deg,oklch(72% .2 ${h1}),oklch(60% .18 ${h2}))`;
   return (
-    <div className="card-match-art card-match-art-bg-circles" style={{ background: bg }}>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'grid',
-          placeItems: 'center',
-          fontSize: '64px',
-          color: '#fff',
-          filter: 'drop-shadow(0 4px 12px rgba(0,0,0,.35))',
-        }}
-      >
-        ◍
-      </div>
+    <div className="card-match-thumb" style={{ background: bg, fontSize: 24 }}>
+      ◍
     </div>
   );
 }
 
-/** Builder art area — initials on a gradient background, verbatim from mockup. */
-function BuilderArtArea({ builder }: { builder: BuilderCandidate }) {
+/** Builder thumbnail — initials on a gradient, in the card header row. */
+function BuilderThumb({ builder }: { builder: BuilderCandidate }) {
   return (
-    <div
-      className="card-match-art card-match-art-builder card-match-art-bg-circles"
-      style={{ background: builderGradient(builder.hue) }}
-    >
+    <div className="card-match-thumb" style={{ background: builderGradient(builder.hue) }}>
       {builderInitials(builder)}
     </div>
   );
@@ -170,56 +152,52 @@ export function MatchCard({ match, seekerView, onSwipe }: MatchCardProps) {
 
   return (
     <article className="card-match">
-      <span className={`card-match-conf${isHigh ? ' is-high' : ''}`}>
-        {t('confidenceLabel', { pct: confPct })}
-      </span>
+      {/* Header row: thumb · identity · category/intent · confidence */}
+      <div className="card-match-top">
+        {isApp && appCandidate ? (
+          <AppThumb app={appCandidate} />
+        ) : builderCandidate ? (
+          <BuilderThumb builder={builderCandidate} />
+        ) : (
+          <div className="card-match-thumb" />
+        )}
 
-      {/* Art area */}
-      {isApp && appCandidate ? (
-        <AppArtArea app={appCandidate} />
-      ) : builderCandidate ? (
-        <BuilderArtArea builder={builderCandidate} />
-      ) : (
-        <div className="card-match-art card-match-art-bg-circles" />
-      )}
-
-      {/* Body */}
-      <div className="card-match-body">
-        <div className="card-match-title-row">
-          <div>
-            <h3 className="card-match-title">{title}</h3>
-            <p className="card-match-sub">{subLine}</p>
-          </div>
-          {/* App cards: .cat-badge (glyph + category label) — verbatim from mockup */}
-          {isApp && appCandidate?.categoryLabel && (
-            <span className="cat-badge">
-              <i>{appCandidate.categoryIcon}</i>
-              {appCandidate.categoryLabel}
-            </span>
-          )}
-          {/* Builder cards: request intent badge */}
-          {!isApp && <IntentBadgeRequest />}
+        <div className="card-match-id">
+          <h3 className="card-match-title">{title}</h3>
+          <p className="card-match-sub">{subLine}</p>
         </div>
 
-        {agentRationale && (
-          <div className="card-match-rationale">
-            <span className="card-match-rationale-label">{t('whyThisMatch')}</span>
-            {agentRationale}
-          </div>
+        {isApp && appCandidate?.categoryLabel && (
+          <span className="cat-badge">
+            <i>{appCandidate.categoryIcon}</i>
+            {appCandidate.categoryLabel}
+          </span>
         )}
+        {!isApp && <IntentBadgeRequest />}
 
-        {tags.length > 0 && (
-          <div className="card-match-tags">
-            {tags.map((tag) => (
-              <span key={tag} className="tag">
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        <span className={`card-match-conf${isHigh ? ' is-high' : ''}`}>
+          {t('confidenceLabel', { pct: confPct })}
+        </span>
       </div>
 
-      {/* Footer — Skip / Connect */}
+      {agentRationale && (
+        <div className="card-match-rationale">
+          <span className="card-match-rationale-label">{t('whyThisMatch')}</span>
+          {agentRationale}
+        </div>
+      )}
+
+      {tags.length > 0 && (
+        <div className="card-match-tags">
+          {tags.map((tag) => (
+            <span key={tag} className="tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Footer — Skip / Connect, right-aligned */}
       <div className="card-match-foot">
         <button
           className="btn btn-skip"
