@@ -25,6 +25,13 @@ const GLYPHS: Record<Mode, string> = {
   paste: '❏',
 };
 
+// A vivid generative-art gradient per mode (landing-style colour energy).
+const ART: Record<Mode, string> = {
+  chat: 'linear-gradient(135deg, #a855f7, #ec4899)',
+  form: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+  paste: 'linear-gradient(135deg, #f97316, #f59e0b)',
+};
+
 // Map each mode to its i18n namespace under Wanted.ModePicker.
 const I18N_KEY: Record<Mode, 'Chat' | 'Form' | 'Paste'> = {
   chat: 'Chat',
@@ -60,21 +67,19 @@ export function ModePicker() {
   }
 
   return (
-    <>
-      <div className="refiner-head">
-        <h1>{t('pageTitle')}</h1>
+    <div className="mode-wrap">
+      <div className="mode-bg" aria-hidden />
+
+      <div className="mode-head">
+        <span className="mode-eyebrow">
+          <span className="dot" />
+          Brief &amp; Match
+        </span>
+        <h1>
+          <span className="grad">{t('pageTitle')}</span>
+        </h1>
+        <p>{t('pageSubtitle')}</p>
       </div>
-      <p
-        style={{
-          margin: '0 auto',
-          maxWidth: 900,
-          color: 'var(--muted)',
-          fontSize: '13px',
-          padding: '0 0 4px',
-        }}
-      >
-        {t('pageSubtitle')}
-      </p>
 
       <div className="mode-picker">
         {MODES.map((mode) => {
@@ -86,14 +91,20 @@ export function ModePicker() {
               onClick={() => choose(mode)}
               type="button"
             >
-              <span className="mode-card-glyph">{GLYPHS[mode]}</span>
-              <h3>{t(`${key}.title`)}</h3>
-              <p>{t(`${key}.body`)}</p>
-              <span className="mode-card-best-for">{t(`${key}.bestFor`)}</span>
+              <div className="mode-card-art" style={{ '--grad': ART[mode] } as React.CSSProperties}>
+                {mode === 'chat' && <span className="mode-card-badge">{t('recommended')}</span>}
+                <span className="mode-card-glyph">{GLYPHS[mode]}</span>
+              </div>
+              <div className="mode-card-body">
+                <h3>{t(`${key}.title`)}</h3>
+                <p className="mode-card-desc">{t(`${key}.body`)}</p>
+                <span className="mode-card-best-for">{t(`${key}.bestFor`)}</span>
+                <span className="mode-card-go">{t('start')} →</span>
+              </div>
             </button>
           );
         })}
       </div>
-    </>
+    </div>
   );
 }
