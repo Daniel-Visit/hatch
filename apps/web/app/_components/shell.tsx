@@ -29,7 +29,14 @@ export interface ShellProps {
   bell?: React.ReactNode;
 }
 
-type NavKey = 'Discover' | 'Trending' | 'NewAndFresh' | 'Following' | 'Saved' | 'Requests';
+type NavKey =
+  | 'Discover'
+  | 'Trending'
+  | 'NewAndFresh'
+  | 'Following'
+  | 'Saved'
+  | 'PostBrief'
+  | 'Requests';
 
 // Browse: feeds anyone can read (no auth required).
 const BROWSE_NAV: { href: Route; key: NavKey; icon: string }[] = [
@@ -46,7 +53,9 @@ const LIBRARY_NAV: { href: Route; key: NavKey; icon: string }[] = [
 ];
 
 // Inbox: incoming matcher proposals — grouped separately per the mockup.
+// Brief & Match: post a brief (seeker) + incoming matcher proposals (builder).
 const INBOX_NAV: { href: Route; key: NavKey; icon: string }[] = [
+  { href: '/wanted/new' as Route, key: 'PostBrief', icon: '✎' },
   { href: '/requests' as Route, key: 'Requests', icon: '↘' },
 ];
 
@@ -196,7 +205,7 @@ export function Shell({ user, children, bell }: ShellProps) {
           })}
         </div>
         <div className="sidebar-sect">
-          <div className="sidebar-label">{t('Nav.InboxLabel')}</div>
+          <div className="sidebar-label">{t('Nav.WantedLabel')}</div>
           {INBOX_NAV.map((n) => {
             const isActive = pathname === n.href;
             return (
@@ -258,7 +267,7 @@ export function Shell({ user, children, bell }: ShellProps) {
               );
             })}
             <div className="sidebar-label" style={{ marginTop: 16 }}>
-              {t('Nav.InboxLabel')}
+              {t('Nav.WantedLabel')}
             </div>
             {INBOX_NAV.map((n) => {
               const isActive = pathname === n.href;
