@@ -24,19 +24,12 @@ export function QualityBreakdown({ sections }: { sections: SectionScore[] }) {
       <h3>{t('qualityBySection')}</h3>
       {sections.map((section) => {
         const badge = healthBadgeFor(section.score);
-        const pct = section.score === null ? 0 : Math.round(section.score * 100);
+        const ok = badge.key === 'good';
         return (
-          <div className="health-section-row" key={section.name}>
+          <div className={`health-section-row ${ok ? 'is-ok' : 'is-attn'}`} key={section.name}>
+            <span className="health-section-ico">{ok ? '✓' : '○'}</span>
             <span className="name">{section.name}</span>
-            <span className="score-num">
-              {section.score === null ? '—' : section.score.toFixed(2)}
-            </span>
-            <span>
-              <span className="health-score-bar">
-                <span className="health-score-bar-fill" style={{ width: `${pct}%` }} />
-              </span>
-            </span>
-            <span className={`badge ${badge.cls}`}>{t(`badge.${badge.key}`)}</span>
+            <span className="health-section-note">{t(`note.${badge.key}`)}</span>
           </div>
         );
       })}
