@@ -64,7 +64,9 @@
       "Requests": "Requests",
       "Label": "Browse",
       "LibraryLabel": "Your library",
-      "InboxLabel": "Inbox"
+      "InboxLabel": "Inbox",
+      "PostBrief": "Post a brief",
+      "WantedLabel": "Brief & Match"
     },
     "AvatarMenu": {
       "Profile": "Profile",
@@ -433,7 +435,7 @@
     "web3": "Web3"
   },
   "Push": {
-    "EnableNotifications": "🔔 Get notified about new contact requests",
+    "EnableNotifications": "Get notified about new contact requests",
     "EnableButton": "Enable",
     "MaybeLater": "Not now",
     "Denied": "Notifications denied. Enable them in your browser settings to receive alerts.",
@@ -720,7 +722,7 @@
         "RoleInvest": "INVEST",
         "OutboundMessage": "Loved the demo. Pre-seed check, no pressure to reply. 30 min next week?",
         "DeliveredAt": "delivered · 11:42",
-        "ReplyMessage": "Yes — Thursday 3pm? I'll send a Cal link 🚀",
+        "ReplyMessage": "Yes — Thursday 3pm? I'll send a Cal link",
         "Typing": "typing…"
       }
     },
@@ -750,7 +752,7 @@
       "Terminal": {
         "Header": "$ mcp/hatch",
         "CommentDiscover": "# Discover what's hot in audio tools today",
-        "ResultSummary": "  ← 12 results · top: Lumen.fm (284 ❤)",
+        "ResultSummary": "  ← 12 results · top: Lumen.fm (284 ♥)",
         "CommentReachOut": "# Reach out to the maker",
         "OkSent": "  ← sent · awaiting consent"
       },

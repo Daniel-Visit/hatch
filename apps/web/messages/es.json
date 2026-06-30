@@ -64,7 +64,9 @@
       "Requests": "Solicitudes",
       "Label": "Explorar",
       "LibraryLabel": "Tu biblioteca",
-      "InboxLabel": "Bandeja"
+      "InboxLabel": "Bandeja",
+      "PostBrief": "Publicar un brief",
+      "WantedLabel": "Brief & Match"
     },
     "AvatarMenu": {
       "Profile": "Perfil",
@@ -433,7 +435,7 @@
     "web3": "Web3"
   },
   "Push": {
-    "EnableNotifications": "🔔 Recibe avisos sobre nuevas solicitudes de contacto",
+    "EnableNotifications": "Recibe avisos sobre nuevas solicitudes de contacto",
     "EnableButton": "Activar",
     "MaybeLater": "Ahora no",
     "Denied": "Notificaciones bloqueadas. Actívalas en la configuración de tu navegador para recibir avisos.",
@@ -720,7 +722,7 @@
         "RoleInvest": "INVERTIR",
         "OutboundMessage": "Me encantó el demo. Cheque pre-seed, sin presión por responder. ¿30 min la próxima semana?",
         "DeliveredAt": "entregado · 11:42",
-        "ReplyMessage": "Sí — ¿jueves 3pm? Te paso un link de Cal 🚀",
+        "ReplyMessage": "Sí — ¿jueves 3pm? Te paso un link de Cal",
         "Typing": "escribiendo…"
       }
     },
@@ -750,7 +752,7 @@
       "Terminal": {
         "Header": "$ mcp/hatch",
         "CommentDiscover": "# Descubre qué está caliente en herramientas de audio hoy",
-        "ResultSummary": "  ← 12 resultados · top: Lumen.fm (284 ❤)",
+        "ResultSummary": "  ← 12 resultados · top: Lumen.fm (284 ♥)",
         "CommentReachOut": "# Contacta al creador",
         "OkSent": "  ← enviado · esperando consentimiento"
       },
