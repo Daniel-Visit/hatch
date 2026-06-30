@@ -878,6 +878,8 @@
     "ModePicker": {
       "pageTitle": "Publica una necesidad",
       "pageSubtitle": "Elige cómo quieres describir lo que buscas.",
+      "recommended": "Recomendado",
+      "start": "Empezar",
       "Chat": {
         "title": "Habla con la IA",
         "body": "Responde unas preguntas guiadas. El agente redacta tu brief mientras conversas.",

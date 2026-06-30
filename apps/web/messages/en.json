@@ -878,6 +878,8 @@
     "ModePicker": {
       "pageTitle": "Post a need",
       "pageSubtitle": "Choose how you'd like to describe what you're looking for.",
+      "recommended": "Recommended",
+      "start": "Start",
       "Chat": {
         "title": "Talk to AI",
         "body": "Answer a few guided questions. The agent drafts your brief as you go.",
