@@ -952,7 +952,14 @@
         "good": "bueno",
         "weak": "débil",
         "missing": "ausente"
-      }
+      },
+      "note": {
+        "good": "se ve sólido",
+        "weak": "puede afinarse",
+        "missing": "aún sin completar"
+      },
+      "statusReady": "listo para hacer match",
+      "statusLow": "necesita más detalle"
     },
     "MatchDeck": {
       "existingAppBannerTitle": "Puede que esto ya exista",

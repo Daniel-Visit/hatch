@@ -80,8 +80,6 @@ export default async function BriefDetailPage({ params }: PageProps) {
 
       <article className="card-request">
         <div className="card-request-body">
-          <h3 className="card-request-title">{heading}</h3>
-
           {content?.problem?.trigger && (
             <div className="card-request-section">
               <h5>{tl('trigger')}</h5>

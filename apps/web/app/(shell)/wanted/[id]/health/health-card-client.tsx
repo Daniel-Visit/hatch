@@ -148,26 +148,16 @@ export function HealthCardClient({ initial }: { initial: InitialHealth }) {
     await publish();
   }, [pendingSuggestions, applyOne, publish]);
 
-  const pct = Math.round(qualityScore * 100);
   const canPublish = qualityScore >= PUBLISH_FLOOR && !publishing;
 
   return (
     <div className="health-card">
-      {/* Header */}
+      {/* Header — title + qualitative status (no score graphic) */}
       <div className="health-card-head">
-        <div className="health-card-head-text">
-          <h1>{t('pageTitle')}</h1>
-          <p>{t('pageSubtitle')}</p>
-        </div>
-        <div className="health-overall-score">
-          <span className="health-overall-score-label">{t('qualityLabel')}</span>
-          <div className="health-overall-score-value">
-            <span className="health-overall-score-num">{qualityScore.toFixed(2)}</span>
-            <span className="health-score-bar">
-              <span className="health-score-bar-fill" style={{ width: `${pct}%` }} />
-            </span>
-          </div>
-        </div>
+        <h1>{t('pageTitle')}</h1>
+        <span className={`health-status ${canPublish ? 'is-ready' : 'is-low'}`}>
+          {canPublish ? t('statusReady') : t('statusLow')}
+        </span>
       </div>
 
       {/* Per-section breakdown */}
