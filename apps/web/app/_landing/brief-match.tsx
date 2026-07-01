@@ -1,45 +1,60 @@
 // Hatch landing — Brief & Match section.
-// Advertises the Wanted / Brief & Match service in the landing's design language.
-// Dual-sided (seeker + builder); the two preview cards mock the real feature UI —
-// the seeker match deck (brief → matched app, confidence %) and the builder inbox
-// request card. Sits in page.tsx between <HowItWorks /> and <ForInvestors />.
+// AI-search redesign (2026-06-30): a search bar states the need in plain words,
+// and the matched results render as gallery cards with generative cover art +
+// a match %, echoing the bento cover-art visual language. The last card routes
+// to the builder side ("nothing fits? a builder makes it"). Sits between
+// <HowItWorks /> and <ForInvestors /> in page.tsx.
 
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { Arrow, Bolt, Send } from '@/app/_landing/icons';
+import { Arrow, Search } from '@/app/_landing/icons';
 
-const GRAD: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #f97316, #ec4899 45%, #a855f7 80%)',
-  WebkitBackgroundClip: 'text',
-  backgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  color: 'transparent',
-};
+// Generative cover art (same language as the bento covers).
+const RingsArt = () => (
+  <div className="gen ms-art" style={{ background: '#fbeede' }}>
+    <span className="rng" style={{ width: 34, height: 34, border: '2px solid #f59e0b' }} />
+    <span className="rng" style={{ width: 62, height: 62, border: '2px solid #f472b6' }} />
+    <span className="rng" style={{ width: 90, height: 90, border: '2px solid #fb923c' }} />
+    <span className="dotc" style={{ width: 14, height: 14, background: '#f97316' }} />
+  </div>
+);
 
-const ICO_BOX: React.CSSProperties = {
-  width: 36,
-  height: 36,
-  borderRadius: 10,
-  display: 'grid',
-  placeItems: 'center',
-  flexShrink: 0,
-};
+const StripesArt = () => (
+  <div className="gen ms-art" style={{ background: 'linear-gradient(125deg, #6366f1, #a855f7)' }}>
+    <span className="stp" />
+  </div>
+);
 
-const CONF_PILL: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)',
-  fontSize: 10.5,
-  fontWeight: 600,
-  color: 'var(--ax)',
-  background: 'var(--ax-tint)',
-  border: '1px solid var(--border)',
-  padding: '3px 8px',
-  borderRadius: 999,
-  whiteSpace: 'nowrap',
-};
+const BokehArt = () => (
+  <div className="gen ms-art" style={{ background: '#0e1512' }}>
+    <span
+      className="bk"
+      style={{ width: 48, height: 48, background: '#22c55e', left: '16%', top: '26%' }}
+    />
+    <span
+      className="bk"
+      style={{ width: 62, height: 62, background: '#14b8a6', left: '56%', top: '52%' }}
+    />
+    <span
+      className="bk"
+      style={{ width: 30, height: 30, background: '#34d399', left: '74%', top: '18%' }}
+    />
+  </div>
+);
+
+type Result = { name: string; category: string; pct: string; art: ReactNode };
 
 export const BriefMatch = async () => {
   const t = await getTranslations('Landing.BriefMatch');
+
+  const existing = t('Results.ExistingApp');
+  const results: Result[] = [
+    { name: 'Lumen.fm', category: t('Results.Audio'), pct: '92%', art: <RingsArt /> },
+    { name: 'Focusflow', category: t('Results.Productivity'), pct: '74%', art: <StripesArt /> },
+    { name: 'Calm Canvas', category: t('Results.Wellbeing'), pct: '61%', art: <BokehArt /> },
+  ];
 
   return (
     <section id="match" className="sect">
@@ -50,188 +65,68 @@ export const BriefMatch = async () => {
             {t('Eyebrow')}
           </span>
           <h2 className="section-title">
-            {t.rich('Title', { grad: (chunks) => <span style={GRAD}>{chunks}</span> })}
+            {t.rich('Title', {
+              grad: (chunks) => <span style={{ color: 'var(--ax)' }}>{chunks}</span>,
+            })}
           </h2>
           <p className="section-sub">{t('Subhead')}</p>
         </div>
 
-        <div className="agents-wrap">
-          <div className="bm-split">
-            {/* ───────────────── Seeker ───────────────── */}
-            <div className="bm-side bm-side--seeker">
-              <div className="row" style={{ gap: 10 }}>
-                <div style={{ ...ICO_BOX, background: 'var(--ax-tint)', color: 'var(--ax)' }}>
-                  <Send size={16} />
-                </div>
-                <span className="bm-tag">{t('Seeker.Tag')}</span>
-              </div>
-              <h3>{t('Seeker.Heading')}</h3>
-              <p>{t('Seeker.Body')}</p>
+        <div className="ms-search">
+          <span className="si">
+            <Search size={19} />
+          </span>
+          <span className="st">
+            {t('SearchQuery')}
+            <span className="cs" />
+          </span>
+          <Link href={'/wanted/new' as Route} className="btn btn--primary" style={{ height: 40 }}>
+            {t('SearchCta')}
+          </Link>
+        </div>
 
-              {/* preview: brief → matched app (echoes the match deck) */}
-              <div className="card" style={{ padding: 14, background: 'var(--surface)' }}>
-                <div
-                  className="mono"
-                  style={{ fontSize: 10, color: 'var(--muted)', marginBottom: 8 }}
-                >
-                  {t('Seeker.BriefLabel')}
-                </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    letterSpacing: '-0.01em',
-                    marginBottom: 4,
-                  }}
-                >
-                  {t('Seeker.BriefTitle')}
-                </div>
-                <div
-                  style={{
-                    fontSize: 11.5,
-                    color: 'var(--muted)',
-                    lineHeight: 1.4,
-                    marginBottom: 12,
-                  }}
-                >
-                  {t('Seeker.BriefDesc')}
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 9,
-                    paddingTop: 11,
-                    borderTop: '1px solid var(--border)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      background: 'linear-gradient(135deg, #6366f1, #0ea5e9)',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 600 }}>Lumen.fm</div>
-                    <div className="mono" style={{ fontSize: 10, color: 'var(--muted)' }}>
-                      {t('Seeker.AppKind')}
-                    </div>
-                  </div>
-                  <span style={CONF_PILL}>92% match</span>
+        <div className="ms-grid">
+          {results.map((r) => (
+            <div className="card ms-card" key={r.name}>
+              <span className="ms-badge">{r.pct}</span>
+              {r.art}
+              <div className="ms-body">
+                <div className="t">{r.name}</div>
+                <div className="k">
+                  {existing} · {r.category}
                 </div>
               </div>
-
-              <div className="bm-flow">
-                <span className="bm-step">{t('Seeker.FlowDescribe')}</span>
-                <span className="bm-sep">→</span>
-                <span className="bm-step">{t('Seeker.FlowRefine')}</span>
-                <span className="bm-sep">→</span>
-                <span className="bm-step">{t('Seeker.FlowMatched')}</span>
-              </div>
-
-              <Link href={'/wanted/new' as Route} className="btn btn--primary btn--lg">
-                {t('Seeker.Cta')} <Arrow size={14} />
-              </Link>
             </div>
+          ))}
 
-            {/* ───────────────── Builder ───────────────── */}
-            <div className="bm-side bm-side--builder">
-              <div className="row" style={{ gap: 10 }}>
-                <div
-                  style={{
-                    ...ICO_BOX,
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text)',
-                  }}
-                >
-                  <Bolt size={16} />
-                </div>
-                <span className="bm-tag">{t('Builder.Tag')}</span>
-              </div>
-              <h3>{t('Builder.Heading')}</h3>
-              <p>{t('Builder.Body')}</p>
-
-              {/* preview: incoming request (echoes the /requests inbox card) */}
-              <div className="card" style={{ padding: 14, background: 'var(--surface)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <span
-                    className="avatar"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(255,68%,62%), hsl(290,60%,58%))',
-                      width: 30,
-                      height: 30,
-                      fontSize: 12,
-                    }}
-                  >
-                    MR
-                  </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 600 }}>maya.r</div>
-                    <div className="mono" style={{ fontSize: 10, color: 'var(--muted)' }}>
-                      {t('Builder.Proposed')}
-                    </div>
-                  </div>
-                  <span style={CONF_PILL}>78% match</span>
-                </div>
-                <div
-                  style={{
-                    fontSize: 11.5,
-                    color: 'var(--text-2)',
-                    lineHeight: 1.45,
-                    marginBottom: 12,
-                  }}
-                >
-                  {t('Builder.Rationale')}
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <span
-                    style={{
-                      flex: 1,
-                      textAlign: 'center',
-                      fontSize: 11.5,
-                      fontWeight: 500,
-                      color: 'var(--muted)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
-                      padding: '6px 0',
-                    }}
-                  >
-                    {t('Builder.Skip')}
-                  </span>
-                  <span
-                    style={{
-                      flex: 1,
-                      textAlign: 'center',
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      color: '#fff',
-                      background: 'var(--ax)',
-                      borderRadius: 8,
-                      padding: '6px 0',
-                    }}
-                  >
-                    {t('Builder.Connect')}
-                  </span>
-                </div>
-              </div>
-
-              <div className="bm-flow">
-                <span className="bm-step">{t('Builder.FlowOptIn')}</span>
-                <span className="bm-sep">→</span>
-                <span className="bm-step">{t('Builder.FlowMatched')}</span>
-                <span className="bm-sep">→</span>
-                <span className="bm-step">{t('Builder.FlowAccept')}</span>
-              </div>
-
-              <Link href={'/settings/requests' as Route} className="btn btn--lg">
-                {t('Builder.Cta')} <Arrow size={14} />
-              </Link>
+          <Link href={'/wanted/new' as Route} className="card ms-card ms-builder">
+            <span
+              className="avatar"
+              style={{
+                background: 'linear-gradient(135deg, hsl(255,68%,62%), hsl(290,60%,58%))',
+                width: 38,
+                height: 38,
+                fontSize: 13,
+              }}
+            >
+              MR
+            </span>
+            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.01em' }}>
+              {t('BuilderCard.Heading')}
             </div>
-          </div>
+            <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+              {t('BuilderCard.Body')}
+            </div>
+          </Link>
+        </div>
+
+        <div className="ms-cta">
+          <Link href={'/wanted/new' as Route} className="btn btn--primary btn--lg">
+            {t('CtaSeeker')} <Arrow size={14} />
+          </Link>
+          <Link href={'/settings/requests' as Route} className="link">
+            {t('CtaBuilder')} <Arrow size={14} />
+          </Link>
         </div>
       </div>
     </section>

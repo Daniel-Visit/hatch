@@ -668,39 +668,27 @@
       }
     },
     "BriefMatch": {
-      "Eyebrow": "Brief & Match",
-      "Title": "Don't just browse apps — <grad>describe what you need</grad>.",
-      "Subhead": "Hatch isn't only a gallery. Tell us the problem; our agents match you to an app that already exists — or a builder who can make it.",
-      "Seeker": {
-        "Tag": "I need something",
-        "Heading": "Need something built?",
-        "Body": "Describe it in plain words. The Refiner agent sharpens it into a brief, then matches you to existing apps — or builders who fit.",
-        "BriefLabel": "YOUR BRIEF",
-        "BriefTitle": "Ambient soundscape for deep-work blocks",
-        "BriefDesc": "Lyric-free audio that adapts to time of day…",
-        "AppKind": "existing app",
-        "FlowDescribe": "Describe",
-        "FlowRefine": "AI refines",
-        "FlowMatched": "Matched",
-        "Cta": "Post a brief"
+      "Eyebrow": "brief & match",
+      "Title": "Don't just browse the gallery — <grad>describe what you need</grad>.",
+      "Subhead": "Tell us the problem in your own words. Our agents cross it against the gallery and show you what already exists — or who can build it.",
+      "SearchQuery": "lyric-free ambient sound that adapts to focus",
+      "SearchCta": "Find a match",
+      "Results": {
+        "ExistingApp": "existing app",
+        "Audio": "audio",
+        "Productivity": "productivity",
+        "Wellbeing": "wellbeing"
       },
-      "Builder": {
-        "Tag": "I ship apps",
-        "Heading": "Ship apps? Get matched to briefs.",
-        "Body": "Turn your published apps into inbound work. Opt in, set your capacity and domains; the matcher routes briefs that fit. Accept to open a conversation.",
-        "Proposed": "proposed 4h ago",
-        "Rationale": "“Adaptive soundscape for focus — your Lumen.fm preset feature is almost exactly this.”",
-        "Skip": "Skip",
-        "Connect": "Connect →",
-        "FlowOptIn": "Opt in",
-        "FlowMatched": "Matched",
-        "FlowAccept": "Accept & connect",
-        "Cta": "Receive briefs"
-      }
+      "BuilderCard": {
+        "Heading": "Nothing quite fits?",
+        "Body": "maya.r and 8 more builders can build it custom."
+      },
+      "CtaSeeker": "Post a brief",
+      "CtaBuilder": "Ship apps? Get matching briefs"
     },
     "ForInvestors": {
       "Eyebrow": "for investors & collaborators",
-      "Title": "Organic deal-flow,<br></br>without the cold-DM cringe.",
+      "Title": "Organic deal-flow,<br></br>without chasing anyone.",
       "Subhead": "See what people are actually building today. Reach out with role and intent attached. Builders see exactly why you're knocking.",
       "Features": {
         "Signal": {
@@ -713,7 +701,7 @@
         },
         "Intent": {
           "Title": "Clear intent labels",
-          "Description": "Invest · Collab · Hire — your role is visible before the first message."
+          "Description": "Your role is visible before the first message."
         }
       },
       "Preview": {
@@ -724,6 +712,18 @@
         "DeliveredAt": "delivered · 11:42",
         "ReplyMessage": "Yes — Thursday 3pm? I'll send a Cal link",
         "Typing": "typing…"
+      },
+      "Roles": {
+        "Invest": "Invest",
+        "Collab": "Collab",
+        "Hire": "Hire"
+      },
+      "Stage": {
+        "NotifAction": "wants to invest in your project",
+        "NotifWhen": "2 min ago",
+        "New": "new",
+        "Hot": "hot",
+        "By": "by {handle}"
       }
     },
     "Agents": {
