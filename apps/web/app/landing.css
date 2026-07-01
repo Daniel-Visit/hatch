@@ -2008,3 +2008,462 @@ html:has(.landing-root) {
   background: rgba(255, 255, 255, 0.55);
   border-radius: 4px 4px 0 0;
 }
+
+/* ============================================================
+   Landing section redesigns 2026-06-30
+   - How it works: connected timeline
+   - Brief & Match: AI search + generative-art results
+   - For investors: live-signal floating stage
+   ============================================================ */
+
+/* soft color glow, reusable per section */
+.landing-root .sect-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 45% 55% at 15% 0%,
+      color-mix(in oklab, var(--ax) 8%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 45% 55% at 90% 20%,
+      color-mix(in oklab, var(--orange) 7%, transparent),
+      transparent 60%
+    );
+}
+.landing-root .sect-glow > .container {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* generative art helper (same visual language as the bento cover art) */
+.landing-root .gen {
+  position: relative;
+  overflow: hidden;
+}
+.landing-root .gen .rng {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+.landing-root .gen .dotc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+.landing-root .gen .bk {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(14px);
+  opacity: 0.85;
+}
+.landing-root .gen .stp {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    125deg,
+    transparent 0 16px,
+    rgba(255, 255, 255, 0.16) 16px 20px
+  );
+}
+
+/* ---------- How it works · timeline ---------- */
+.landing-root .hiw-timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  padding-top: 30px;
+}
+.landing-root .hiw-rail {
+  position: absolute;
+  top: 56px;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange), var(--pink) 50%, var(--ax));
+  opacity: 0.5;
+  border-radius: 2px;
+}
+.landing-root .hiw-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.landing-root .hiw-dot {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  color: var(--ax);
+  box-shadow: var(--sh-2);
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+  transition:
+    transform 0.18s ease,
+    background 0.18s,
+    color 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+.landing-root .hiw-node:hover .hiw-dot {
+  transform: translateY(-4px);
+  background: var(--ax);
+  color: #fff;
+  border-color: var(--ax);
+  box-shadow: 0 12px 24px -6px color-mix(in oklab, var(--ax) 55%, transparent);
+}
+.landing-root .hiw-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--ax);
+}
+.landing-root .hiw-node h4 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 8px 0 6px;
+}
+.landing-root .hiw-node p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+@media (max-width: 860px) {
+  .landing-root .hiw-timeline {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding-top: 6px;
+    padding-left: 6px;
+  }
+  .landing-root .hiw-rail {
+    top: 28px;
+    bottom: 28px;
+    left: 34px;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, var(--orange), var(--pink) 50%, var(--ax));
+  }
+  .landing-root .hiw-node {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 12px 0;
+  }
+  .landing-root .hiw-dot {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* ---------- Brief & Match · AI search + results ---------- */
+.landing-root .ms-search {
+  max-width: 620px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+  padding: 9px 9px 9px 16px;
+  box-shadow: var(--sh-2);
+}
+.landing-root .ms-search .si {
+  color: var(--muted);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.landing-root .ms-search .st {
+  flex: 1;
+  font-size: 15px;
+  color: var(--text-2);
+  min-width: 0;
+}
+.landing-root .ms-search .st .cs {
+  display: inline-block;
+  width: 1.5px;
+  height: 17px;
+  background: var(--ax);
+  vertical-align: -3px;
+  margin-left: 1px;
+  animation: blink 1.1s step-end infinite;
+}
+.landing-root .ms-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 900px) {
+  .landing-root .ms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.landing-root .ms-card {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.landing-root .ms-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ax);
+  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.landing-root .ms-art {
+  height: 96px;
+}
+.landing-root .ms-body {
+  padding: 12px 14px 14px;
+}
+.landing-root .ms-body .t {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.landing-root .ms-body .k {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.landing-root .ms-builder {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px 14px;
+  gap: 8px;
+  background: radial-gradient(circle at 50% 25%, var(--ax-tint), var(--surface));
+}
+.landing-root .ms-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.landing-root .ms-cta a.link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.landing-root .ms-cta a.link:hover {
+  color: var(--ax);
+}
+
+/* ---------- For investors · live-signal stage ---------- */
+.landing-root .di-feature {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+}
+.landing-root .di-feature .ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  box-shadow: var(--sh-1);
+}
+.landing-root .di-feature .ico.a {
+  color: var(--orange);
+}
+.landing-root .di-feature .ico.b {
+  color: var(--ax);
+}
+.landing-root .di-feature .ico.c {
+  color: var(--pink);
+}
+.landing-root .di-feature h4 {
+  margin: 3px 0 3px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.landing-root .di-feature p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.landing-root .di-roles {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.landing-root .di-roles .rp {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.landing-root .di-roles .rp.ax {
+  background: var(--ax);
+  border-color: var(--ax);
+  color: #fff;
+}
+.landing-root .di-stage {
+  position: relative;
+  min-height: 400px;
+}
+@media (max-width: 980px) {
+  .landing-root .di-stage {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+.landing-root .di-float {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+}
+@media (min-width: 981px) {
+  .landing-root .di-float {
+    position: absolute;
+    animation: floaty 5.5s ease-in-out infinite;
+  }
+}
+.landing-root .di-chat {
+  top: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  z-index: 3;
+  overflow: hidden;
+}
+.landing-root .di-notif {
+  top: -6px;
+  right: 6px;
+  width: 236px;
+  z-index: 4;
+  padding: 12px 14px;
+  animation-delay: -1.4s;
+}
+.landing-root .di-proj {
+  bottom: 0;
+  left: 0;
+  width: 210px;
+  z-index: 2;
+  overflow: hidden;
+  animation-delay: -3s;
+}
+.landing-root .di-chat .hd {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+.landing-root .di-chat .bd {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--surface-2);
+}
+.landing-root .di-bub {
+  max-width: 78%;
+  font-size: 12.5px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  line-height: 1.4;
+}
+.landing-root .di-bub.out {
+  align-self: flex-end;
+  background: var(--ax);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.landing-root .di-bub.in {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.landing-root .di-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+.landing-root .di-notif .nrow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.landing-root .di-proj .art {
+  height: 78px;
+  background: linear-gradient(135deg, var(--orange), var(--pink) 55%, var(--ax));
+  position: relative;
+}
+.landing-root .di-proj .art .ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+}
+.landing-root .di-proj .art .ring.s {
+  width: 32px;
+  height: 32px;
+}
+.landing-root .di-proj .pbody {
+  padding: 11px 13px 13px;
+}
